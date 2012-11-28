@@ -1,0 +1,3 @@
+module org/sugarj/jasmin/initTrans
+imports org/sugarj/stdlib/StdTrans
+        org/sugarj/languages/SugarHaskell
