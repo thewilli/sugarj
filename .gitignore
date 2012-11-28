@@ -25,4 +25,5 @@ deployment/update-site/content.jar
 deployment/update-site/features/
 deployment/update-site/plugins/
 
-
+# osx stuff
+.DS_Store
