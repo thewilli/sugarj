@@ -33,7 +33,7 @@ import org.sugarj.languagelib.SourceImport;
  */
 public class JasminLib extends LanguageLib {
 
-  private static final long serialVersionUID = -8916207987344649789L;
+  private static final long serialVersionUID = -5197926491222655526L;
 
   private transient File libDir;
   
@@ -58,46 +58,45 @@ public class JasminLib extends LanguageLib {
   @Override
   public List<File> getGrammars() {
     List<File> grammars = new LinkedList<File>(super.getGrammars());
-    grammars.add(ensureFile("org/sugarj/languages/SugarHaskell.def"));
-    grammars.add(ensureFile("org/sugarj/languages/Haskell.def"));
+    grammars.add(ensureFile("org/sugarj/languages/Jasmin.def"));
     return Collections.unmodifiableList(grammars);
   }
   
   @Override
   public File getInitGrammar() {
-    return ensureFile("org/sugarj/haskell/initGrammar.sdf");
+    return ensureFile("org/sugarj/jasmin/initGrammar.sdf");
   }
 
   @Override
   public String getInitGrammarModule() {
-    return "org/sugarj/haskell/initGrammar";
+    return "org/sugarj/jasmin/initGrammar";
   }
 
   @Override
   public File getInitTrans() {
-    return ensureFile("org/sugarj/haskell/initTrans.str");
+    return ensureFile("org/sugarj/jasmin/initTrans.str");
   }
 
   @Override
   public String getInitTransModule() {
-    return "org/sugarj/haskell/initTrans";
+    return "org/sugarj/jasmin/initTrans";
   }
 
   @Override
   public File getInitEditor() {
-    return ensureFile("org/sugarj/haskell/initEditor.serv");
+    return ensureFile("org/sugarj/jasmin/initEditor.serv");
   }
 
   @Override
   public String getInitEditorModule() {
-    return "org/sugarj/haskell/initEditor";
+    return "org/sugarj/jasmin/initEditor";
   }
 
   @Override
   public File getLibraryDirectory() {
     if (libDir == null) { // set up directories first
-      String thisClassPath = "org/sugarj/HaskellLib.class";
-      URL thisClassURL = HaskellLib.class.getClassLoader().getResource(thisClassPath);
+      String thisClassPath = "org/sugarj/JasminLib.class";
+      URL thisClassURL = JasminLib.class.getClassLoader().getResource(thisClassPath);
       
       if (thisClassURL.getProtocol().equals("bundleresource"))
         try {
@@ -117,17 +116,17 @@ public class JasminLib extends LanguageLib {
 
   @Override
   public String getGeneratedFileExtension() {
-    return "o";
+    return "class";
   }
 
   @Override
   public String getSugarFileExtension() {
-    return "shs";
+    return "sj";
   }
   
   @Override
   public String getOriginalFileExtension() {
-    return "hs";
+    return "j";
   }
 
   @Override
@@ -157,11 +156,12 @@ public class JasminLib extends LanguageLib {
 
   @Override
   public boolean isLanguageSpecificDec(IStrategoTerm decl) {
-    return isApplication(decl, "HaskellBody");
+    return isApplication(decl, "HaskellBody"); //FIXME
   }
 
   @Override
   public boolean isSugarDec(IStrategoTerm decl) {
+    //FIXME
     if (isApplication(decl, "SugarBody")) {
       sourceContent.setHasNonhaskellDecl(true);
       return true;
@@ -171,6 +171,7 @@ public class JasminLib extends LanguageLib {
 
   @Override
   public boolean isEditorServiceDec(IStrategoTerm decl) {
+    //FIXME
     if (isApplication(decl, "EditorBody")) {   
       sourceContent.setHasNonhaskellDecl(true);
       return true;
@@ -180,11 +181,13 @@ public class JasminLib extends LanguageLib {
 
   @Override
   public boolean isImportDec(IStrategoTerm decl) {
+    //FIXME
     return isApplication(decl, "Import");   
   }
 
   @Override
   public boolean isPlainDec(IStrategoTerm decl) {
+    //FIXME
     if (isApplication(decl, "PlainDec")) {   
       sourceContent.setHasNonhaskellDecl(true);
       return true;
@@ -194,7 +197,7 @@ public class JasminLib extends LanguageLib {
   
   @Override
   public LanguageLibFactory getFactoryForLanguage() {
-    return HaskellLibFactory.getInstance();
+    return JasminLibFactory.getInstance();
   }
 
 
@@ -206,7 +209,7 @@ public class JasminLib extends LanguageLib {
   @Override
   public void setupSourceFile(RelativePath sourceFile, Environment environment) {
     outFile = environment.createBinPath(FileCommands.dropExtension(sourceFile.getRelativePath()) + "." + getOriginalFileExtension());
-    sourceContent = new HaskellSourceFileContent();
+    sourceContent = new JasminSourceFileContent();
   }
 
   @Override
@@ -281,13 +284,13 @@ public class JasminLib extends LanguageLib {
   
   @Override
   protected void compile(List<Path> outFiles, Path bin, List<Path> includePaths, boolean generateFiles) throws IOException {
+    
     if (generateFiles) {
       List<String> cmds = new LinkedList<String>();
-      cmds.add(GHC_COMMAND);
       
       for (Path outFile : outFiles)
         cmds.add(outFile.getAbsolutePath());
-      
+      /*
       cmds.add("-i");
       if (!includePaths.isEmpty()) {
         StringBuilder searchPath = new StringBuilder("-i");
@@ -296,9 +299,9 @@ public class JasminLib extends LanguageLib {
             searchPath.append(path.getAbsolutePath()).append(":");
         searchPath.deleteCharAt(searchPath.length() - 1);
         cmds.add(searchPath.toString());
-      }
-      
-      new CommandExecution(false).execute(cmds.toArray(new String[cmds.size()]));
+      }*/
+      new jasmin.Main().run(cmds.toArray(new String[0]));
+      //new CommandExecution(false).execute(cmds.toArray(new String[cmds.size()]));
     }
   }
 

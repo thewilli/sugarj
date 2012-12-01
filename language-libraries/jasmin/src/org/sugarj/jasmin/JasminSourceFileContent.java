@@ -14,7 +14,7 @@ import org.sugarj.languagelib.SourceImport;
 
 public class JasminSourceFileContent extends SourceFileContent {
 
-  private static final long serialVersionUID = -1793669825816782903L;
+  private static final long serialVersionUID = -3264141516569952203L;
 
   private String moduleDecl;
   private List<SourceImport> imports = new LinkedList<SourceImport>();
@@ -33,7 +33,7 @@ public class JasminSourceFileContent extends SourceFileContent {
     this.hasNonhaskellDecl = hasNonhaskellDecl;
   }
   
-  public HaskellSourceFileContent() {
+  public JasminSourceFileContent() {
   }
 
   public void setNamespaceDecl(String moduleDecl) {
@@ -85,10 +85,10 @@ public class JasminSourceFileContent extends SourceFileContent {
   }
 
   public boolean equals(Object o) {
-    if (!(o instanceof HaskellSourceFileContent))
+    if (!(o instanceof JasminSourceFileContent))
       return false;
 
-    HaskellSourceFileContent other = (HaskellSourceFileContent) o;
+    JasminSourceFileContent other = (JasminSourceFileContent) o;
     return other.moduleDecl.equals(moduleDecl) 
         && other.checkedImports.equals(checkedImports)
         && other.imports.equals(imports)
