@@ -33,7 +33,7 @@ public class JasminSourceFileContent extends SourceFileContent {
     this.hasNonhaskellDecl = hasNonhaskellDecl;
   }
   
-  public JasminSourceFileContent() {
+  public HaskellSourceFileContent() {
   }
 
   public void setNamespaceDecl(String moduleDecl) {
@@ -85,10 +85,10 @@ public class JasminSourceFileContent extends SourceFileContent {
   }
 
   public boolean equals(Object o) {
-    if (!(o instanceof JasminSourceFileContent))
+    if (!(o instanceof HaskellSourceFileContent))
       return false;
 
-    JasminSourceFileContent other = (JasminSourceFileContent) o;
+    HaskellSourceFileContent other = (HaskellSourceFileContent) o;
     return other.moduleDecl.equals(moduleDecl) 
         && other.checkedImports.equals(checkedImports)
         && other.imports.equals(imports)

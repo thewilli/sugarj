@@ -2,7 +2,7 @@ package org.sugarj.jasmin;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.sugarj.JasminLibFactory;
+import org.sugarj.HaskellLibFactory;
 import org.sugarj.LanguageLibRegistry;
 
 /**
@@ -20,7 +20,7 @@ public class Activator extends AbstractUIPlugin {
 	 * The constructor
 	 */
 	public Activator() {
-	  LanguageLibRegistry.getInstance().registerLanguageLib(JasminLibFactory.getInstance());
+	  LanguageLibRegistry.getInstance().registerLanguageLib(HaskellLibFactory.getInstance());
 	}
 
 	/*

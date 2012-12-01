@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.ATermCommands;
@@ -27,12 +28,12 @@ import org.sugarj.jasmin.JasminSourceFileContent;
 import org.sugarj.languagelib.SourceFileContent;
 import org.sugarj.languagelib.SourceImport;
 
-
+/**
+ * @author Sebastian Erdweg <seba at informatik uni-marburg de>
+ */
 public class JasminLib extends LanguageLib {
 
-  private static final long serialVersionUID = -8916339157344649789L;
-  
-  private final String GHC_COMMAND = "ghc";
+  private static final long serialVersionUID = -8916207987344649789L;
 
   private transient File libDir;
   
@@ -46,12 +47,12 @@ public class JasminLib extends LanguageLib {
   private IStrategoTerm ppTable;
 
   public String getVersion() {
-    return "haskell-0.1";
+    return "jasmin-0.1";
   }
   
   @Override
   public String getLanguageName() {
-    return "Haskell";
+    return "Jasmin";
   }
 
   @Override
@@ -96,7 +97,7 @@ public class JasminLib extends LanguageLib {
   public File getLibraryDirectory() {
     if (libDir == null) { // set up directories first
       String thisClassPath = "org/sugarj/HaskellLib.class";
-      URL thisClassURL = JasminLib.class.getClassLoader().getResource(thisClassPath);
+      URL thisClassURL = HaskellLib.class.getClassLoader().getResource(thisClassPath);
       
       if (thisClassURL.getProtocol().equals("bundleresource"))
         try {
@@ -193,7 +194,7 @@ public class JasminLib extends LanguageLib {
   
   @Override
   public LanguageLibFactory getFactoryForLanguage() {
-    return JasminLibFactory.getInstance();
+    return HaskellLibFactory.getInstance();
   }
 
 
@@ -205,7 +206,7 @@ public class JasminLib extends LanguageLib {
   @Override
   public void setupSourceFile(RelativePath sourceFile, Environment environment) {
     outFile = environment.createBinPath(FileCommands.dropExtension(sourceFile.getRelativePath()) + "." + getOriginalFileExtension());
-    sourceContent = new JasminSourceFileContent();
+    sourceContent = new HaskellSourceFileContent();
   }
 
   @Override
