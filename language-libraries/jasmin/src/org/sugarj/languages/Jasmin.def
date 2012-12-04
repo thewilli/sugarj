@@ -164,7 +164,7 @@ exports
     Float       -/- [0-9]
     StringChars -/- ~[\"\n\13]
 
-module Jasmin
+module org/sugarj/languages/Jasmin
 imports
   Lexical Header Field Method
 exports 

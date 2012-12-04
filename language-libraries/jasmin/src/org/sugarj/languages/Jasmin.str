@@ -1,0 +1,74 @@
+module org/sugarj/languages/Jasmin
+
+signature
+  constructors
+                       : Void -> JVMType_Void0
+                       : JVMType -> JVMType_Void0
+    JasminUnit         : JasminHeader * ListStarOfJasminField0 * List(JasminMethod) -> JasminUnit
+    LineNumber         : UInt -> JasminStatement
+    LabeledInstruction : Id * JasminInstruction -> JasminStatement
+    LabeledInstruction : UInt * JasminInstruction -> JasminStatement
+    Instruction        : JasminInstruction -> JasminStatement
+    LocalsLimit        : UInt -> JasminStatement
+    StackLimit         : UInt -> JasminStatement
+    JasminMethod       : AccessFlags * MethodId * JVMMethodArgsType * JVMResultType * List(JasminStatement) -> JasminMethod
+    INVOKEVIRTUAL      : JavaPath * JVMMethodArgsType * JVMResultType -> JasminInstruction
+    GETSTATIC          : JavaPath * JVMType -> JasminInstruction
+    INVOKESPECIAL      : JavaPath * JVMMethodArgsType * JVMResultType -> JasminInstruction
+    LDC                : String -> JasminInstruction
+    RETURN             : JasminInstruction
+    ALOAD0             : JasminInstruction
+    JVMMethodArgsType  : List(JVMType) -> JVMMethodArgsType
+    JVMMethodArgsType  : JVMMethodArgsType
+    JVMResultType      : JVMType_Void0 -> JVMResultType
+    Void               : Void
+    JasminHeader       : Option(BytecodeField) * Option(SourceReferenceField) * ClassSpec * SuperSpec * List(Implements) * Option(SignatureField) * Option(EnclosingMethod) * List(DebugField) -> JasminHeader
+    EnclosingMethod    : JavaPath * List(JVMType) * Option(JVMType) -> EnclosingMethod
+    Implements         : JavaPath -> Implements
+    SuperSpec          : JavaPath -> SuperSpec
+    ClassSpec          : AccessFlags * JavaPath -> ClassSpec
+    Signature          : String -> SignatureField
+    DebugDirective     : String -> DebugField
+    SourceReference    : FileId -> SourceReferenceField
+    BytecodeVersion    : UInt * UInt -> BytecodeField
+    Enum               : AccessFlag
+    Annotation         : AccessFlag
+    Synthetic          : AccessFlag
+    Strict             : AccessFlag
+    Abstract           : AccessFlag
+    Interface          : AccessFlag
+    Native             : AccessFlag
+    Transient          : AccessFlag
+    Varargs            : AccessFlag
+    Volatile           : AccessFlag
+    Bridge             : AccessFlag
+    Super              : AccessFlag
+    Synchronized       : AccessFlag
+    Final              : AccessFlag
+    Static             : AccessFlag
+    Protected          : AccessFlag
+    Private            : AccessFlag
+    Public             : AccessFlag
+    AccessFlags        : List(AccessFlag) -> AccessFlags
+                       : SimpleString -> String
+                       : StringChars -> SimpleString
+                       : String -> StringChars
+                       : String -> UInt
+                       : String -> JavaPath
+                       : String -> JVMType
+                       : String -> FileId
+                       : String -> MethodId
+                       : String -> Id
+
+
+signature
+  constructors
+    Some : a -> Option(a)
+    None : Option(a)
+
+
+signature
+  constructors
+    Cons : a * List(a) -> List(a)
+    Nil  : List(a)
+    Conc : List(a) * List(a) -> List(a)
