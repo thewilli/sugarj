@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.sugarj.jasmin
+Bundle-SymbolicName: org.sugarj.jasmin;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.sugarj.jasmin.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.sugarj.common,
+ org.sugarj.languagelib,
+ org.spoofax.terms,
+ org.strategoxt.strj
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.sugarj
+Eclipse-RegisterBuddy: org.sugarj.languagelib

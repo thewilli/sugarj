@@ -1,0 +1,9 @@
+definition
+module org/sugarj/languages/SugarJasmin
+imports org/sugarj/languages/Jasmin
+        org/sugarj/languages/Sugar
+
+exports
+  context-free syntax
+    JasminUnit         -> ToplevelDeclaration {cons("JamsinBody")}
+    ExtensionElem+     -> ToplevelDeclaration {cons("ExtensionBody")}

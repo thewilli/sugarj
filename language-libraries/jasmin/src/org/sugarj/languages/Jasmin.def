@@ -1,0 +1,185 @@
+definition
+module Instructions 
+imports
+  Lexical
+exports
+  sorts  JasminInstruction JVMResultType JVMMethodArgsType Void
+  %% Sort auskommentiert: NoArgs
+  context-free syntax
+
+  "V" -> Void {cons("Void")}
+
+  JVMType | Void -> JVMResultType {cons("JVMResultType")}
+
+  "()" -> JVMMethodArgsType {ast("JVMMethodArgsType(NoArgs)")}
+  "(" JVMType+ ")" -> JVMMethodArgsType {cons("JVMMethodArgsType")}
+
+  "aload_0" -> JasminInstruction{cons("ALOAD0")}
+  "return" -> JasminInstruction{cons("RETURN")}
+  "ldc" String -> JasminInstruction{cons("LDC")}
+  "invokespecial" JavaPath JVMMethodArgsType JVMResultType -> JasminInstruction{cons("INVOKESPECIAL")}
+  "getstatic" JavaPath JVMType -> JasminInstruction{cons("GETSTATIC")}
+  "invokevirtual" JavaPath JVMMethodArgsType JVMResultType -> JasminInstruction{cons("INVOKEVIRTUAL")}
+
+module Method
+imports
+  Lexical AccessModifier Instructions
+hiddens
+  sorts JVMMethodArgsType
+exports
+  sorts  JasminStatement JasminMethod
+  context-free syntax
+
+
+    ".method" AccessFlags MethodId JVMMethodArgsType JVMResultType JasminStatement* ".end method" -> JasminMethod {cons("JasminMethod")}
+
+    ".limit stack" UInt -> JasminStatement {cons("StackLimit")}
+    ".limit locals" UInt -> JasminStatement {cons("LocalsLimit")}
+    JasminInstruction -> JasminStatement {cons("Instruction")}
+    UInt ":" JasminInstruction -> JasminStatement {cons("LabeledInstruction")}
+    Id ":" JasminInstruction -> JasminStatement {cons("LabeledInstruction")}
+    ".line" UInt -> JasminStatement {cons("LineNumber")}
+
+module Field
+imports
+	Lexical AccessModifier
+hiddens
+	sorts FieldSignature FieldValue FieldAttribute
+exports
+  sorts JasminField
+  context-free syntax
+    ".deprecated" | (".signature" String) -> FieldAttribute {cons("FieldAttribute")}
+  	"=" String -> FieldValue {cons("FieldValue")}
+  	"=" Int -> FieldValue {cons("FieldValue")}
+  	"signature" String -> FieldSignature
+    ".field" AccessFlag Id JVMType FieldSignature? FieldValue? -> JasminField {cons("JasminField")}
+    ".field" AccessFlag Id JVMType FieldSignature? FieldValue? FieldAttribute* ".end field" -> JasminField {cons("JasminField"),prefer}
+
+module AccessModifier
+exports
+
+  sorts
+    AccessFlag
+    AccessFlags
+
+  context-free syntax
+    AccessFlag* -> AccessFlags {cons("AccessFlags")}
+  
+    "public" -> AccessFlag {cons("Public")}
+    "private" -> AccessFlag {cons("Private")}
+    "protected" -> AccessFlag {cons("Protected")}
+    "static" -> AccessFlag {cons("Static")} 
+    "final" -> AccessFlag {cons("Final")}
+    "synchronized" -> AccessFlag {cons("Synchronized")}
+    "super" -> AccessFlag {cons("Super")}
+    "bridge" -> AccessFlag {cons("Bridge")}
+    "volatile" -> AccessFlag {cons("Volatile")}
+    "varargs" -> AccessFlag {cons("Varargs")}
+    "transient" -> AccessFlag {cons("Transient")}
+    "native" -> AccessFlag {cons("Native")}
+    "interface" -> AccessFlag {cons("Interface")}
+    "abstract" -> AccessFlag {cons("Abstract")}
+    "strict" -> AccessFlag {cons("Strict")}
+    "synthetic" -> AccessFlag {cons("Synthetic")}
+    "annotation" -> AccessFlag {cons("Annotation")}
+    "enum" -> AccessFlag {cons("Enum")}
+    "static" -> AccessFlag {cons("Static")}
+
+module Header
+imports
+  Lexical
+  AccessModifier
+hiddens
+  sorts DebugField BytecodeField SourceReferenceField SignatureField ClassSpec SuperSpec Implements EnclosingMethod InnerClass InnerInterface
+exports
+  sorts JasminHeader
+
+  context-free syntax
+    ".bytecode" UInt "." UInt -> BytecodeField {cons("BytecodeVersion")}
+    ".source" FileId -> SourceReferenceField {cons("SourceReference")} 
+    ".debug" String -> DebugField {cons("DebugDirective")}
+    ".signature" String -> SignatureField {cons("Signature")}
+    ".class" AccessFlags JavaPath -> ClassSpec {cons("ClassSpec")}
+    ".super" JavaPath -> SuperSpec {cons("SuperSpec")}
+    ".implements" JavaPath -> Implements {cons("Implements")}
+    ".signature" String -> SignatureField {cons("SignatureField")}
+    ".enclosing method" JavaPath "(" JVMType* ")" JVMType? -> EnclosingMethod {cons("EnclosingMethod")}
+    %% ".inner class" AccessSpec? JavaPath? ("inner" JavaPath)? ("outer" JavaPath)? -> InnerClass {cons("InnerClass")} 
+    %% ".inner interface" (tbd) -> InnerInterface {cons("InnerInterface")}
+    %% BytecodeField? SourceReferenceField? ClassSpec SuperSpec Implements* SignatureField? EnclosingMethod? DebugField* InnerClass* InnerInterface* -> JasminHeader {cons("JasminHeader")}
+    BytecodeField? SourceReferenceField? ClassSpec SuperSpec Implements* SignatureField? EnclosingMethod? DebugField* -> JasminHeader {cons("JasminHeader")}
+
+module Lexical
+hiddens
+  sorts InitId FloatDigits
+exports
+  sorts
+    Id
+    MethodId
+    Int
+    UInt
+    Float
+    FileId
+    String
+    JavaPath
+    JVMType
+    StringChars
+  lexical syntax
+    ";" ~[\n]* -> LAYOUT
+    [\ \t\r\n] -> LAYOUT
+    [A-Za-z\_\$][A-Za-z0-9\_\-\$]* -> Id
+    "<init>"    -> InitId
+    "<clinit>"  -> InitId
+    Id | InitId -> MethodId
+    [A-Za-z0-9\.]* [A-Za-z0-9]+ -> FileId
+
+    [BCDFIJSZ] -> JVMType
+    "[" JVMType -> JVMType {prefer}
+    [L][A-Za-z]+[A-Za-z0-9]*([\/][A-Za-z]+[A-Za-z0-9]*)*[\;] -> JVMType {prefer}
+    [A-Za-z]+[A-Za-z0-9]*([\/]([A-Za-z]+[A-Za-z0-9]*)|("<init>"|"<clinit>"))* -> JavaPath
+
+    "0"         -> UInt
+    [1-9][0-9]* -> UInt
+    "-"? UInt   -> Int
+    
+    [0-9]+            -> FloatDigits
+    [0-9]* "." [0-9]+ -> FloatDigits
+           "."        -> FloatDigits {reject}
+    "-"? FloatDigits ([eE] UInt)? -> Float
+    
+    %% TODO2: need to allow Java string(escape)s in bytecode
+    %%~[\"\n\r]*            -> StringChars
+    ~[\0-\31\"\\] -> StringChars
+
+    "\"" StringChars* "\"" -> String
+
+   %% syntax
+   %% "\"" <StringChars-CF> "\"" -> <SimpleString-CF> {bracket}
+
+   %% context-free syntax
+   %% SimpleString -> String
+
+  context-free restrictions
+    LAYOUT? -/- [\ \t\12\n\r]
+    LAYOUT? -/- [\;]
+
+  lexical restrictions
+    Id -/- [a-zA-Z0-9\_\-\$]
+    FileId -/- [a-zA-Z0-9]
+    UInt        -/- [0-9]
+    Float       -/- [0-9]
+    StringChars -/- ~[\"\n\13]
+
+module Jasmin
+imports
+  Lexical Header Field Method
+exports 
+  %% context-free start-symbols JasminUnit
+
+  sorts JasminUnit
+  
+  context-free syntax
+    JasminHeader JasminField* JasminMethod* -> JasminUnit { cons("JasminUnit")}
+    
+module org/sugarj/languages/Jasmin
+ imports Jasmin
