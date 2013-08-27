@@ -111,7 +111,7 @@ exports
 
 module Lexical
 hiddens
-  sorts InitId FloatDigits
+  sorts InitId FloatDigits JavaIdName
 exports
   sorts
     Id
@@ -131,12 +131,15 @@ exports
     "<init>"    -> InitId
     "<clinit>"  -> InitId
     Id | InitId -> MethodId
-    [A-Za-z0-9\.]* [A-Za-z0-9]+ -> FileId
+    [A-Za-z0-9]+([\.][A-Za-z0-9]+)* -> FileId
+    [A-Za-z]+ -> JavaIdName {prefer}
+    [A-Za-z][A-Za-z0-9]+ -> JavaIdName
+    InitId -> JavaIdName
 
     [BCDFIJSZ] -> JVMType
     "[" JVMType -> JVMType {prefer}
-    [L][A-Za-z]+[A-Za-z0-9]*([\/][A-Za-z]+[A-Za-z0-9]*)*[\;] -> JVMType {prefer}
-    [A-Za-z]+[A-Za-z0-9]*([\/]([A-Za-z]+[A-Za-z0-9]*)|("<init>"|"<clinit>"))* -> JavaPath
+    [L][A-Za-z]+[A-Za-z0-9]*([\/]JavaIdName)*[\;] -> JVMType {prefer}
+    JavaIdName([\/]JavaIdName)* -> JavaPath
 
     "0"         -> UInt
     [1-9][0-9]* -> UInt
@@ -165,21 +168,20 @@ exports
 
   lexical restrictions
     Id -/- [a-zA-Z0-9\_\-\$]
-    FileId -/- [a-zA-Z0-9]
+    FileId -/- [a-zA-Z0-9\.]
     UInt        -/- [0-9]
     Float       -/- [0-9]
-    StringChars -/- ~[\"\n\13]
+    StringChars -/- ~[\0-\31\"\\]
 
 module Jasmin
 imports
   Lexical Header Field Method
 exports 
-  %% context-free start-symbols JasminUnit
+  context-free start-symbols JasminUnit
 
   sorts JasminUnit
   
   context-free syntax
     JasminHeader JasminField* JasminMethod* -> JasminUnit { cons("JasminUnit")}
-    
 module org/sugarj/languages/Jasmin
- imports Jasmin
+imports Jasmin
