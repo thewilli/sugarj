@@ -48,6 +48,7 @@ signature
     INVOKESTATIC    : MethodRef -> Instruction
     INVOKEVIRTUAL   : MethodRef -> Instruction
     INVOKESPECIAL   : MethodRef -> Instruction
+    INVOKENONVIRTUAL : MethodRef -> Instruction    
     GOTO_W          : LabelRef -> Instruction
     GOTO            : LabelRef -> Instruction
     Lookup          : List(LookupEntry) * LabelRef -> Instruction

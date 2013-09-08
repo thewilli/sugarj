@@ -59,8 +59,8 @@ imports
 	
 exports
 	context-free syntax
-				
-		"invokenonvirtual" MethodRef			-> Instruction {cons("INVOKESPECIAL")}
+		"invokespecial" MethodRef			-> Instruction {cons("INVOKESPECIAL")}				
+		"invokenonvirtual" MethodRef			-> Instruction {cons("INVOKENONVIRTUAL")}
 		"invokevirtual"    MethodRef 			-> Instruction {cons("INVOKEVIRTUAL")}
 		"invokestatic"     MethodRef			-> Instruction {cons("INVOKESTATIC")}
 		"invokeinterface"  MethodRef Int	-> Instruction {cons("INVOKEINTERFACE")}
@@ -73,7 +73,7 @@ exports
 		"areturn" -> Instruction {cons("ARETURN")} 
 
 	lexical restrictions
-		
+		"invokespecial"
 		"invokenonvirtual"
 		"invokevirtual"
 		"invokestatic"
