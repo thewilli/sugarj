@@ -3,9 +3,10 @@ package org.sugarj;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
+import static org.sugarj.common.ATermCommands.isApplication;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.path.Path;
+import static org.sugarj.common.ATermCommands.getApplicationSubterm;
 
 public class JasminLanguage extends AbstractBaseLanguage {
   
@@ -77,26 +78,34 @@ public class JasminLanguage extends AbstractBaseLanguage {
 
   @Override
   public boolean isExtensionDecl(IStrategoTerm decl) {
-    // TODO Auto-generated method stub
+    if(isApplication(decl,"ExtensionBody"))
+      return true;
     return false;
   }
 
   @Override
   public boolean isImportDecl(IStrategoTerm decl) {
-    // TODO Auto-generated method stub
+    if(isApplication(decl,"Import"))
+      return true;
     return false;
   }
 
   @Override
   public boolean isBaseDecl(IStrategoTerm decl) {
-    // TODO Auto-generated method stub
+    if(isApplication(decl,"JasminBody") || isNamespaceDec(decl))
+      return true;
     return false;
   }
 
   @Override
   public boolean isPlainDecl(IStrategoTerm decl) {
-    // TODO Auto-generated method stub
+    if(isApplication(decl,"PlainDec"))
+      return true;
     return false;
+  }
+  
+  public boolean isNamespaceDec(IStrategoTerm decl) {
+    return isApplication(decl, "ModuleDec");
   }
   
   @Override

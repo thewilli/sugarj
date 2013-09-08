@@ -5,5 +5,5 @@ imports org/sugarj/languages/Jasmin
 
 exports
   context-free syntax
-    JasminUnit         -> ToplevelDeclaration {cons("JamsinBody")}
+    JasminFile         -> ToplevelDeclaration {cons("JasminBody")}
     ExtensionElem+     -> ToplevelDeclaration {cons("ExtensionBody")}

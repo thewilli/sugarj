@@ -2,5 +2,5 @@ module org/sugarj/languages/SugarJasmin
 imports org/sugarj/languages/Sugar
 
 signature constructors
-  CompilationUnit : JasminUnit -> SugarCompilationUnit
+  CompilationUnit : JasminFile -> SugarCompilationUnit
   ExtensionBody : List(SugarDefElem) -> SugarJasminBody
