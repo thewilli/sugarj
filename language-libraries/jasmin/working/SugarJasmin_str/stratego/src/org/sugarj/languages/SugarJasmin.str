@@ -1,0 +1,14 @@
+module org/sugarj/languages/SugarJasmin
+
+imports
+  strategodebuglib
+
+
+imports
+  org/sugarj/languages/Sugar
+
+
+signature
+  constructors
+    CompilationUnit : JasminFile -> SugarCompilationUnit
+    ExtensionBody   : List(SugarDefElem) -> SugarJasminBody

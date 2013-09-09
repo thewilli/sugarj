@@ -1,9 +1,25 @@
 definition
 module org/sugarj/languages/SugarJasmin
 imports org/sugarj/languages/Jasmin
+        org/sugarj/languages/Sdf2
+        org/sugarj/languages/Stratego
+        org/sugarj/languages/EditorServices
         org/sugarj/languages/Sugar
 
 exports
   context-free syntax
-    JasminFile         -> ToplevelDeclaration {cons("JasminBody")}
-    ExtensionElem+     -> ToplevelDeclaration {cons("ExtensionBody")}
+	
+	".sugarmod" Identifier -> SugarModuleDec {cons("SugarModuleDec")}
+	
+	".sugar" ExtensionElem+ ".end sugar" -> ExtensionBody  {cons("ExtensionBody")}
+	
+	".import" QualifiedName -> SugarModuleImport {cons("SugarModuleImport")}
+	
+	JasminFile				-> ToplevelDeclaration {cons("JasminBody")}
+    ExtensionBody			-> ToplevelDeclaration {cons("JasminExtension")}
+    SugarModuleImport		-> ToplevelDeclaration {cons("JasminImport")}
+    
+    SugarModuleImport* JasminFile					-> CompilationUnit {cons("CompilationUnit")}
+	SugarModuleImport* SugarModuleDec ExtensionBody -> SugarCompilationUnit {cons("CompilationUnit")}
+	
+	

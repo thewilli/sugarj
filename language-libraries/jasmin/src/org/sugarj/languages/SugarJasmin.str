@@ -1,6 +1,18 @@
 module org/sugarj/languages/SugarJasmin
-imports org/sugarj/languages/Sugar
+imports
+	org/sugarj/languages/Jasmin
+	org/sugarj/languages/Sugar
 
-signature constructors
-  CompilationUnit : JasminFile -> SugarCompilationUnit
-  ExtensionBody : List(SugarDefElem) -> SugarJasminBody
+signature
+ constructors
+  
+	SugarModuleDec		: Identifier 			-> SugarModuleDec
+	ExtensionBody		: List(ExtensionElem)	-> ExtensionBody
+	SugarModuleImport	: QualifiedName			-> SugarModuleImport
+	
+	JasminBody			: JasminFile			-> ToplevelDeclaration
+	JasminImport		: SugarModuleImport 	-> ToplevelDeclaration
+	JasminExtension		: ExtensionBody			-> ToplevelDeclaration
+	
+	CompilationUnit		: List(SugarModuleImport) * JasminFile -> CompilationUnit
+	CompilationUnit		: List(SugarModuleImport) * SugarModuleDec * ExtensionBody -> SugarCompilationUnit

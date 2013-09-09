@@ -14,3 +14,5 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.sugarj
 Eclipse-RegisterBuddy: org.sugarj.languagelib
+Bundle-ClassPath: lib/jasmin.jar,
+ .

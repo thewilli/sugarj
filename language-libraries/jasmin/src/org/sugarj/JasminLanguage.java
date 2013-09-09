@@ -78,7 +78,7 @@ public class JasminLanguage extends AbstractBaseLanguage {
 
   @Override
   public boolean isExtensionDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"ExtensionBody"))
+    if(isApplication(decl,"JasminExtension"))
       return true;
     return false;
   }
