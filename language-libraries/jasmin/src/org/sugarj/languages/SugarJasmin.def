@@ -9,12 +9,13 @@ imports org/sugarj/languages/Jasmin
 exports
   context-free syntax
 	
-	".sugarmod" Identifier -> SugarModuleDec {cons("SugarModuleDec")}
+	".sugarmod" Identifier -> SugarModuleDec
 	
-	".sugar" ExtensionElem+ ".end sugar" -> ExtensionBody  {cons("ExtensionBody")}
+	".sugar" ExtensionElem+ ".end sugar" -> ExtensionBody
 	
-	".import" QualifiedName -> SugarModuleImport {cons("SugarModuleImport")}
+	".import" QualifiedName -> SugarModuleImport
 	
+	SugarModuleDec			-> ToplevelDeclaration {cons("SugarModule")}
 	JasminFile				-> ToplevelDeclaration {cons("JasminBody")}
     ExtensionBody			-> ToplevelDeclaration {cons("JasminExtension")}
     SugarModuleImport		-> ToplevelDeclaration {cons("JasminImport")}

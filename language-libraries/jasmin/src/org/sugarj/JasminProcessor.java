@@ -16,7 +16,6 @@ import org.sugarj.common.errors.SourceCodeException;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
-import jasmin.Main;
 
 public class JasminProcessor extends AbstractBaseProcessor {
 
@@ -71,7 +70,7 @@ public class JasminProcessor extends AbstractBaseProcessor {
   @Override
   public List<String> processBaseDecl(IStrategoTerm toplevelDecl) throws IOException {
     //Term can be either a base- (pure Jasmin) or namespace declaration here
-    //TODO: Differentiate between base and NS declartion
+    //FXIME: Differentiate between base and NS declartion
     
     IStrategoTerm term = getApplicationSubterm(toplevelDecl, "JasminBody", 0);
     String text = null;
@@ -87,14 +86,13 @@ public class JasminProcessor extends AbstractBaseProcessor {
 
   @Override
   public String getNamespace() {
+    //FIXME: Implement
     return "";
   }
 
   @Override
   public String getModulePathOfImport(IStrategoTerm decl) {
-    return decl.toString();
-    // TODO Auto-generated method stub
-    
+    return prettyPrint(getApplicationSubterm(decl, "JasminImport", 0));
   }
 
   @Override

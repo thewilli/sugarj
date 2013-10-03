@@ -6,7 +6,6 @@ import java.util.List;
 import static org.sugarj.common.ATermCommands.isApplication;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.path.Path;
-import static org.sugarj.common.ATermCommands.getApplicationSubterm;
 
 public class JasminLanguage extends AbstractBaseLanguage {
   
@@ -82,10 +81,10 @@ public class JasminLanguage extends AbstractBaseLanguage {
       return true;
     return false;
   }
-
+      
   @Override
   public boolean isImportDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"Import"))
+    if(isApplication(decl,"JasminImport"))
       return true;
     return false;
   }
@@ -105,7 +104,7 @@ public class JasminLanguage extends AbstractBaseLanguage {
   }
   
   public boolean isNamespaceDec(IStrategoTerm decl) {
-    return isApplication(decl, "ModuleDec");
+    return isApplication(decl, "SugarModule");
   }
   
   @Override
