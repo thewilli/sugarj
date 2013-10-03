@@ -474,13 +474,13 @@ exports
  		Statement*
  		".end" "method" -> Method {cons("JBCMethod"), scope(Label)}
 				
- 		"public" 				-> MethodAccess {cons("PUBLIC")}
+ 		"public" 			-> MethodAccess {cons("PUBLIC")}
  		"private" 			-> MethodAccess {cons("PRIVATE")}
  		"protected"		 	-> MethodAccess {cons("PROTECTED")}
- 		"static" 				-> MethodAccess {cons("STATIC")}
- 		"final"					-> MethodAccess {cons("FINAL")}
- 		"synchronized"	-> MethodAccess {cons("SYNCHRONIZED")}
- 		"native"				-> MethodAccess {cons("NATIVE")}
+ 		"static" 			-> MethodAccess {cons("STATIC")}
+ 		"final"				-> MethodAccess {cons("FINAL")}
+ 		"synchronized"		-> MethodAccess {cons("SYNCHRONIZED")}
+ 		"native"			-> MethodAccess {cons("NATIVE")}
  		"abstract"			-> MethodAccess {cons("ABSTRACT")}
  		
  	context-free syntax %% statements
