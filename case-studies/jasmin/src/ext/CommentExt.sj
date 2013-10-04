@@ -1,4 +1,4 @@
-.sugarmod CommentExt
+.sugarmod ext/CommentExt
 .sugar
 
 	lexical syntax

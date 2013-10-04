@@ -1,5 +1,5 @@
-.import PrintExt
-.import CommentExt
+.import ext/test/PrintExt
+.import ext/CommentExt
 .bytecode 50.0
 .class public HelloWorld
 .super java/lang/Object

@@ -20,10 +20,6 @@ public class JasminProcessor extends AbstractBaseProcessor {
 
   private static final long serialVersionUID = 8526963395981176061L;
 
-  //shared SugarJ environment
-  private Environment environment;
-  //original source file currently processed
-  private RelativePath sourceFile;
   //target output file
   private Path outFile;
   //source code parts currently processed
@@ -60,13 +56,10 @@ public class JasminProcessor extends AbstractBaseProcessor {
   @Override
   public void init(RelativePath sourceFile, Environment environment) {
     //Entry point: Processing of new file
-    this.sourceFile = sourceFile;
-    this.environment = environment;
     this.outFile = 
         environment.createOutPath(
             FileCommands.dropExtension(sourceFile.getRelativePath()) + "." + JasminLanguage.getInstance().getBaseFileExtension()
         );
-    //TODO: Any other thing to do here?
   }
   /**
    * Generate the namespace from the retrieved modulename
@@ -79,16 +72,11 @@ public class JasminProcessor extends AbstractBaseProcessor {
     }else{
       namespace = "";
     }
-    if(moduleName.indexOf('/') > -1){
-      
-    }else{
-      namespace = "";
-    }
   }
 
   @Override
   public void processModuleImport(IStrategoTerm toplevelDecl) throws IOException {
-    //TODO: Required here? (No Jasmin-related imports to handle)
+    //(No Jasmin-related imports to handle)
   }
   
   private void processNamespaceDecl(IStrategoTerm toplevelDecl) throws IOException {
@@ -134,7 +122,7 @@ public class JasminProcessor extends AbstractBaseProcessor {
 
   @Override
   public boolean isModuleExternallyResolvable(String relModulePath) {
-    //TODO Required here? (No Jasmin-related imports to handle)
+    //(No Jasmin-related imports to handle)
     return false;
   }
 
@@ -173,13 +161,13 @@ public class JasminProcessor extends AbstractBaseProcessor {
     for(Path compileFile : generatedSourceFiles){
       compiler = new jasmin.Main();
       compilerArgs[2] = compileFile.getAbsolutePath();
+      //TODO: Redirect compiler output (stdout) to log, and check for any errors
       compiler.run(compilerArgs); //execute
       String targetFile = outputDirWithSuffix + FileCommands.dropExtension(FileCommands.fileName(compileFile)) + JasminLanguage.getInstance().getBinaryFileExtension();
       
       if(FileCommands.fileExists(new AbsolutePath(targetFile)))
         outputFiles.add(new AbsolutePath(targetFile));
     }
-    //TODO: How does the compiled file(s) in the temporary output directory get to the output binary path?
     return outputFiles;
   }
 

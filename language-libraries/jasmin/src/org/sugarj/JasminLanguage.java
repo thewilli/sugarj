@@ -22,7 +22,7 @@ public class JasminLanguage extends AbstractBaseLanguage {
 
   @Override
   public String getVersion() {
-    return "jasmin-0.1a";
+    return "jasmin-0.2";
   }
 
   @Override

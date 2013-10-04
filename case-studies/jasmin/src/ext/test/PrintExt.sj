@@ -1,8 +1,7 @@
 .import org/sugarj/languages/Jasmin
-.sugarmod PrintExt
+.sugarmod ext/test/PrintExt
 .sugar
 	context-free syntax
-	
 		".print" String -> Instruction{cons("PrintCommand")}
 		".test"			-> Instruction{cons("PrintTest")}
 	
