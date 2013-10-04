@@ -12,6 +12,7 @@
   return
 .end method 
 
+
 .comment
 .method public <init>()V
   .limit stack 1
