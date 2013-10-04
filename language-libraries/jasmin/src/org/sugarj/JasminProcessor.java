@@ -1,7 +1,6 @@
 package org.sugarj;
 
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -31,6 +30,10 @@ public class JasminProcessor extends AbstractBaseProcessor {
   private List<String> body = new LinkedList<String>();
   //Pretty-print table
   private IStrategoTerm ppTable;
+  //Name of module
+  private String moduleName;
+  //Name of namespace
+  private String namespace;
   
   /**
    * Pretty-print a term (convert to string representation)
@@ -59,19 +62,50 @@ public class JasminProcessor extends AbstractBaseProcessor {
     //Entry point: Processing of new file
     this.sourceFile = sourceFile;
     this.environment = environment;
-    this.outFile = environment.createOutPath(FileCommands.dropExtension(sourceFile.getRelativePath()) + "." + JasminLanguage.getInstance().getBaseFileExtension());
+    this.outFile = 
+        environment.createOutPath(
+            FileCommands.dropExtension(sourceFile.getRelativePath()) + "." + JasminLanguage.getInstance().getBaseFileExtension()
+        );
+    //TODO: Any other thing to do here?
+  }
+  /**
+   * Generate the namespace from the retrieved modulename
+   */
+  private void setNamespace(){
+    int index = moduleName.lastIndexOf('/');
+    if(index >= 0){
+      namespace = moduleName.substring(0, index);
+      moduleName = moduleName.substring(index + 1);
+    }else{
+      namespace = "";
+    }
+    if(moduleName.indexOf('/') > -1){
+      
+    }else{
+      namespace = "";
+    }
   }
 
   @Override
   public void processModuleImport(IStrategoTerm toplevelDecl) throws IOException {
-
+    //TODO: Required here? (No Jasmin-related imports to handle)
+  }
+  
+  private void processNamespaceDecl(IStrategoTerm toplevelDecl) throws IOException {
+    //extract module name
+    moduleName = prettyPrint(getApplicationSubterm(toplevelDecl, "SugarModule", 0));
+    setNamespace();
+    //TODO: Verify Filename = Modulename (-> Haskell) and namespace respectively
   }
 
   @Override
   public List<String> processBaseDecl(IStrategoTerm toplevelDecl) throws IOException {
-    //Term can be either a base- (pure Jasmin) or namespace declaration here
-    //FXIME: Differentiate between base and NS declartion
     
+    //Term can be either a base- (pure Jasmin) or namespace ( = SugarModule ) declaration here
+    if(((JasminLanguage)getLanguage()).isNamespaceDec(toplevelDecl)){
+      processNamespaceDecl(toplevelDecl);
+      return Collections.emptyList();
+    }
     IStrategoTerm term = getApplicationSubterm(toplevelDecl, "JasminBody", 0);
     String text = null;
     try {
@@ -81,13 +115,16 @@ public class JasminProcessor extends AbstractBaseProcessor {
     }
     if (text != null)
       body.add(text);
+    //Extract modulename from class name (each Jasmin fle represents exactly one class)
+    moduleName = prettyPrint(term.getSubterm(0).getSubterm(2).getSubterm(1));
+    setNamespace();
+    //TODO: Verify Filename = Modulename (-> Haskell) and namespace respectively
     return Collections.emptyList();
   }
 
   @Override
   public String getNamespace() {
-    //FIXME: Implement
-    return "";
+    return namespace;
   }
 
   @Override
@@ -97,20 +134,18 @@ public class JasminProcessor extends AbstractBaseProcessor {
 
   @Override
   public boolean isModuleExternallyResolvable(String relModulePath) {
-    // TODO Auto-generated method stub
+    //TODO Required here? (No Jasmin-related imports to handle)
     return false;
   }
 
   @Override
   public String getExtensionName(IStrategoTerm decl) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    return moduleName;
   }
 
   @Override
   public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-    // TODO Auto-generated method stub
-    return null;
+    return getApplicationSubterm(decl, "JasminExtension", 0);
   }
 
   @Override
@@ -118,7 +153,6 @@ public class JasminProcessor extends AbstractBaseProcessor {
     if(body.isEmpty())
       return "";
     return StringCommands.printListSeparated(body, "\n");
-    // TODO Auto-generated method stub
   }
 
   @Override

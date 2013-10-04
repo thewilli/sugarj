@@ -9,7 +9,7 @@ imports org/sugarj/languages/Jasmin
 exports
   context-free syntax
 	
-	".sugarmod" Identifier -> SugarModuleDec
+	".sugarmod" QualifiedName -> SugarModuleDec
 	
 	".sugar" ExtensionElem+ ".end sugar" -> ExtensionBody
 	
