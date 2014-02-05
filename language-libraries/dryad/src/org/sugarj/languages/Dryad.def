@@ -1504,7 +1504,7 @@ exports
   context-free syntax
     Instruction ";"         -> ListedInstruction {bracket}
     Instruction             -> ListedInstruction 
-    ListedInstruction*      -> InstructionList   {bracket}
+    ListedInstruction*      -> InstructionList   %%FIXME: add {bracket} (causes error)
     "[" InstructionList "]" -> Instructions      {cons("Instructions")}
 
   context-free syntax

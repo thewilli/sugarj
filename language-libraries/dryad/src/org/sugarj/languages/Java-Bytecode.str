@@ -1,4 +1,4 @@
-module Dryad
+module org/sugarj/languages/Java-Bytecode
 
 signature
   constructors
@@ -28,7 +28,6 @@ signature
     Cons                    : Int * ListStarOfCharClass1 -> ListPlusOfCharClass1
                             : AnyType -> ClassTypeId_AnyType0
                             : ClassTypeId -> ClassTypeId_AnyType0
-                            : CompilationUnit -> Start
     Labeled                 : Id_Java * MakeEmpty -> EmptyJavaLabel
     Empty                   : MakeEmpty
                             : CompilationUnit -> CompilationUnit_Java
@@ -386,6 +385,7 @@ signature
     FieldSignature          : FieldSignature -> FieldAttribute
     Attributes              : List(FieldAttribute) -> FieldAttributes
     FieldDescriptor         : Type -> FieldDescriptor
+                            : FieldDec_Java -> Field
     Field                   : AccessFlags * FieldName * FieldDescriptor * FieldAttributes -> Field
     Attributes              : ListStarOfUndefined0 -> CodeAttributes
     None                    : None
@@ -403,6 +403,7 @@ signature
     Attributes              : List(MethodAttribute) -> MethodAttributes
     MethodDescriptor        : ListStarOfUndefined0 * ReturnType -> MethodDescriptor
     MethodDescriptor        : List(Param) * ReturnType -> MethodDescriptor
+                            : MethodDec_Java -> Method
     EndTrace                : Method -> Method
     Trace                   : MemberTrace * Method -> Method
     Method                  : AccessFlags * MethodName * MethodDescriptor * MethodAttributes -> Method
@@ -651,4 +652,3 @@ signature
     Cons : a * List(a) -> List(a)
     Nil  : List(a)
     Conc : List(a) * List(a) -> List(a)
-
