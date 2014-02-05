@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/reclassify/MeaningOfPackageOrTypeName
+module org/sugarj/dryad/compiler/dryad/reclassify/MeaningOfPackageOrTypeName
 strategies
   
   Reclassify-SimplePackageOrTypeName(rec) =

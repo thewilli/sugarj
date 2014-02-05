@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/jls/types/Reference
+module org/sugarj/dryad/compiler/dryad/jls/types/Reference
 imports
-  dryad/util/jtree
+  org/sugarj/dryad/compiler/dryad/util/jtree
   
 strategies
 

@@ -1,0 +1,152 @@
+/**
+ * dryad-compiler default error reporting strategies.
+ *
+ * @see dryad-compiler-front-errors  Reports all errors in stage 1 (frontend)
+ * @see emit-error                   Reports an error in stage 2 (emit)
+ * @see bc-asm-error                 Reports an error in stage 3 (assembly)
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/util/errors
+
+imports
+  libjava-front
+  org/sugarj/dryad/compiler/dryadcompiler/util/pretty-print
+
+/**
+ * Default onfailure strategy; reports errors using the standard logging
+ * facilities (i.e., normally prints errors to stderr).
+ *
+ * @note For non-warnings, this strategy *FAILS* after reporting the error,
+ *       unless <get-config> Loose succeeds.
+ *
+ * @note All errors will be recorded using the IgnoreError rule, to ensure
+ *       they are displayed only once (which is scoped by all emit and
+ *       unasm stages by default).
+ *
+ * @param pp  The pretty printer used for printing errors
+ *            (default: dryad-compiler-pp)
+ *
+ * @type DryadError -> DryadError  or  DryadWarning -> DryadWarning
+ */
+strategies
+
+  dryad-compiler-error =
+    dryad-compiler-error(dryad-compiler-pp) 
+   
+  dryad-compiler-error(pp) = // TODO: report current file/class, posinfo
+    where(
+      ?DryadError(msg, input);
+      severity := <!Loose; get-config < !Warning + !Error>
+    <+
+      ?DryadWarning(msg, input);
+      severity := Warning
+    );
+  
+    <dryad-compiler-report-message(pp|severity, msg)> input;
+    
+    // Fail if fatal error; ensures main emit strategy (eventually) fails
+    !severity => Warning()
+  
+  /** @internal */
+  dryad-compiler-report-message(pp|severity, msg) =
+    ?input;
+    
+    // Try to trace back to the original user code
+    try(
+      get-annos(?Trace(traced)); // input like POP { Trace(...) }
+      generated := input;
+      !traced
+    <+ // Can perhaps extract trace from dynamic rule
+      where(traced := <LastTrace>);
+  
+      // Determine if traced code is the original source code
+      // or merely the outer code of this subconstruct
+      // (is displayed somewhat differently)
+      if <oncetd(?input)> traced then
+        where(outer := traced)
+      else
+        generated := <id>;
+        !traced
+      end
+    );
+    
+    // Main error message
+    log(|severity, <conc-strings> ( <pos-info-prefix-string(!traced)>, msg));
+    log-pp(pp|severity, "  ");
+    
+    // Report generated (byte)code
+    if(!generated, if-verbose2(
+      log-pp(pp|severity, "  generated: ")
+    ));
+    
+    // Report trace for small (sub-)expressions
+    if(!outer; not(?input + ?Trace(_, _) + ?ExprStm(input)), 
+      log-pp(pp|severity, "  in: ")
+    );
+    
+    // Report trace for anything, if verbose enough
+    if(!outer; ?Trace(_, <id>); not(?input + ?ExprStm(input)), if-verbose2(
+      log-pp(pp|severity, "  in: ")
+    ));
+    
+    !input
+
+  /**
+   * Ensure rule IgnoreError succeeds for the current error,
+   * and for any errors in the outer constructs.
+   *
+   * @internal
+   */
+  dryad-ignore-repeated-errors =
+    ?error;
+    rules(IgnoreError: error);
+    
+    if ?DryadError(_, _) then
+      bigbagof-LastTrace;
+      list-loop({
+        ?outercode;
+        rules( // Don't report this again for container methods/classes
+          IgnoreError: DryadError(_, outercode)
+          IgnoreError: DryadWarning(_, outercode)
+        )
+      })
+    end
+
+  /** @internal */
+  pos-info-prefix-string(traced) =
+    where(
+      if CurrentFilename => file then // TODO2: current filename should come from annos
+        prefix := <conc-strings> (file, ":")  
+      else
+        prefix := ""
+      end
+    );
+    
+    ( // Add line / column
+      get-annos(StartLineColumn(as-string => line, inc; as-string => column));
+      <conc-strings> (prefix, line, ":", column, ": ")
+    <+
+      traced;
+      get-annos(StartLineColumn(as-string => line, inc; as-string => column));
+      <conc-strings> (prefix, line, ":", column, ": ")
+    <+
+      <conc-strings> (prefix, " ")
+    )
+
+  /** @internal */
+  log-pp(pp|severity : Severity, prefix : String) =
+    None // don't print anything
+  <+
+    ?input;
+    (pp <+ dryad-compiler-pp <+ map(pp <+ dryad-compiler-pp); concat-strings);
+    
+    if-verbose3(
+      log(|severity, <prefix-lines(|prefix)>, input)
+    );
+    if-less-verbose2(
+      log(|severity, <prefix-lines(|prefix)>)
+    )
+  <+
+    strip-annos; as-string;
+    log(|severity, <prefix-lines(|prefix)>)

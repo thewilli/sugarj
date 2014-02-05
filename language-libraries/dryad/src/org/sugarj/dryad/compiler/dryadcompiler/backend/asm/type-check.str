@@ -1,0 +1,185 @@
+/**
+ * dryad-compiler rich bytecode type-checking.
+ *
+ * @see source-type-to-bytecode-type
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/asm/type-check
+
+imports
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm
+
+signature constructors
+  Any : Type
+  
+/**
+ * @internal          Used by rich bytecode verification and assembly.
+ * @see bc-asm-scope  Use this to scope any dynamic rules created by these strategies.
+ */
+strategies
+
+  bc-type-check = bc-type-check(fail)
+  
+  /**
+   * Type-check a list of bytecode instructions, and optionally transform the
+   * instructions, given a pair of the stack and the instruction at each point.
+   *
+   * (See JVM Spec 4.9.2.)
+   *
+   * @param out-end-stack  Strategy that may match the stack at the end of
+   *                       the code fragment (e.g., '?endstack').
+   *
+   * @type List(a) -> List(a or b) 
+   */
+  bc-type-check(transform, out-end-stack) =
+    // Introduce a marker byte, so we can retrieve the stack at that point.
+    ![<id>, NOP{"Last"}];
+      
+    bc-type-check(
+      ?(<id>, NOP{"Last"}); out-end-stack
+    <+
+      transform
+    );
+      
+    ?[<id>, _] // remove marker byte
+
+  /**
+   * Type-check a list of bytecode instructions, and optionally transform the
+   * instructions, given a pair of the stack and the instruction at each point.
+   *
+   * (See JVM Spec 4.9.2.)
+   *
+   * @type List(a) -> List(a or b)
+   */
+  bc-type-check(transform) =
+  jdebug(!"bc-type-check");
+  {| LabelStates:
+    // Exception handlers have a fixed input stack; preload it
+    record-exceptional-typestates;
+  
+    bc-flow-state-stack(
+      bc-stack-effect
+    <+
+      // Report error (reports nothing if bc-asm-abort was already called)
+      if Snd; is-rich-bc-instruction then
+        bc-error(|"Failed to process instruction.", <Snd>); bc-asm-abort  
+      else
+        bc-error(|"Illegal bytecode instruction.",  <Snd>); bc-asm-abort
+      end
+    ,
+      \(a,a) -> a\
+    <+
+      ?(<id>, _{ExceptionHandler}) // fixed stack for exception handlers
+    <+
+      zip(bc-unify-types) // join two stacks; ([int,string],[int,object]) => [int,object]
+    <+
+      bc-error(|"Stack mismatch", <id>, None);
+      bc-asm-abort
+    ,
+      transform
+    | [] // start with empty stack
+    )
+  |}
+
+  /** 
+   * Initialize the stack of all exception handlers to
+   * the static value of [ObjectType(exception)].
+   *
+   * @internal
+   */
+  record-exceptional-typestates =
+    map(try(
+      CatchWrap(
+        map({
+          ?Catch(label, exception);
+          if <Any> exception then // finally blocks use this (doesn't have to be throwable)
+            rules(LabelStates: label -> [ObjectType("java.lang.Object")])
+          else
+            rules(LabelStates: label -> [ObjectType(exception)])
+          end
+        })
+      , as-list; record-exceptional-typestates
+      )
+    <+
+      record-exceptional-typestates
+    ))
+  <+
+    bc-apply-to-wrap(record-exceptional-typestates)
+
+/** Type comparison strategies */
+strategies
+
+  /** Checks if the current term is a subtype of the specified bytecode type. */
+  is-bc-subtype(|type) =
+    where(
+      ?type
+    <+
+      // Basic cases
+      !(<id>, type);
+      
+      ( (Any, id)
+      + (id, Any)
+      + (Null, not(is-primitive-type))
+      + (is-single-integral, is-single-integral) // int == lower primitives at bytecode level
+      )
+    <+
+      t1 := <not(is-primitive-type); try(bytecode-type-to-source-type)>;
+      t2 := <not(is-primitive-type); try(bytecode-type-to-source-type)> type;
+      <is-subtype(|t2)> t1
+    )
+
+  /** @param type List(Type) */
+  is-bc-subtype-of-any(|type) =
+    ?input;
+    where(
+      !type;
+      getfirst({ t: ?t; <is-bc-subtype(|t)> input})
+    )
+  
+  have-bc-subtype-relation(|t1, t2) =
+    where(<is-bc-subtype(|t1)> t2 + <is-bc-subtype(|t2)> t1)
+    
+  /**
+   * Returns the common superclass of two types, or a single
+   * type if the two given types were equivalent. (See JVM Spec 4.9.2.)
+   *
+   * @note This treats the primitive types as subtypes of their representational 
+   *       identity only (unlike dryad's supertype definition).
+   *
+   * @internal
+   *
+   * Examples:
+   *   <bc-unify-types> (Boolean, Char) => Int
+   *   <bc-unify-types> (ObjectType, StringType) => ObjectType
+   *   <bc-unify-types> (BufferedReaderType, StringReaderType) => ReaderType
+   */
+  bc-unify-types =
+    ?(same, same); !same
+  <+
+    ?(Any, <id>) <+ ?(<id>, Any)
+  <+
+    ?(Null, <not(is-primitive-type)>)
+  <+
+    ?(<not(is-primitive-type)>, Null)
+  <+
+    (is-single-integral, is-single-integral); !Int
+  <+
+    (not(is-primitive-type), not(is-primitive-type));
+    ( bytecode-type-to-source-type; superclasses
+    , bytecode-type-to-source-type; superclasses);
+    isect; Hd;
+    source-type-to-bytecode-type
+
+  bc-unify-types-list =
+    foldr(!Any, bc-unify-types);
+    not([])
+  
+  /** Returns all superclasses (not interfaces) of a class. */
+  superclasses =
+    log-lookup-class;
+    get-superclass-type;
+    ![<id> | <superclasses>]
+  <+
+    not(is-primitive-type);
+    ![ClassType(TypeName(PackageName([Id("java"),Id("lang")]),Id("Object")),None)]

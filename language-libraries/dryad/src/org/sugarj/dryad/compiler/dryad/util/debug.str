@@ -4,11 +4,11 @@
  *
  * @author Karl Trygve Kalleberg <karltk@cs.uu.nl>
  */
-module dryad/util/debug
+module org/sugarj/dryad/compiler/dryad/util/debug
 imports
-	liblib
-	dryad/model/package
-	dryad/model/class
+	org/sugarj/dryad/compiler/liblib
+	org/sugarj/dryad/compiler/dryad/model/package
+	org/sugarj/dryad/compiler/dryad/model/class
 	
 strategies
 

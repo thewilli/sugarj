@@ -1,4 +1,4 @@
-module MethodSignature
+module org/sugarj/dryad/compiler/dryad/bytecode/MethodSignature
 
 signature
   constructors

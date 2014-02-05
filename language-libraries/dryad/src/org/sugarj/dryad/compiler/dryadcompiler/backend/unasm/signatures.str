@@ -1,0 +1,169 @@
+/**
+ * dryad-compiler bytecode classes signature unassembly.
+ *
+ * Converts classfile signatures (of classes, methods and fields)
+ * to Java(-like) signatures that can be processed by the emit stage
+ * or other tools.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/unasm/signatures
+
+/** @internal */
+rules
+
+  // TODO: Unasm should use trace
+  // TODO: Unasm interfaces
+  // TODO: Properly unasm <init> (now has the wrong name) and <clinit> (unsupported)
+  // TODO2: Unasm enums
+  // TODO2: Unasm inner classes
+  // TODO2: Unasm typeargs and anotations
+
+  /** Unassemble a class signature. */
+  bc-unasm-signature:
+    ClassFile(
+      _, _ // ignore version
+    , AccessFlags(flags)
+    , ThisClass(name)
+    , SuperClass(super)
+    , Interfaces(interfaces)
+    , Fields(fields)
+    , Methods(methods)
+    , Attributes(attributes)
+    ) ->
+    CompilationUnit(
+      package
+    , [] // no imports
+    , [ClassDec(
+        ClassDecHead(
+          flags', Id(name')
+        , None
+        , super'
+        , interfaces'
+        )
+      , ClassBody(members)
+      )]      
+    )
+    where not(<fetch(Interface)> flags);
+          
+          flags'      := <filter(not(Super))> flags;
+          super'      := <bc-unasm-super-dec> super;
+          interfaces' := <bc-unasm-implements-dec> interfaces;
+          package     := <bc-unasm-package-dec> name;
+          name'       := <try(split-at-dot; last)> name;
+          members  := <conc> (fields, methods)
+
+  /** Unassemble a method signature. */
+  bc-unasm-signature:
+    Method(
+      AccessFlags(flags)
+    , Name(name)
+    , MethodDescriptor(params, returned)
+    , Attributes(attributes)
+    ) ->
+    MethodDec(
+      MethodDecHead(flags, None, returned', Id(name), params', throws)
+    , body
+    )
+    where not("<init>" := name + "<clinit>" := name);
+          
+          returned' := <bytecode-type-to-source-type> returned;
+          params'   := <map(bc-unasm-param)> params;
+          throws    := <bc-unasm-exceptions> attributes;
+          
+          if <fetch(bc-get-method-body => code)> attributes then
+            body := Block([BytecodeStm(code)])
+          else
+            body := NoMethodBody
+          end
+
+  /** Unassemble a constructor signature. */
+  bc-unasm-signature:
+    Method(
+      AccessFlags(flags)
+    , Name(name)
+    , MethodDescriptor(params, returned)
+    , Attributes(attributes)
+    ) ->
+    ConstrDec(
+      ConstrDecHead(flags, None, Id(name), params', throws)
+    , ConstrBody(None(), body)
+    )
+    where "<init>" := name;
+          
+          returned' := <bytecode-type-to-source-type> returned;
+          params'   := <map(bc-unasm-param)> params;
+          throws    := <bc-unasm-exceptions> attributes;
+          
+          if <fetch(bc-get-method-body => code)> attributes then
+            body := [BytecodeStm(code)]
+          else
+            body := []
+          end
+  
+  /** Unassemble a non-constant field. */
+  bc-unasm-signature:
+    Field(
+      AccessFlags(flags)
+    , Name(name)
+    , FieldDescriptor(type)
+    , Attributes(attributes)
+    ) ->
+    FieldDec(flags, type, [VarDec(Id(name))])
+    where <not(fetch(?ConstantValue(_)))> attributes
+
+  /** Unassemble a constant field. */
+  bc-unasm-signature:
+    Field(
+      AccessFlags(flags)
+    , Name(name)
+    , FieldDescriptor(type)
+    , Attributes(attributes)
+    ) ->
+    ConstantDec(flags, type, [VarDec(Id(name), value)])
+    where <fetch(?ConstantValue(value))> attributes
+
+/** @internal */
+strategies  
+
+  // Try to convert ta bytecode types to a Java types
+  // (but only fail later in the compilation process for nicer errors)
+  try-bytecode-type-to-source-type =
+    try(bytecode-type-to-source-type)
+  
+  bc-unasm-param =
+    !Param([], <try-bytecode-type-to-source-type>, Id(<get-annos(?Id(x)); !x>))
+  <+
+    !Param([], <try-bytecode-type-to-source-type>, Id(<newname> "param"))
+
+  /** @type List(MethodAttribute) -> Maybe(ThrowsDec) */
+  bc-unasm-exceptions =
+    getfirst(?Exceptions(<id>));
+    not([]);
+    map(!ThrowsDec(<try-bytecode-type-to-source-type>));
+    !Some(<id>)
+  <+
+    !None
+
+  /** @type Maybe(String) -> Maybe(SuperDec) */
+  bc-unasm-super-dec =
+    Some(!SuperDec(<try-bytecode-type-to-source-type>))
+  <+
+    None
+  
+  /** @type List(String) -> Maybe(PackageDec) */
+  bc-unasm-implements-dec =
+    map(try-bytecode-type-to-source-type);
+    not([]);
+    !Some(ImplementsDec(<id>))
+  <+
+    !None
+  
+  /** @type String -> Maybe(PackageDec) */
+  bc-unasm-package-dec =
+    split-at-dot;
+    split-last => (<id>, _);
+    map(!Id(<id>));
+    !Some(PackageDec([], <id>))
+  <+
+    !None

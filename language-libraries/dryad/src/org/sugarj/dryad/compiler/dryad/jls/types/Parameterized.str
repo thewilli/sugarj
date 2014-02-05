@@ -3,10 +3,10 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/types/Parameterized
+module org/sugarj/dryad/compiler/dryad/jls/types/Parameterized
 imports
-  dryad/model/class
-  dryad/model/method  
+  org/sugarj/dryad/compiler/dryad/model/class
+  org/sugarj/dryad/compiler/dryad/model/method  
 
 strategies
 

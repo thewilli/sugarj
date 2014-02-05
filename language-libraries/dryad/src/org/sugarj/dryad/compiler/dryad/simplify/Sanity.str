@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/simplify/Sanity
+module org/sugarj/dryad/compiler/dryad/simplify/Sanity
 imports
-  dryad/lib-ext/list
+  org/sugarj/dryad/compiler/dryad/lib-ext/list
 
 /**
  * @todo Desugar multiple variable declarations

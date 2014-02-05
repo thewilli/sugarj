@@ -1,7 +1,7 @@
 /**
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/lib-ext/sunit
+module org/sugarj/dryad/compiler/dryad/lib-ext/sunit
 strategies
 
   testsuite-section(tests |msg ) =

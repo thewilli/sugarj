@@ -3,11 +3,11 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/constructor
+module org/sugarj/dryad/compiler/dryad/model/constructor
 imports
-  dryad/model/member
-  dryad/lib-ext/oo/classes
-  dryad/source/Extensions
+  org/sugarj/dryad/compiler/dryad/model/member
+  org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
+  org/sugarj/dryad/compiler/dryad/source/Extensions
 
 /**
  * Arguments

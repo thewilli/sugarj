@@ -3,12 +3,12 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/compilation-unit
+module org/sugarj/dryad/compiler/dryad/model/compilation-unit
 imports
-  dryad/lib-ext/oo/classes
-  dryad/model/source-class
-  dryad/util/jtree
-  dryad/util/jtree-overlays
+  org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
+  org/sugarj/dryad/compiler/dryad/model/source-class
+  org/sugarj/dryad/compiler/dryad/util/jtree
+  org/sugarj/dryad/compiler/dryad/util/jtree-overlays
 
 signature
   constructors

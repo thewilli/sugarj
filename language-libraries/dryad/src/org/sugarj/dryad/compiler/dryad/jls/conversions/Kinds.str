@@ -3,13 +3,13 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/conversions/Kinds
+module org/sugarj/dryad/compiler/dryad/jls/conversions/Kinds
 imports
-  dryad/jls/conversions/IdentityConversion
-  dryad/jls/conversions/WideningPrimitive
-  dryad/jls/conversions/NarrowingPrimitive
-  dryad/jls/conversions/WideningReference
-  dryad/jls/conversions/CaptureConversion
-  dryad/jls/conversions/UncheckedConversion
-  dryad/jls/conversions/Unboxing
+  org/sugarj/dryad/compiler/dryad/jls/conversions/IdentityConversion
+  org/sugarj/dryad/compiler/dryad/jls/conversions/WideningPrimitive
+  org/sugarj/dryad/compiler/dryad/jls/conversions/NarrowingPrimitive
+  org/sugarj/dryad/compiler/dryad/jls/conversions/WideningReference
+  org/sugarj/dryad/compiler/dryad/jls/conversions/CaptureConversion
+  org/sugarj/dryad/compiler/dryad/jls/conversions/UncheckedConversion
+  org/sugarj/dryad/compiler/dryad/jls/conversions/Unboxing
   

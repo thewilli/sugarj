@@ -1,0 +1,176 @@
+/**
+ * dryad-compiler emit statements.
+ * (Also see module 'locals' for statements related to local variables,
+ *  and module 'assertions' for the assert statement.)
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/statements
+
+strategies
+
+  emit-java(emit) =
+    ?Block(<trace(emit)>) // TODO: Finer-grained Java source tracing
+  
+  emit-java(emit): Empty -> []
+
+  emit-java(emit):
+    ExprStm(e) -> [ <emit> e, cleanup ]
+    where if <compile-time-declaration-attr; lookup-method; get-return-type> e => Void then
+            cleanup := []
+          else
+            cleanup := POP // Remove unused value from stack
+          end    
+
+/** Control flow. */
+strategies
+
+  emit-java(emit): // Insert label for break, allow continue(label) for loops
+    Labeled(Id(label), s) -> [ Label(label), body, Label(break) ]
+    where {| ContextEmit, LoopLabel:
+            break := <newname> label;
+            rules(ContextEmit: |[ break ~x:label; ]| -> |[ goto break ]|);
+            
+            if <is-loop-stm> s then
+              rules(LoopLabel := label)
+            end;
+            
+            body := <emit> s
+          |}
+
+  emit-java(emit):
+    |[ if (e) stm1 else stm2 ]| ->
+    |[ <emit> e;
+       ifeq else;
+         <emit> stm1;
+         goto end;
+       else:
+         <emit> stm2;
+       end:
+    ]|
+    where (else, end) := <new-labels> ("else", "endif")
+
+  emit-java(emit):
+    |[ if (e) stm ]| -> <emit> |[ if (e) stm else ; ]|
+
+  emit-java(emit):
+    |[ while(e) stm ]| ->
+    |[ begin:
+         <emit> e;
+         ifeq end;
+         ~body;
+         goto begin;
+       end:
+    ]|
+    where (begin, end) := <new-labels> ("while", "endwhile");
+          body := <break-continue-wrap(emit |end, begin)> stm
+
+  emit-java(emit):
+    |[ do stm while (e); ]| ->
+    |[ begin:
+         ~body;
+         <emit> e;
+         ifne begin;
+       end:
+    ]|  
+    where (begin, end) := <new-labels> ("do", "enddo");
+          body := <break-continue-wrap(emit |end, begin)> stm
+
+  emit-java(emit): // TODO2: restrict counting expression of for loop
+    For(init, c, post, stm) ->
+    |[ ~init';
+       begin:
+         ~c';
+         ~body;
+       continue:
+         ~post';
+         goto begin;
+       end:
+    ]|
+    where (begin, continue, end) := <new-labels> ("for", "continue", "endfor");
+          rename-locals-scope( // Scope: init may be declaration
+            init' := <emit> init;
+            c'    := <maybe(!|[ <emit>; ifeq end ]|, ![])> c;
+            post' := <emit> <map(!ExprStm(<id>))> post;
+            body  := <break-continue-wrap(emit |end, continue)> stm
+          )
+  
+  emit-java(emit):
+    ForEach(param @ Param(_, type, Id(var)), iterable, stm) ->
+    |[ <emit> iterable;
+       invokeinterface java.lang.Iterable.iterator(java.util.Iterator);
+       store ~iterator;
+       
+       begin:
+         load ~iterator;
+         invokeinterface java.util.Iterator.hasNext(boolean);
+         ifeq end;
+         
+         load ~iterator;
+         invokeinterface java.util.Iterator.next(java.lang.Object);
+         checkcast <emit> type';
+         ~converts;
+         store ~var';
+         
+         ~body;
+         goto begin;
+       end:
+    ]|
+    where not(<type-attr> iterable => ArrayType(_));
+          // TODO: Include foreach assignment conversion, when dryad does
+          
+          (begin, end) := <new-labels> ("foreach", "endforeach");
+          iterator     := <newname> "iterator";
+          var'         := <rename-local> var;
+          converts     := <emit-assign-conversion(emit)> param;
+          type'        := <try(boxing-conversion-of-type)> type; // ensure reftype
+          body         := <break-continue-wrap(emit |end, begin)> stm      
+
+  // TODO2: Support switch statement
+  
+  /* TODO2: Support foreach for arrays
+  desugar-java-foreach:
+    |[ for(~type ~var : ~array) ~stm ]| ->
+    bstm |[ {
+       for (int ~x:index = 0; ~x:index < ~array.length; ~x:index++) {
+         ~type ~var = ~x:array[~x:index];
+         ~stm
+       }
+    } ]|
+    where <type-attr> array => ArrayType(_);
+          <newname> "index" => index
+  */
+
+  emit-java(emit): |[ return;   ]| -> bc |[ return ]|
+  
+  // TODO: verify emit assignment conversion for return, once dryad annotates it
+  emit-java(emit): |[ return e; ]| -> bc |[ <emit> e; ~convert; xreturn ]|
+  where convert := <emit-assign-conversion(emit)>
+
+  /**
+   * Enable support for break and (labeled) continue when emmitting code in s.
+   * @internal
+   */
+  break-continue-wrap(s |break, continue) =
+  {| ContextEmit:
+    if LoopLabel => label then
+      rules(ContextEmit: Continue(Some(Id(label))) -> bc |[ goto ~continue ]|)
+    end;
+    rules(
+      ContextEmit: Break(None)    -> |[ goto break ]|
+      ContextEmit: Continue(None) -> |[ goto continue ]|
+      LoopLabel :- _ // No longer aplies
+    );
+    s
+  |}
+
+  /**
+   * Return an error for break or continue statements not handled
+   * by the ContextEmit rule.
+   */
+  emit-java(emit) =
+    Break(id);
+    emit-error(emit|"Illegal break statement or label")
+  <+
+    Continue(id);
+    emit-error(emit|"Illegal continue statement or label")

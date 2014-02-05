@@ -1,10 +1,10 @@
 /**
  * Utils for Java Bytecode
  */
-module dryad/bytecode/util
+module org/sugarj/dryad/compiler/dryad/bytecode/util
 imports
-  dryad/jls/names/Main
-  dryad/jls/types/Primitive
+  org/sugarj/dryad/compiler/dryad/jls/names/Main
+  org/sugarj/dryad/compiler/dryad/jls/types/Primitive
 
 strategies
 

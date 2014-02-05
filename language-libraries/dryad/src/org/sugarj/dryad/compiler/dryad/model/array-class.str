@@ -6,15 +6,15 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/array-class
+module org/sugarj/dryad/compiler/dryad/model/array-class
 imports
-  dryad/lib-ext/oo/classes
-  dryad/model/class
-  dryad/model/source-field  
-  dryad/model/source-constructor
-  dryad/model/source-method
-  dryad/util/jtree
-  dryad/util/jtree-overlays  
+  org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
+  org/sugarj/dryad/compiler/dryad/model/class
+  org/sugarj/dryad/compiler/dryad/model/source-field  
+  org/sugarj/dryad/compiler/dryad/model/source-constructor
+  org/sugarj/dryad/compiler/dryad/model/source-method
+  org/sugarj/dryad/compiler/dryad/util/jtree
+  org/sugarj/dryad/compiler/dryad/util/jtree-overlays  
 
 strategies
 

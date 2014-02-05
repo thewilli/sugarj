@@ -3,7 +3,7 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/conversions/NarrowingPrimitive
+module org/sugarj/dryad/compiler/dryad/jls/conversions/NarrowingPrimitive
 strategies
 
 /**

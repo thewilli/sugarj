@@ -3,15 +3,15 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/types/Main
+module org/sugarj/dryad/compiler/dryad/jls/types/Main
 imports
-  dryad/jls/types/Erasure
-  dryad/jls/types/Lub
-  dryad/jls/types/Parameterized
-  dryad/jls/types/Primitive  
-  dryad/jls/types/Raw  
-  dryad/jls/types/Reference  
-  dryad/jls/types/Reifiable  
-  dryad/jls/types/Subtyping  
+  org/sugarj/dryad/compiler/dryad/jls/types/Erasure
+  org/sugarj/dryad/compiler/dryad/jls/types/Lub
+  org/sugarj/dryad/compiler/dryad/jls/types/Parameterized
+  org/sugarj/dryad/compiler/dryad/jls/types/Primitive  
+  org/sugarj/dryad/compiler/dryad/jls/types/Raw  
+  org/sugarj/dryad/compiler/dryad/jls/types/Reference  
+  org/sugarj/dryad/compiler/dryad/jls/types/Reifiable  
+  org/sugarj/dryad/compiler/dryad/jls/types/Subtyping  
 
 

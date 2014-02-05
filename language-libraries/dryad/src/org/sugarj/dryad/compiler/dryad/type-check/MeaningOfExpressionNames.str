@@ -5,7 +5,7 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/type-check/MeaningOfExpressionNames
+module org/sugarj/dryad/compiler/dryad/type-check/MeaningOfExpressionNames
 strategies
 
   /**

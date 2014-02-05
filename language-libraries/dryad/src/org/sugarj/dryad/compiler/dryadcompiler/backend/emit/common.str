@@ -1,0 +1,27 @@
+/**
+ * dryad-compiler emit utility strategies.
+ *
+ * Various utility strategies that are indispensable for emitting code.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/common
+
+strategies
+
+  /** Reports a single error during code emission. */
+  emit-error(emit|msg) =
+    where(<emit> DryadError(msg, <id>))
+
+  /** Reports a single warning during code emission. */
+  emit-warning(emit|msg) =
+    where(<emit> DryadWarning(msg, <id>))
+
+  /**
+   * Generates a new label, using the current term as the name prefix 
+   * (if the current term is a string; otherwise simply uses "label").
+   */
+  new-label = <newname> <is-string <+ !"label">
+
+  /** Generates multiple new labels (from a list or tuple). */
+  new-labels = all(new-label)

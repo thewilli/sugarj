@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/type-check/invoke/ConstraintReduction
+module org/sugarj/dryad/compiler/dryad/type-check/invoke/ConstraintReduction
 imports
-  dryad/type-check/invoke/Constraints
+  org/sugarj/dryad/compiler/dryad/type-check/invoke/Constraints
 
 strategies
 

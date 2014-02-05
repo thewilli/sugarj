@@ -1,0 +1,424 @@
+/**
+ * dryad-compiler pretty-printing of mixed java/bytecode.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/util/pretty-print
+
+imports
+  libstratego-gpp
+  libjava-front
+
+strategies
+
+  dryad-compiler-pp =
+    dryad-compiler-pp(fail)
+  
+  dryad-compiler-pp(extension) =
+    as-list;
+    
+    map(
+      //FIXME: dryad-compiler-pp-box(extension);
+      topdown(try(flatten-list)); // HACK: Flatten generated abox... (should use more ~* in pp)
+      (  box2text-string(|80)
+      <+
+         if-verbose3(warn(|"Pretty printing failed")); fail
+      )
+    );
+    
+    // Output a single string
+    (?[<id>] <+ separate-by(|"\n"); concat-strings)
+  
+  /**
+   *  @param extension  Strategy that converts an aterm to an abox,
+   *                    overriding the default pretty printing rules.
+   */
+  dryad-compiler-pp-box(extension) =
+    // Allow pretty-printing lists of statements
+    // (for vertical pp use blocks)
+    if is-list; bc-all(is-BlockStm + JavaStm(id)) then
+      extension <+ !H [ ~*<id> ]
+    end;
+    
+    // Allow pretty-printing lists of instructions
+    // (for vertical pp use Instruction(_))
+    if is-list; is-rich-bc-instructions then
+      extension
+    <+
+      separate-by(!S("; ")); // add semmies for readability
+      !H hs=0 [ ~*<id> ]
+    end;
+    
+    // Allow pretty-printing lists of classes
+    if is-list; bc-all(is-ClassDec + is-ClassFile) then
+      extension <+ !V [ ~*<id> ]
+    end;
+
+    pp-java-box(
+      extension
+    <+
+      id //FIXME: Replace ID with bc-java-pp-rule
+    )
+
+rules // Java/bytecode pretty printing
+  
+  bc-java-pp-rule: BytecodeStm(b) -> H hs=0 [ "`" b ] where not(<is-list> b)  
+  bc-java-pp-rule: BytecodeStm(b) -> H [ "`[" b "]" ] where <?[_]> b
+  bc-java-pp-rule: BytecodeStm(b) -> V [ V is=2 [ "`[" b ] "]" ] where <?[_, _ | _]> b
+  
+  bc-java-pp-rule: BytecodeExpr(b) -> H hs=0 [ "`" b ] where not(<is-list> b)  
+  bc-java-pp-rule: BytecodeExpr(b) -> H hs=1 [ "`[" b  "]" ] where <is-list> b
+  
+  bc-java-pp-rule: JavaStm(b) -> H hs=0 [ "`" b ] where not(<is-list> b)  
+  bc-java-pp-rule: JavaStm(b) -> V [ V is=2 [ "`[" b  ] "]" ] where <is-list> b
+  
+  bc-java-pp-rule: JavaExpr(b) -> H hs=0 [ H [ "push" "`" ] b ] where not(<is-list> b)  
+  bc-java-pp-rule: JavaExpr(b) -> H hs=1 [     "push" "`[" b  "]" ] where <is-list> b
+  
+  bc-java-pp-rule: Trace(b1, b2) -> V [ V is=2 [ H [ "trace" H hs=0 [ "(" b1 ")" ] "[" ]
+                                             b2 ]
+                                      "]" ]
+  
+  bc-java-pp-rule: EndTrace(b) -> H [ "end" "trace" "[" b "]" ]
+
+  //FIXME: bc-java-pp-rule = bc-pp-rule
+
+/* FIXME: uncomment block
+rules // Reduced instruction set
+
+  // TODO: Pretty-print non-overloaded bytecode
+
+  bc-pp-rule: Exceptions([]) -> H []
+  bc-pp-rule: ExceptionTable(b) -> H [ "throws" b ] where not([] := b)
+  
+  bc-pp-rule: LDC(b) -> H [ "ldc" b ]
+  bc-pp-rule: LDC(b) -> H [ "ldc2_w" b ]
+  bc-pp-rule: NEW(b) -> H [ "new" b ]
+  bc-pp-rule: POP -> H [ "pop" ]
+  bc-pp-rule: DUP -> H [ "dup" ]
+  bc-pp-rule: DUP_X1 -> H [ "dup_x1" ]
+  bc-pp-rule: POP2 -> H [ "pop2" ]
+  bc-pp-rule: DUP_X2 -> H [ "dup_x2" ]
+  bc-pp-rule: DUP2 -> H [ "dup2" ]
+  bc-pp-rule: DUP2_X1 -> H [ "dup2_x1" ]
+  bc-pp-rule: DUP2_X2 -> H [ "dup2_x2" ]
+  bc-pp-rule: SWAP -> H [ "swap" ]
+  bc-pp-rule: INVOKESPECIAL(b) -> H [ "invokespecial" b ]
+  bc-pp-rule: INVOKEVIRTUAL(b) -> H [ "invokevirtual" b ]
+  bc-pp-rule: INVOKESTATIC(b) -> H [ "invokestatic" b ]
+  bc-pp-rule: INVOKEINTERFACE(b) -> H [ "invokeinterface" b ]
+  bc-pp-rule: GETSTATIC(b) -> H [ "getstatic" b ]
+  bc-pp-rule: PUTSTATIC(b) -> H [ "putstatic" b ]
+  bc-pp-rule: GETFIELD(b) -> H [ "getfield" b ]
+  bc-pp-rule: PUTFIELD(b) -> H [ "putfield" b ]
+  bc-pp-rule: LOAD(s) -> H [ "load" s ]
+  bc-pp-rule: STORE(s) -> H [ "store" s ]
+  bc-pp-rule: Final(s) -> H [ "final" s ]
+  bc-pp-rule: ALOAD() -> H [ "aload" ]
+  bc-pp-rule: ASTORE() -> H [ "astore" ]
+  bc-pp-rule: ARRAYLENGTH -> H [ "arraylength" ]
+  bc-pp-rule: NEWARRAY(b) -> H [ "newarray" b ]
+  bc-pp-rule: NEWARRAY(b) -> H [ "anewarray" b ]
+  bc-pp-rule: MULTIANEWARRAY(b,s) -> H [ "multianewarray" b s ]
+  bc-pp-rule: ADD -> H [ "add" ]
+  bc-pp-rule: DIV -> H [ "div" ]
+  bc-pp-rule: MUL -> H [ "mul" ]
+  bc-pp-rule: NEG -> H [ "neg" ]
+  bc-pp-rule: REM -> H [ "rem" ]
+  bc-pp-rule: SUB -> H [ "sub" ]
+  bc-pp-rule: SHL -> H [ "shl" ]
+  bc-pp-rule: SHR -> H [ "shr" ]
+  bc-pp-rule: USHR -> H [ "ushr" ]
+  bc-pp-rule: XOR -> H [ "xor" ]
+  bc-pp-rule: XOR_M1 -> H [ "xor_m1" ]
+  bc-pp-rule: AND -> H [ "and" ]
+  bc-pp-rule: OR -> H [ "or" ]
+  bc-pp-rule: INC -> H [ "inc" ]
+  bc-pp-rule: DEC -> H [ "dec" ]
+  bc-pp-rule: X2I -> H [ "x2i" ]
+  bc-pp-rule: X2L -> H [ "x2l" ]
+  bc-pp-rule: X2D -> H [ "x2d" ]
+  bc-pp-rule: X2F -> H [ "x2f" ]
+  bc-pp-rule: I2B -> H [ "i2b" ]
+  bc-pp-rule: I2S -> H [ "i2s" ]
+  bc-pp-rule: I2C -> H [ "i2c" ]
+  bc-pp-rule: LT -> H [ "lt" ]
+  bc-pp-rule: GT -> H [ "gt" ]
+  bc-pp-rule: EQ -> H [ "eq" ]
+  bc-pp-rule: LE -> H [ "le" ]
+  bc-pp-rule: GE -> H [ "ge" ]
+  bc-pp-rule: NE -> H [ "ne" ]
+  bc-pp-rule: IFEQ(s) -> H [ "ifeq" s ]
+  bc-pp-rule: IFNE(s) -> H [ "ifne" s ]
+  bc-pp-rule: GOTO(s) -> H [ "goto" s ]
+  bc-pp-rule: ATHROW -> H [ "athrow" ]
+  bc-pp-rule: RETURN -> H [ "return" ]
+  bc-pp-rule: XRETURN -> H [ "xreturn" ]
+  bc-pp-rule: Label(s) -> H hs=0 [ s ":" ]
+  bc-pp-rule: Jump(s) -> H [ s ]
+  bc-pp-rule: NPAIR(b1,b2) -> H [ b1 ":" b2 ]
+  bc-pp-rule: MONITORENTER -> H [ "monitorenter" ]
+  bc-pp-rule: MONITOREXIT -> H [ "monitorexit" ]
+  bc-pp-rule: CHECKCAST(b) -> H [ "checkcast" b ]
+  bc-pp-rule: INSTANCEOF(b) -> H [ "instanceof" b ]
+  bc-pp-rule: NOP -> H [ "nop" ]
+  bc-pp-rule: BREAKPOINT -> H [ "breakpoint" ]
+
+rules // Bytecode "legacy" instructions
+
+   bc-pp-var = try(!S(<is-string>))
+
+   bc-pp-rule: BIPUSH(b) -> H ["bipush" b ]
+   bc-pp-rule: SIPUSH(b) -> H [ "sipush" b ]
+   bc-pp-rule: ICONST_M1() -> H [ "iconst_m1" ]
+   bc-pp-rule: ICONST_0() -> H [ "iconst_0" ]
+   bc-pp-rule: ICONST_1() -> H [ "iconst_1" ]
+   bc-pp-rule: ICONST_2() -> H [ "iconst_2" ]
+   bc-pp-rule: ICONST_3() -> H [ "iconst_3" ]
+   bc-pp-rule: ICONST_4() -> H [ "iconst_4" ]
+   bc-pp-rule: ICONST_5() -> H [ "iconst_5" ]
+   bc-pp-rule: LCONST_0() -> H [ "lconst_0" ]
+   bc-pp-rule: LCONST_1() -> H [ "lconst_1" ]
+   bc-pp-rule: DCONST_0() -> H [ "dconst_0" ]
+   bc-pp-rule: DCONST_1() -> H [ "dconst_1" ]
+   bc-pp-rule: FCONST_0() -> H [ "fconst_0" ]
+   bc-pp-rule: FCONST_1() -> H [ "fconst_1" ]
+   bc-pp-rule: FCONST_2() -> H [ "fconst_2" ]
+   bc-pp-rule: ACONST_NULL() -> H [ "aconst_null" ]
+   bc-pp-rule: LDC_W(b) -> H [ "ldc_w" b ]
+   bc-pp-rule: ILOAD(s) -> H [ "iload" ~<bc-pp-var> s ]
+   bc-pp-rule: LLOAD(s) -> H [ "lload" ~<bc-pp-var> s ]
+   bc-pp-rule: FLOAD(s) -> H [ "fload" ~<bc-pp-var> s ]
+   bc-pp-rule: DLOAD(s) -> H [ "dload" ~<bc-pp-var> s ]
+   bc-pp-rule: ALOAD(s) -> H [ "aload" ~<bc-pp-var> s ]
+   bc-pp-rule: IRETURN -> H [ "ireturn" ]
+   bc-pp-rule: LRETURN -> H [ "lreturn" ]
+   bc-pp-rule: FRETURN -> H [ "freturn" ]
+   bc-pp-rule: DRETURN -> H [ "dreturn" ]
+   bc-pp-rule: ARETURN -> H [ "areturn" ]
+   bc-pp-rule: IINC(s1, s2) -> H [ "iinc" s1 s2 ]
+   bc-pp-rule: ISTORE(s) -> H [ "istore" ~<bc-pp-var> s ]
+   bc-pp-rule: LSTORE(s) -> H [ "lstore" ~<bc-pp-var> s ]
+   bc-pp-rule: FSTORE(s) -> H [ "fstore" ~<bc-pp-var> s ]
+   bc-pp-rule: DSTORE(s) -> H [ "dstore" ~<bc-pp-var> s ]
+   bc-pp-rule: ASTORE(s) -> H [ "astore" ~<bc-pp-var> s ]
+   bc-pp-rule: DADD() -> H [ "dadd" ]
+   bc-pp-rule: DDIV() -> H [ "ddiv" ]
+   bc-pp-rule: DMUL() -> H [ "dmul" ]
+   bc-pp-rule: DNEG() -> H [ "dneg" ]
+   bc-pp-rule: DREM() -> H [ "drem" ]
+   bc-pp-rule: DSUB() -> H [ "dsub" ]
+   bc-pp-rule: FADD() -> H [ "fadd" ]
+   bc-pp-rule: FDIV() -> H [ "fdiv" ]
+   bc-pp-rule: FMUL() -> H [ "fmul" ]
+   bc-pp-rule: FNEG() -> H [ "fneg" ]
+   bc-pp-rule: FREM() -> H [ "frem" ]
+   bc-pp-rule: FSUB() -> H [ "fsub" ]
+   bc-pp-rule: IADD() -> H [ "iadd" ]
+   bc-pp-rule: IAND() -> H [ "iand" ]
+   bc-pp-rule: IDIV() -> H [ "idiv" ]
+   bc-pp-rule: IMUL() -> H [ "imul" ]
+   bc-pp-rule: INEG() -> H [ "ineg" ]
+   bc-pp-rule: IOR() -> H [ "ior" ]
+   bc-pp-rule: IREM() -> H [ "irem" ]
+   bc-pp-rule: ISHL() -> H [ "ishl" ]
+   bc-pp-rule: ISHR() -> H [ "ishr" ]
+   bc-pp-rule: ISUB() -> H [ "isub" ]
+   bc-pp-rule: IUSHR() -> H [ "iushr" ]
+   bc-pp-rule: IXOR() -> H [ "ixor" ]
+   bc-pp-rule: LADD() -> H [ "ladd" ]
+   bc-pp-rule: LAND() -> H [ "land" ]
+   bc-pp-rule: LDIV() -> H [ "ldiv" ]
+   bc-pp-rule: LMUL() -> H [ "lmul" ]
+   bc-pp-rule: LNEG() -> H [ "lneg" ]
+   bc-pp-rule: LOR() -> H [ "lor" ]
+   bc-pp-rule: LREM() -> H [ "lrem" ]
+   bc-pp-rule: LSHL() -> H [ "lshl" ]
+   bc-pp-rule: LSHR() -> H [ "lshr" ]
+   bc-pp-rule: LSUB() -> H [ "lsub" ]
+   bc-pp-rule: LUSHR() -> H [ "lushr" ]
+   bc-pp-rule: LXOR() -> H [ "lxor" ]
+   bc-pp-rule: IASTORE() -> H [ "iastore" ]
+   bc-pp-rule: LASTORE() -> H [ "lastore" ]
+   bc-pp-rule: BASTORE() -> H [ "bastore" ]
+   bc-pp-rule: CASTORE() -> H [ "castore" ]
+   bc-pp-rule: SASTORE() -> H [ "sastore" ]
+   bc-pp-rule: FASTORE() -> H [ "fastore" ]
+   bc-pp-rule: DASTORE() -> H [ "dastore" ]
+   bc-pp-rule: AASTORE() -> H [ "aastore" ]
+   bc-pp-rule: IALOAD() -> H [ "iaload" ]
+   bc-pp-rule: LALOAD() -> H [ "laload" ]
+   bc-pp-rule: BALOAD() -> H [ "baload" ]
+   bc-pp-rule: CALOAD() -> H [ "caload" ]
+   bc-pp-rule: SALOAD() -> H [ "saload" ]
+   bc-pp-rule: FALOAD() -> H [ "faload" ]
+   bc-pp-rule: DALOAD() -> H [ "daload" ]
+   bc-pp-rule: AALOAD() -> H [ "aaload" ]
+  
+rules // Bytecode structures
+
+  bc-pp-rule: Interface(s) -> H [ s ]
+  bc-pp-rule: Class(s) -> H [ s ]
+  bc-pp-rule: Name(s) -> H [ s ]
+  bc-pp-rule: Param(b1,b2) -> H [ b1 b2 ]
+  bc-pp-rule: MethodRef(b1,b2,b3) -> H hs=0 [ b1 "." b2 "(" b3 ")" ]
+  bc-pp-rule: InterfaceMethodRef(b1,b2,b3) -> H hs=0 [ b1 "." b2 "(" b3 ")" ]
+  bc-pp-rule: FieldRef(b1,b2,b3) -> H [ H hs=0 [ b1 "." b2 ] ":" b3 ]
+  bc-pp-rule: ClassSignature(b) -> H [ b ]
+  bc-pp-rule: MethodSignature(b) -> H [ b ]
+  bc-pp-rule: FieldSignature(b) -> H [ b ]
+  bc-pp-rule: True -> H [ "true" ]
+  bc-pp-rule: False -> H [ "false" ]
+  bc-pp-rule: Null -> H [ "null" ]
+  bc-pp-rule: Boolean(b) -> H [ b ]
+  bc-pp-rule: Char(s) -> H hs=0 [ "'" s "'" ] where <is-string> s
+  bc-pp-rule: String(s) -> H hs=0 [ "\"" s "\"" ] where <is-string> s
+  bc-pp-rule: Class(s) -> H [ s ]
+  
+  // TODO: Don't pp explicit types for literals in LDC/LDC2_W
+  bc-pp-rule: Byte(s) -> H [ s KW[":"] KW["byte"] ]
+  bc-pp-rule: Short(s) -> H [ s KW[":"] KW["short"] ]
+  bc-pp-rule: Int(s) -> H [ s KW[":"] KW["int"] ]
+  bc-pp-rule: Long(s) -> H [ s KW[":"] KW["long"] ]
+  bc-pp-rule: Double(s) -> H [ s KW[":"] KW["double"] ]
+  bc-pp-rule: Float(s) -> H [ s KW[":"] KW["float"] ]
+  
+  bc-pp-rule:
+    ClassFile(b1,b2,b3,b4,b5,b6,b7,b8,b9) ->
+    V vs=1 [
+      H [ "classfile" b1 b3 b4 b5 b6 ]
+      b7
+      b8
+      b9
+    ]
+    where b2 := MinorVersion(<string-to-int => EmitMinorVersion>);
+          b3 := MajorVersion(<string-to-int => EmitMajorVersion>)
+  
+  bc-pp-rule:
+    ClassFile(b1,b2,b3,b4,b5,b6,b7,b8,b9) ->
+    V vs=1 [
+      V is=2 [
+        "classfile"
+        H [ "format" b1 b2 ]
+        H [ b3 b4 b5 b6 ]
+      ]
+      b7
+      b8
+      b9
+    ]
+    where not(
+            b2 := MinorVersion(<string-to-int => EmitMinorVersion>);
+            b3 := MajorVersion(<string-to-int => EmitMajorVersion>)
+          )
+          
+  bc-pp-rule: SuperClass(Some(s)) -> H [ "extends" s ]
+          
+  bc-pp-rule:
+    Interfaces(b) -> H [ "implements" b2 ]
+    where !b;
+          not([]);
+          separate-by(|", ");
+          map(!S(<id>)); // each item is a symbol
+          b2 := H hs=0 [ ~<id> ]
+  
+  bc-pp-rule:
+    Interfaces(b) -> H []
+    where [] := b
+  
+  bc-pp-rule:
+    Method(AccessFlags(flags), name, descriptor, Attributes(attrs)) ->
+    V [ H [ ~flags ~name H hs=0 [ "(" ~descriptor ")" ] ~exceptions ]
+        ~attrs'
+    ]
+    where
+      attrs' := <filter(not(Exceptions(id); try(?exceptions)))> attrs;
+      exceptions := <!exceptions <+ !Exceptions([])>
+
+  bc-pp-rule: Code(b1,b2,b3,b4,Attributes(b5)) ->  V [ b1 b2 b3 b4 b5 ]
+  bc-pp-rule: Instructions(b) -> V [ V is=2 [ "[" b ] "]" ]
+  
+  bc-pp-rule:
+    MethodDescriptor(b1,b2) -> H [ b3 ":" b2 ]
+    where !b1;
+          not([]);
+          separate-by(|S(", "));
+          b3 := H hs=0 [ ~<id> ]
+
+  bc-pp-rule: LineNumberTable(_) -> H []
+  bc-pp-rule: LocalVariableTable(_) -> H []
+
+  bc-pp-rule:
+    MethodDescriptor(b1,b2) -> H [ b2 ]
+    where [] := b1
+  
+  bc-pp-rule: MinorVersion(b) -> H [ b ]
+  bc-pp-rule: MajorVersion(b) -> H [ b ]
+  bc-pp-rule: MajorVersion(b) -> H [ "format" b ]
+  bc-pp-rule: <is-int> -> H [ s ] where s := <write-to-string>
+  bc-pp-rule: ThisClass(s) -> H [ s ]
+  bc-pp-rule: SuperClass(None) -> H [] // None is not printed
+  bc-pp-rule: Attributes(b) -> V is=2 ["attributes" b ]
+  bc-pp-rule: SourceFile(s) -> H [ "sourcefile" s ]
+  bc-pp-rule: UnknownAttribute(s) -> H [ "unknown" "attribute" s ]
+  bc-pp-rule: MethodSignature(b) -> H [ "signature" b ]
+  bc-pp-rule: InnerClasses(b) -> H [ "innerclasses" b ]
+  bc-pp-rule: AccessFlags(b) -> H [ b ]
+  bc-pp-rule: Public -> H [ "public" ]
+  bc-pp-rule: Private -> H [ "private" ]
+  bc-pp-rule: Protected -> H [ "protected" ]
+  bc-pp-rule: Static -> H [ "static" ]
+  bc-pp-rule: Final -> H [ "final" ]
+  bc-pp-rule: Synchronized -> H [ "synchronized" ]
+  bc-pp-rule: Super -> H [ "super" ]
+  bc-pp-rule: Bridge -> H [ "bridge" ]
+  bc-pp-rule: Volatile -> H [ "volatile" ]
+  bc-pp-rule: Varargs -> H [ "varargs" ]
+  bc-pp-rule: Transient -> H [ "transient" ]
+  bc-pp-rule: Native -> H [ "native" ]
+  bc-pp-rule: Interface -> H [ "interface" ]
+  bc-pp-rule: Abstract -> H [ "abstract" ]
+  bc-pp-rule: Strict -> H [ "strict" ]
+  bc-pp-rule: Synthetic -> H [ "synthetic" ]
+  bc-pp-rule: Annotation -> H [ "annotation" ]
+  bc-pp-rule: Enum -> H [ "enum" ]
+  bc-pp-rule: Static -> H [ "static" ]
+  bc-pp-rule: Methods(b) -> V is=2 [ "methods" V vs=1 [ b ] ]
+    
+  bc-pp-rule: MaxStack(b) -> H [ "maxstack" b ] where Some(_) := b
+  bc-pp-rule: MaxStack(b) -> H [] where None := b
+  bc-pp-rule: MaxLocals(b) -> H [ "maxlocals" b ] where Some(_) := b
+  bc-pp-rule: MaxLocals(b) -> H [] where None := b
+          
+  bc-pp-rule: Exceptions(b) -> H [] where b := []
+  bc-pp-rule: Exceptions(b) -> H [ "throws" b ] where not([] := b)
+  bc-pp-rule: MethodSignature(b) -> H [ "signature" b ]
+  bc-pp-rule: ExceptionTable(b) -> H [ b ]
+  bc-pp-rule: MaxStack(b) -> H [ b ]
+  bc-pp-rule: MaxLocals(b) -> H [ b ]
+  bc-pp-rule: Some(b) -> H [ b ]
+  bc-pp-rule: Fields(b) -> V is=2 [ "fields" V vs=1 [ b ] ]
+  bc-pp-rule: Field(b1,b2,b3,b4) -> H [ b1 b2 ":" b3 b4 ]
+  bc-pp-rule: FieldDescriptor(b) -> H [ b ]
+  bc-pp-rule: FieldSignature(b) -> H [ "signature" b ]
+  bc-pp-rule: ConstantValue(b) -> H [ "=" b ]
+  bc-pp-rule: Byte() -> H [ "byte" ]
+  bc-pp-rule: Char() -> H [ "char" ]
+  bc-pp-rule: Double() -> H [ "double" ]
+  bc-pp-rule: Float() -> H [ "float" ]
+  bc-pp-rule: Int() -> H [ "int" ]
+  bc-pp-rule: Long() -> H [ "long" ]
+  bc-pp-rule: Short() -> H [ "short" ]
+  bc-pp-rule: Boolean() -> H [ "boolean" ]
+  bc-pp-rule: ArrayType(b) -> H hs=0 [ b "[]" ]
+  bc-pp-rule: Void() -> H [ "void" ]
+  bc-pp-rule: ObjectType(s) -> H [ s ] // TODO2: What about "quoted" object types?
+  bc-pp-rule: Final(s) -> H [ "final" s ]
+  bc-pp-rule: CatchWrap(b1,b2) -> V [ V is=2 [ H [ "catch" b1 "[" ]
+                                               b2
+                                      ]
+                                      "]"
+                                    ]
+  bc-pp-rule: Any -> H [ "*" ]
+  bc-pp-rule: Catch(b1,b2) -> H [ b1 ":" b2 ]
+  bc-pp-rule: Quoted(b) -> H [ "\"" b "\"" ]
+*/

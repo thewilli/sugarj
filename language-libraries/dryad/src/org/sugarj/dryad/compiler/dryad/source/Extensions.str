@@ -4,7 +4,7 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/source/Extensions
+module org/sugarj/dryad/compiler/dryad/source/Extensions
 signature
   constructors
     TypeVar : TypeVarQualifier * Id -> TypeVar

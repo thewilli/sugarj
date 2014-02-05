@@ -1,0 +1,91 @@
+/**
+ * dryad-compiler emit inner classes support.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/inner-classes
+
+/** Add inner classes support to the emit process for classes. */
+strategies
+
+  /** Define and scope dynamic rules about inner classes. */
+  inner-classes-support-wrap(s|simplename, flags) =
+    // Add inner class attribute to outer class scope, if applicable
+    if <elem> (Static, flags) then
+      dr-ignore-states(
+        s
+      | ["InnerClassFields", "InnerClassField", "InnerClasses", "OuterClasses"]
+      )
+    else
+      try(record-inner-class-attributes(|simplename, flags));
+
+      {| InnerClassFields, InnerClassField, InnerClasses, OuterClasses:
+        
+        if(OuterClassType, where(
+          // add this$N fields for outer classes
+          record-outer-class-field;
+          add-outer-class-fields
+        ));
+        
+        s
+      |}
+    end
+
+  /**
+   * Record the current inner class relation here and in inner classes
+   * (only if OuterClassName is defined).
+   * @internal
+   */
+  record-inner-class-attributes(|name, flags) =
+    inner := |[ classfile <CurrentClassName> as ~*flags <OuterClassName>.~name ]|;
+    rules(InnerClasses :+= inner)
+  
+  /** @internal */
+  record-outer-class-field =
+    where(        
+      count := <bigbagof-OuterClasses; length <+ !0>;
+      field := <conc-strings> ("this$", <as-string> count);
+      type  := <OuterClassType>
+    );
+        
+    rules(
+      InnerClassField: type -> field
+      OuterClasses :+= type
+    )
+  
+  /** @internal */
+  add-outer-class-fields =
+    bigbagof-OuterClasses;
+    list-loop({
+      ?type;
+      type' := ObjectType(<source-type-to-bytecode-type>);
+      ident := <InnerClassField> type;
+      rules(AddedClassMembers :+= |[ private synthetic ~ident : ~type' ]|)
+    })
+
+/** Add inner classes support to the emit process for constructors. */
+strategies
+
+  inner-classes-init-support:
+    |[ ~*flags <init>(~*args  : ~ret) ~*attrs  ]| ->
+    |[ ~*flags <init>(~*args' : ~ret) ~*attrs' ]|
+    where outer   := <OuterClassType>;
+          argtype := ObjectType(<OuterClassName>);
+          argname := <newname> "outer";
+          field   := |[ <CurrentClassName>.<InnerClassField> outer : ~argtype ]|;
+
+          // FIXME: Initialize this$N fields of outer outer classes
+          code    := |[ load this; load ~argname; putfield ~field ]|;          
+
+          args'   := [argtype {Id(argname)} | args];
+          attrs'  := <alltd(Instructions(![code | <id>]))> attrs
+
+  /** Succeeds if the given class type is an instance inner class. */
+  is-instance-inner-class =
+    where(
+      try(?ClassType(<id>, _));
+      ?TypeName(TypeName(_, _), _);
+      
+      log-lookup-class;
+      not(is-static)
+    )

@@ -4,7 +4,7 @@
  * @todo Add subtype constraint
  * @author Martin Bravenboer
  */
-module dryad/type-check/invoke/Constraints
+module org/sugarj/dryad/compiler/dryad/type-check/invoke/Constraints
 signature
   constructors
     Constraint      : ConstraintKind * Type * Type -> Constraint

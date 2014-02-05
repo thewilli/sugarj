@@ -3,24 +3,24 @@
  *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-module dryad-compiler
+module org/sugarj/dryad/compiler/dryad-compiler
 
 imports
   libstratego-lib
-  dryad
+  org/sugarj/dryad/compiler/dryad
   libjava-front
-  dryad-compiler/backend/-
-  dryad-compiler/backend/asm/-
-  dryad-compiler/backend/asm/optimize/-
-  dryad-compiler/backend/asm/transform/-
-  dryad-compiler/backend/asm/instructions/-
-  dryad-compiler/backend/emit/-
-  dryad-compiler/backend/unasm/-
-  dryad-compiler/frontend/-
-  dryad-compiler/util/-
-  dryad-compiler/util/trace/-
-  dryad-compiler/lib-ext/-
-  Java-Bytecode
+  org/sugarj/dryad/compiler/dryadcompiler/backend/-
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm/-
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm/optimize/-
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm/transform/-
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm/instructions/-
+  org/sugarj/dryad/compiler/dryadcompiler/backend/emit/-
+  org/sugarj/dryad/compiler/dryadcompiler/backend/unasm/-
+  org/sugarj/dryad/compiler/dryadcompiler/frontend/-
+  org/sugarj/dryad/compiler/dryadcompiler/util/-
+  org/sugarj/dryad/compiler/dryadcompiler/util/trace/-
+  org/sugarj/dryad/compiler/dryadcompiler/lib-ext/-
+  org/sugarj/languages/Java-Bytecode
 
 strategies
 

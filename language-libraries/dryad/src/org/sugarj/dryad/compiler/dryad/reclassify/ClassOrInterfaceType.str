@@ -1,7 +1,7 @@
 /**
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/reclassify/ClassOrInterfaceType
+module org/sugarj/dryad/compiler/dryad/reclassify/ClassOrInterfaceType
 strategies
 
   dryad-reclassify-type =

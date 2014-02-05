@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/type-check/ShiftOperators
+module org/sugarj/dryad/compiler/dryad/type-check/ShiftOperators
 strategies
 
   dryad-type-of :

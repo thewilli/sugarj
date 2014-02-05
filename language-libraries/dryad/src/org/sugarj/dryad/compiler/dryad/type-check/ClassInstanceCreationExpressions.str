@@ -4,7 +4,7 @@
  * @todo Implement qualifed class instance creation expressions.
  * @todo Implement anonymous class declarations.
  */
-module dryad/type-check/ClassInstanceCreationExpressions
+module org/sugarj/dryad/compiler/dryad/type-check/ClassInstanceCreationExpressions
 strategies
 
   /**

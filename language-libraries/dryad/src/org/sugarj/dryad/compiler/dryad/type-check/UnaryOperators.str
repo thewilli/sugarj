@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/type-check/UnaryOperators
+module org/sugarj/dryad/compiler/dryad/type-check/UnaryOperators
 strategies
 
   /**

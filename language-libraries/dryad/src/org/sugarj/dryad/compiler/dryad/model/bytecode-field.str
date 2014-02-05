@@ -3,10 +3,10 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/bytecode-field
+module org/sugarj/dryad/compiler/dryad/model/bytecode-field
 imports
-  dryad/bytecode/util
-  dryad/model/field
+  org/sugarj/dryad/compiler/dryad/bytecode/util
+  org/sugarj/dryad/compiler/dryad/model/field
 
 strategies
   

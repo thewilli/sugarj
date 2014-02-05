@@ -5,12 +5,12 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/class
+module org/sugarj/dryad/compiler/dryad/model/class
 imports
-  dryad/model/member
-  dryad/model/repository
-  dryad/lib-ext/oo/classes
-  dryad/jls/types/Erasure
+  org/sugarj/dryad/compiler/dryad/model/member
+  org/sugarj/dryad/compiler/dryad/model/repository
+  org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
+  org/sugarj/dryad/compiler/dryad/jls/types/Erasure
 
 /**
  * Names

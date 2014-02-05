@@ -1,7 +1,7 @@
 /**
  * 15.18: Additive Operators
  */
-module dryad/type-check/AdditiveOperators
+module org/sugarj/dryad/compiler/dryad/type-check/AdditiveOperators
 strategies
 
   /**

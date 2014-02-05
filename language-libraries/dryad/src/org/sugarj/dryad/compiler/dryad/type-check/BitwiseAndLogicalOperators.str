@@ -1,7 +1,7 @@
 /**
  * 15.22: Bitwise and Logical Operators
  */
-module dryad/type-check/BitwiseAndLogicalOperators
+module org/sugarj/dryad/compiler/dryad/type-check/BitwiseAndLogicalOperators
 strategies
 
   dryad-type-of :

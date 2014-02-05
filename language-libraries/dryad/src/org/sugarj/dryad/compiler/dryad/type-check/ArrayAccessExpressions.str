@@ -1,7 +1,7 @@
 /**
  * 15.13: Array Access Expressions
  */
-module dryad/type-check/ArrayAccessExpressions
+module org/sugarj/dryad/compiler/dryad/type-check/ArrayAccessExpressions
 strategies
 
   /**

@@ -1,4 +1,4 @@
-module FieldSignature
+module org/sugarj/dryad/compiler/dryad/bytecode/FieldSignature
 
 signature
   constructors

@@ -1,0 +1,46 @@
+/**
+ * dryad-compiler code-generation for (embedded) bytecode.
+ *
+ * Accepts most bytecode 'as-is', but deals with minor aspects
+ * such as local variables.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/bytecode
+
+imports org/sugarj/dryad/compiler/dryadcompiler/backend/unasm/-
+
+strategies
+  
+  emit-bytecode(emit) =
+    is-Field
+
+  /** Emit bytecode instructions embedded in Java. */ 
+  emit-java(emit) =
+    ?BytecodeExpr(<emit-bytecode(emit) <+ emit>)
+  + ?BytecodeStm(<emit-bytecode(emit) <+ emit>)
+
+  /** Emit bytecode instructions and embedded Java. */
+  emit-bytecode(emit) =    
+    ?JavaExpr(<as-list; emit>)
+  <+
+    ?JavaStm(<as-list; emit>)
+  <+
+    is-bc-instructions;
+    emit-map(emit-bytecode(emit));
+    flatten-bytecode
+  <+
+    not(is-list);
+    bc-apply-to-wrap(emit)
+  /* UNDONE: unassembly from emit-bytecode
+  <+
+    bc-unasm-signature;
+    emit
+  */
+  <+
+    ( // Multiply declared Java vars may need unique name (prefer existing renaming)
+      LOAD(NewLocalName <+ rename-local)
+    + STORE(NewLocalName <+ rename-local)
+    )
+  <+ // Must appear last
+    is-rich-bc-instruction <+ not(is-list); bc-unasm-instruction; emit

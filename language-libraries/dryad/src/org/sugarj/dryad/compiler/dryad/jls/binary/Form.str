@@ -1,7 +1,7 @@
 /**
  * 13.1: The Form of a Binary
  */
-module dryad/jls/binary/Form
+module org/sugarj/dryad/compiler/dryad/jls/binary/Form
 strategies
 
   /**

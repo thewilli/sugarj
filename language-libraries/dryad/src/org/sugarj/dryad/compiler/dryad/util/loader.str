@@ -4,9 +4,9 @@
  *
  * @author Karl Trygve Kalleberg <karltk@cs.uu.nl>
  */
-module dryad/util/loader
+module org/sugarj/dryad/compiler/dryad/util/loader
 imports
-	liblib
+	org/sugarj/dryad/compiler/liblib
 
 strategies
 
@@ -34,7 +34,7 @@ strategies
 
 	
 	/**
-	 * Load all .java files found in a directory hierarchy into the Dryad
+	 * Load all .java files found in a directory hierarchy into the org/sugarj/dryad/compiler/dryad
 	 * repository.
 	 *
 	 * Input is the base directory to start from.
@@ -45,7 +45,7 @@ strategies
 		load-all-x-files(|".java")
 
 	/**
-	 * Load all .class files found in a directory hierarchy into the Dryad
+	 * Load all .class files found in a directory hierarchy into the org/sugarj/dryad/compiler/dryad
 	 * repository.
 	 *
 	 * Input is the base directory to start from.

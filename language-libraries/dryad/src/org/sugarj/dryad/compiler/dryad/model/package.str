@@ -3,10 +3,10 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/package
+module org/sugarj/dryad/compiler/dryad/model/package
 imports
-  dryad/model/repository  
-  dryad/util/option
+  org/sugarj/dryad/compiler/dryad/model/repository  
+  org/sugarj/dryad/compiler/dryad/util/option
 
 strategies
 

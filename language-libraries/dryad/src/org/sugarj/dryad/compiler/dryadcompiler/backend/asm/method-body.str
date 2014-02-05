@@ -1,0 +1,90 @@
+/**
+ * dryad-compiler method body rich bytecode assembly.
+ *
+ * Translates 'rich bytecode' method bodies to regular Java bytecode.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/asm/method-body
+
+imports libstratego-lib
+        org/sugarj/dryad/compiler/dryad
+        org/sugarj/dryad/compiler/dryadcompiler/backend/asm/-
+        org/sugarj/dryad/compiler/dryadcompiler/backend/asm/instructions/-
+        org/sugarj/dryad/compiler/dryadcompiler/backend/asm/transform/-
+        org/sugarj/dryad/compiler/dryadcompiler/lib-ext/-
+        org/sugarj/languages/Java-Bytecode
+
+/** @internal */
+strategies
+
+  /**
+   * Assembly of rich bytecode method bodies to regular bytecode.
+   *
+   * @internal Call bc-asm instead for rule scoping and error reporting.
+   */
+  bc-asm-method-body =
+  {| ExceptionEntries, LineNumberEntries:
+    bc-locals-scope(
+      Code(id, id, Instructions(bc-asm-instructions), id, id);
+
+      // Add information about stack, locals, exceptions and for debugging
+      Code(
+        !MaxStack(None)
+      , !MaxLocals(Some(<NextLocalPos>))
+      , id
+      , !ExceptionTable(<bagof-ExceptionEntries>)
+      , Attributes(![
+          LineNumberTable(<sorted-line-number-entries>)
+        | <id>
+        ])
+      )
+    )
+  |}
+
+  /**
+   * Assembly of instructions to regular Java bytecode.
+   *
+   * @internal Call bc-asm instead for rule scoping and error reporting.
+   */
+  bc-asm-instructions =
+    jdebug(!"bc-asm-instructions");
+    bc-verify-labels;
+    bc-verify-local-assignment;
+    bc-verify-final-locals;
+    
+    if Optimization-gt(|0) then
+      bc-optimize-patterns
+    end;
+    
+    // Specialize instructions, and report further errors
+    bc-type-check(
+      // Check each (stack, instruction)
+      where(bc-restrict-casts);
+      
+      // Return new instruction
+      try(bc-specialize-instruction; not(?(_, None)));
+      (bc-remove-dead-instruction <+ Snd)
+    ,
+       Unreachable <+ bc-error(|"Method must always return or throw an exception.", None)
+    );
+    
+    // Further reduction to regular bytecode: remove all wrapper tags
+    bc-asm-record-labels-wrap(
+      bc-asm-catch-wraps;
+      bc-asm-jumps;
+      bc-asm-debug-info;
+      strip-bytecode-tags // cleanup
+    )
+  <+
+    // Shouldn't happen, ever:
+    bc-error(|"Internal error: bytecode assembly failed", <id>);
+    bc-asm-abort
+
+  /** Call bc-error for impossible instanceof/checkcast. */
+  bc-restrict-casts =
+    if ?(stack, byte @ <?CHECKCAST(t2) + ?INSTANCEOF(t2)>) then
+      have-bc-subtype-relation(|<Hd> stack, t2)
+    <+
+      bc-warning(|"Input can never be of type", t2, byte)
+    end

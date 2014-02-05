@@ -1,0 +1,149 @@
+/**
+ * dryad-compiler emit operators.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/operators
+
+/** Basic operators. */ 
+strategies   
+  
+  // right operand of shift is always truncated to an integer (JLS 15.9)
+  emit-java(emit): |[ e1 << e2 ]|  -> [ <emit> e1, <emit> e2, X2I, SHL ]
+  emit-java(emit): |[ e1 >> e2 ]|  -> [ <emit> e1, <emit> e2, X2I, SHR ]
+  emit-java(emit): |[ e1 >>> e2 ]| -> [ <emit> e1, <emit> e2, X2I, USHR ]
+
+  emit-java(emit): |[ +e ]|      ->   <emit> e
+  emit-java(emit): |[ -e ]|      -> [ <emit> e, NEG ]
+  //emit-java(emit): |[ ~c ]|      -> [ <emit> c, XOR_M1 ]
+  emit-java(emit): |[ e1 - e2 ]| -> [ <emit> e1, <emit> e2, SUB ]
+  emit-java(emit): |[ e1 * e2 ]| -> [ <emit> e1, <emit> e2, MUL ]
+  emit-java(emit): |[ e1 / e2 ]| -> [ <emit> e1, <emit> e2, DIV ]
+  emit-java(emit): |[ e1 % e2 ]| -> [ <emit> e1, <emit> e2, REM ]
+  emit-java(emit): |[ e1 & e2 ]| -> [ <emit> e1, <emit> e2, AND ]
+  emit-java(emit): |[ e1 | e2 ]| -> [ <emit> e1, <emit> e2, OR  ]
+  emit-java(emit): |[ e1 ^ e2 ]| -> [ <emit> e1, <emit> e2, XOR ]
+  
+  emit-java(emit): |[ e1 + e2 ]| -> [ <emit> e1, <emit> e2, ADD ]
+    where not(type-attr => ClassType(_, _))
+
+  emit-java(emit): |[ e1 < e2 ]| -> [ <emit> e1, <emit> e2, LT  ]
+  emit-java(emit): |[ e1 > e2 ]| -> [ <emit> e1, <emit> e2, GT  ]
+  emit-java(emit): |[ e1 == e2 ]| -> [ <emit> e1, <emit> e2, EQ ]
+  emit-java(emit): |[ e1 != e2 ]| -> [ <emit> e1, <emit> e2, NE ]
+  emit-java(emit): |[ e1 <= e2 ]| -> [ <emit> e1, <emit> e2, LE ]
+  emit-java(emit): |[ e1 >= e2 ]| -> [ <emit> e1, <emit> e2, GE ]
+  emit-java(emit): |[ e1 ? e2 : e3 ]| -> <emit> If(e1, e2, e3)
+  emit-java(emit): |[ e instanceof reft ]| -> [ <emit> e, INSTANCEOF(<emit> reft) ]
+
+/* FIXME:  emit-java(emit):
+    |[ !f ]| ->
+    |[ <emit> f;
+       ifne else;
+         ldc true;
+         goto end;
+       else:
+         ldc false;
+       end:
+    ]|
+    where (else, end) := <new-labels> ("elsenot", "endnot")
+*/
+  emit-java(emit):
+    |[ e1 && e2 ]| ->
+    |[ <emit> e1;
+       ifne else;
+         <emit> e2; // e1 succeeds, try e2
+         goto end;
+       else:
+         ldc false; // e1 failed
+       end:
+    ]|
+    where (else, end) := <new-labels> ("elseand", "endand")
+
+  emit-java(emit):
+    |[ e1 || e2 ]| ->
+    |[ <emit> e1;
+       ifne else;
+         ldc true; // e1 succeeds
+         goto end;
+       else:
+         <emit> e2; // try e2
+       end:
+    ]|
+    where (else, end) := <new-labels> ("elseor", "endor")
+
+/** Assign-and-modify operators. */
+strategies
+
+  /** Add truncation for byte/short/char. */
+  emit-truncate =
+    switch type-attr
+      case Byte:  !I2B
+      case Short: !I2S
+      case Char:  !I2C
+      otherwise:  ![]
+    end
+
+  /** Emit non-simple assignment operator (e.g., +=). */
+  emit-java(emit) =
+    where(
+      assignment-op-rhs-value;
+      one(!Empty) => op-rhs // remove the lhs, since the following call adds it
+    );
+    where(assignment-lhs-value => lhs);
+    
+    <emit-modify-variable(emit|lhs)>
+      |[ ~op-rhs;        
+         <emit-assign-conversion(emit)>;
+         <emit-truncate>;        
+         dup // remains on stack
+      ]|
+
+  // TODO2: emit-modify-variable for arrays (allow += etc. operators on arrays)
+
+  emit-java(emit):
+    |[ ++~x ]|   -> <emit-modify-variable(emit|x)> |[ inc; <emit-truncate>; dup ]|
+  emit-java(emit):
+    |[ --~x ]|   -> <emit-modify-variable(emit|x)> |[ dec; <emit-truncate>; dup ]|
+  emit-java(emit):
+    |[ ~x++ ]|   -> <emit-modify-variable(emit|x)> |[ dup; inc; <emit-truncate> ]|
+  emit-java(emit):
+    |[ (~x)-- ]| -> <emit-modify-variable(emit|x)> |[ dup; dec; <emit-truncate> ]|
+
+/** String concatenation */
+strategies
+
+  // TODO2: += for strings needs a separate implementaiton
+
+  emit-java(emit):
+    Plus(_, _) ->
+    |[ new java.lang.StringBuilder;
+       dup;
+       invokespecial java.lang.StringBuilder.<init>(void);
+       ~appends;
+       invokevirtual java.lang.StringBuilder.toString(java.lang.String)
+    ]|
+    where test(type-attr => ClassType(_, _)); // non-primitive
+          appends := <unfold-plus; map(emit-java-plus-argument(emit))>
+
+  /** @internal */
+  emit-java-plus-argument(emit):
+    x ->
+    |[ <emit> x;
+       invokevirtual java.lang.StringBuilder.append(~type : java.lang.StringBuilder)
+    ]|
+    where type-attr;
+          if is-primitive-type then
+            type := <emit>
+          else
+            type := ObjectType("java.lang.Object")
+          end
+        <+
+          emit-error(emit|"Invalid argument for concatenation (+)")          
+    
+  /** @internal */
+  unfold-plus:
+    Plus(a, b) -> list
+    where type-attr => ClassType(_, _); // don't unfold primitive plus
+          tail := <unfold-plus <+ ![b]> b;
+          list := <!(<unfold-plus> a, tail); conc <+ ![a | tail]>

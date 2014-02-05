@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/type-check/ConditionalOperator
+module org/sugarj/dryad/compiler/dryad/type-check/ConditionalOperator
 imports
-  dryad/jls/types/Lub
+  org/sugarj/dryad/compiler/dryad/jls/types/Lub
 
 strategies
 

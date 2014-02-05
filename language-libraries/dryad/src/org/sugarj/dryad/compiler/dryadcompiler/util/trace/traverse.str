@@ -1,0 +1,69 @@
+/**
+ * dryad-compiler source tracing strategies for rewriting terms.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/util/trace/traverse
+
+imports
+  org/sugarj/dryad/compiler/dryadcompiler/util/trace/-
+
+strategies
+
+  topdown-trace(s) =
+    rec rec(
+      traverse-trace-tags(rec) // handle any trace tags already in the source code
+    <+
+      trace(
+        s;
+        if not(?DryadError(_, _) + ?DryadWarning(_, _)) then
+          all(rec)
+        end
+      )
+      
+      /* UNDONE: topdown-trace requiring try()
+      if ?Trace(x, x) + ?Trace(x, [x]) then // no change made; drop trace
+        ?Trace(_, <all(rec)>)
+      else
+        Trace(id, rec)
+      end
+      */
+    <+
+      all(rec)
+    )
+
+/** @internal */
+strategies
+
+  /**
+   * Traversal strategy that re-enables tracing when encountering the EndTrace tag.
+   *
+   * @see disable-trace
+   */
+  traverse-trace-tags(s) =
+    ?EndTrace(<id>);
+    {| DisableTrace:
+      rules(DisableTrace :- _); // re-enable tracing
+      s
+    |}
+  
+  /**
+   * Traversal strategy that processes any Trace tags in
+   * the original source code.
+   */
+  traverse-trace-tags(s) = // TODO: Support multi-level traces (using some anno?)
+    ?Trace(old, _);
+    {| LastTrace:
+      rules(LastTrace :+= old);
+
+      // Has this tag in original code, don't record again
+      Trace(id, disable-trace(s))
+    |}
+  
+  /**
+   * Traversal strategy that processes any Trace annos in
+   * the original source code.
+   */
+  traverse-trace-tags(emit) =
+    trace-annos-to-terms;
+    traverse-trace-tags(emit)

@@ -1,0 +1,124 @@
+/**
+ * dryad-compiler register-locals for analysis.
+ *
+ * @see bc-store-effect   Type inference and registration of local variables.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/asm/register-locals
+
+imports
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm/common
+  org/sugarj/dryad/compiler/dryadcompiler/backend/emit/types
+
+strategies
+  
+  /**
+   * Executes strategy s over a bytecode method, registering all
+   * parameters for access through bc-local-type and bc-local-pos.
+   *
+   * @type Method -> Method
+   */
+  bc-register-params-wrap(s) =
+    is-Method;
+    bc-locals-scope(
+      bc-register-params;
+      s
+    )
+
+  /** Scope all dynamic rules regarding local variable assembly information. */
+  bc-locals-scope(s) =
+  {| NextLocalPos, LocalPos, ReturnType, MethodParamNames:
+    bc-local-type-scope(s)    
+  |}
+
+/** @internal */
+strategies
+
+  /** Register all method parameters, and bring them in the right form. */
+  bc-register-params:
+    |[ ~*flags ~name(~*params  : ~ret) ~*attr ]| ->
+    |[ ~*flags ~name(~*params' : ~ret) ~*attr ]|
+    where
+      rules(ReturnType := ret);
+      bc-register-this(<fetch(Static)> flags);
+      params' := <map(bc-register-param)> params
+
+  /** @internal */
+  bc-register-param =
+    ( // Parameter may appear in different forms:
+      ?type{Id(name)}
+    <+
+      (Param(type, name) -> type{Id(name)})
+    <+
+      ?type;
+      where(
+        NextLocalPos => name;
+        bc-warning(|"Unnamed parameter encountered", type)
+      )
+    );
+    
+    rules(MethodParamNames :+= name);
+    where(<bc-register-local> (name, type))
+
+  /** Register the standard 'this' variable. */
+  bc-register-this(is-static) =
+    if is-static then
+      rules(
+        LocalType: "this" -> Any // (only give one error message)
+        LocalPos:  "this" -> -1
+          where bc-error(|"Non-static variable 'this' cannot be referenced from a static context.", None)
+      )
+    else
+      <bc-register-local> ("this", Any) // TODO: Proper type for 'this'     
+    end
+  
+  /** Register a local variable not encountered before. */
+  bc-register-local =
+    (strip-annos; try(NewLocalName) => name, strip-annos => type);
+    
+    pos := <bc-next-local-pos> type; // return the new index
+
+    // Set TypeOf rule (for both bytecode and Java/dryad front)
+    bc-set-local-type(|name, type);
+    rules(LocalPos: name -> pos)
+
+  /** @type Type -> Int */
+  bc-next-local-pos:
+    type -> pos
+    where pos := <NextLocalPos <+ !0>; // May not be set for bc fragments
+          rules(
+            NextLocalPos := <add> (pos, <bc-type-word-size> type)
+          )
+
+  /** @see bc-stack-effect  Uses this during inferencing. */
+  bc-narrow-local-type =
+    ?(name, type);
+    if <bc-local-type> name => oldtype then
+      <bc-unify-types> (type, oldtype) => type';
+      bc-set-local-type(|name, type')
+    <+
+      bc-error(|"Value of invalid type assigned to", <TupleToList>, None)
+    else
+      bc-register-local // Never seen this local before
+    end
+
+/** Interface for the TypeOf dynamic rule shared with the Dryad frontend. */
+strategies
+
+  bc-set-local-type(|name, type) =
+    set-TypeOf(|Id(name), <bytecode-type-to-source-type + Any + Null> type)
+
+  bc-local-type-scope(s) =
+    scope-TypeOf(s)
+
+  bc-local-type =
+    jdebug(!"bc-local-type 1");
+    !Id(<strip-annos>);
+    TypeOf;
+    (source-type-to-bytecode-type + Any + Null);
+    jdebug(!"bc-local-type 2")
+
+  bc-local-pos = // (not shared with Dryad)
+    strip-annos;
+    LocalPos

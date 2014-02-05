@@ -1,0 +1,110 @@
+/**
+ * dryad-compiler emit exception handlers and throws.
+ *
+ * @see bc-asm-catch-wraps
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/exceptions
+
+rules
+
+  emit-java(emit):
+    |[ throw e; ]| -> |[ <emit> e; athrow ]| 
+
+  emit-java(emit):
+    Try(body, catches) ->
+    |[ catch ~*references [
+         <emit> body;
+         goto end
+       ];
+       
+       ~handlers
+       
+       end:
+    ]|
+    where end         := <new-label> "end";          
+          catchlabels := <new-labels> catches;
+          
+          references := <zip(emit-catch-header(emit))>   (catches, catchlabels);
+          handlers   := <zip(emit-catch-body(emit|end))> (catches, catchlabels)
+
+  emit-java(emit):
+    Try(body, catches, finally) ->
+    |[ catch catchFinally: * [
+         ~catchBody
+       ]
+       
+       <emit> finally; // used if no exception thrown
+       goto end;
+       
+       catchFinally: // used if exception thrown
+         store ~exception;
+         <emit> finally;
+         load ~exception;
+         athrow
+       
+       ~redirects; // redirect conditional jumps through finally blocks here
+       
+       end:
+    ]|
+    where catchFinally := <new-label> "finally";
+          end          := <new-label> "end";
+          exception    := <newname> "exception";
+          
+          {| FinallyRedirects: // ensure finally is executed for body jumps
+            <emit> Try(body, catches);
+            catchBody := <emit-inline-finally(emit|finally)>;
+            redirects := <bagof-FinallyRedirects>
+          |}
+
+strategies
+
+  /** @internal */
+  emit-catch-header(emit):
+    (Catch(Param(_, type, _), _), label) -> Catch(label, type')
+    where <emit> type => ObjectType(type')
+
+  /** @internal */
+  emit-catch-body(emit|end):
+    (Catch(Param(mods, _, Id(name)), body), label) -> // TODO: emit-final-tag
+    |[ label:
+       ~finals;
+       store ~local; // storing the exception is mandatory
+       ~body';
+       goto end
+    ]|
+    where rename-locals-scope(
+            local := <rename-local> name;
+            finals := <emit-final-tags(|mods)> local;
+            body' := <emit> body
+          )
+
+  /**
+   * Ensure that any and all block exits first execute the finally block.
+   * Because of the extra jumps allowed in (mixed) bytecode, this is a little
+   * more tricky than with regular Java code.
+   *
+   * @internal
+   */
+  emit-inline-finally(emit|finally) =
+    ?code;
+    let outside-label = // detect a label outside of the current block
+      { label: ?label; <not(bc-one(?Label(label)))> code }
+    in
+      bc-all(try(
+        // Insert the finally block before every outside jump or exit
+        (RETURN + XRETURN + ATHROW + GOTO(where(outside-label)));
+        ![<emit> finally, <id>]
+      <+
+        // Conditional outside jumps are tricky: we only
+        // want the finally to be executed the jump is made.
+        // This is why we need to redirect the jump.
+        not(GOTO(id)); where(bc-get-jump-target; outside-label);
+        one(?oldLabel; label := <new-label> "finally");
+        
+        rules(
+          FinallyRedirects :+= |[ label: <emit> finally; goto ~oldLabel ]|
+        )
+      ))
+    end

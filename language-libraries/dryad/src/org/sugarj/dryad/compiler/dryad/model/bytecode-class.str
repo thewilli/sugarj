@@ -3,18 +3,18 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/bytecode-class
+module org/sugarj/dryad/compiler/dryad/model/bytecode-class
 imports
-  dryad/lib-ext/oo/classes
+  org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
 
-  dryad/model/class
-  dryad/model/bytecode-constructor
-  dryad/model/bytecode-field
-  dryad/model/bytecode-method
+  org/sugarj/dryad/compiler/dryad/model/class
+  org/sugarj/dryad/compiler/dryad/model/bytecode-constructor
+  org/sugarj/dryad/compiler/dryad/model/bytecode-field
+  org/sugarj/dryad/compiler/dryad/model/bytecode-method
 
-  dryad/bytecode/Bridge
-  dryad/bytecode/Signature
-  dryad/bytecode/util
+  org/sugarj/dryad/compiler/dryad/bytecode/Bridge
+  org/sugarj/dryad/compiler/dryad/bytecode/Signature
+  org/sugarj/dryad/compiler/dryad/bytecode/util
 
   libjava-front
 

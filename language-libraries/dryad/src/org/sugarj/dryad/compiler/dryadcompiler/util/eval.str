@@ -1,0 +1,105 @@
+/**
+ * JVM invocation (with optional compilation step).
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/util/eval
+
+imports
+  libstratego-lib
+  org/sugarj/dryad/compiler/libstratego-jvm
+  libstratego-xtc
+  org/sugarj/dryad/compiler/dryadcompiler/frontend/expand
+
+/**
+ * Evaluate a Java/bytecode expression or statement,
+ * by compiling it to a classfile and running it in the JVM.
+ *
+ * Example: <dryad-compiler-eval> |[ 1 + 2 ]| => "3"
+ *
+ * @note As this loads a class every time, this is not very scalable.
+ */
+strategies
+
+  dryad-compiler-eval =
+    dryad-compiler-eval(|"")
+
+  dryad-compiler-eval(|arg) =
+    dryad-compiler-eval(dryad-compiler-error|arg)
+
+  dryad-compiler-eval(onfailure|arg) =
+    as-string-method;
+    single-method-compile(onfailure);    
+    single-method-run(|arg)
+
+/** @internal */
+strategies
+
+  /** @internal */
+  dryad-compiler-internal-jvm =
+    jdebug(!"dryad-compiler-internal-jvm: ") ;
+    DryadCompilerJVM
+  <+
+    dir := <new-temp-dir>;
+    <assert(!TempFiles)> (dir, ()); // have xtc-exit clean this up later
+    //get-jvm(|[<xtc-find> "class2aterm.jar", dir, "."]); // include dryad's library
+    get-jvm(|[<id> "class2aterm.jar", dir, "."]); // include dryad's library
+    rules(
+      DryadCompilerJVMDir := dir
+      DryadCompilerJVM    := <id>
+    )
+  
+  /**
+   * Lightweight single-method compilation: Skips most of the front-end stage,
+   * and does not include an initializer in the generated code.
+   *
+   * @internal
+   */
+  single-method-compile(onfailure) =
+    single-method-front(onfailure);
+    dryad-compiler-front-errors(onfailure);
+    
+    scoped-set-config(!Stage, !3,
+    scoped-set-config(!NoDebugInfo,
+      dryad-compiler-back(onfailure)
+    ));
+    
+    // Make it a class without an <init> method
+    !|[ classfile private final super <newname> "$Eval" extends java.lang.Object
+        methods ~*<id>
+     ]|
+
+  /** @internal */
+  single-method-front(onfailure) =
+    prepare-for-dryad-front(onfailure);
+    
+    // HACK: circumvent define-compilation-unit and reclassification
+    single-method-dryad-rules-wrap(
+      dryad-reclassify-bodies-helper;
+      dryad-type-checker-mixed
+    )
+    
+  /** @internal */
+  single-method-dryad-rules-wrap(s) =
+    ?input;
+    <lookup-class> TypeName(PackageName([Id("java"), Id("lang")]), Id("Object"));
+    declare-type(
+      !compilation-unit |[ ; ]|;
+      declare-imported-types(
+        <s> input
+      )
+    )
+  
+  /** @internal */
+  single-method-run(|arg) =    
+    ?ClassFile(_, _, _, ThisClass(classname), _, _, _, _, _);
+    
+    where(
+      jvm  := <dryad-compiler-internal-jvm>;
+      file := <conc-strings> (<DryadCompilerJVMDir>, "/", classname, ".class")
+    );
+    
+    // Write, execute, delete
+    write-class-file(|file);    
+    <strjvm-callstatic(|jvm, classname, "run")> [arg];    
+    where(<try(remove-file)> file)

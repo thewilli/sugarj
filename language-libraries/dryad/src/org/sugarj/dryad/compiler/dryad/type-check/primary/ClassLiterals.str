@@ -4,7 +4,7 @@
  * @todo Remember note on type of Object.getClass().
  * @author Martin Bravenboer
  */
-module dryad/type-check/primary/ClassLiterals
+module org/sugarj/dryad/compiler/dryad/type-check/primary/ClassLiterals
 strategies
 
   dryad-type-of :

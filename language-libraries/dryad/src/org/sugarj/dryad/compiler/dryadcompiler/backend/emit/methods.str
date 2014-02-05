@@ -1,0 +1,68 @@
+/**
+ * dryad-compiler emit methods.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/methods
+
+strategies
+
+  // TODO2: Varargs, annotations
+  // TODO2: Return type covariance (bridge methods)
+
+  emit-java(emit):
+    Param(_, <id>, name) -> <emit> {name} // e.g., create Int {Id("x")}
+    where <Id(rename-local)> name // register
+
+  /** Emit a regular Java method. */
+  emit-java(emit):
+    MethodDec(MethodDecHead(mods, typeargs, ret, Id(name), params, throws), body) ->
+    |[ ~*mods ~name (~*params' : <emit> ret) throws ~*throws' [
+         ~*finals;
+         ~*bytecode
+       ]
+    ]|
+    where not(<NoMethodBody> body);
+          rename-locals-top-scope(
+            params' := <emit-map(emit)> params; // HACK: emit-map ensures no scope is introduced
+            finals  := <emit-param-final-tags> params;
+            throws' := <maybe(emit, ![])> throws;
+            bytecode := <emit; ensure-return-instruction(|ret)> body
+          )
+
+  /** @internal */
+  emit-param-final-tags =
+    map({ mods: ?Param(mods, _, Id(<id>)); emit-final-tags(|mods) });
+    concat
+
+  /** Emit empty-body method in abstract class. */
+  emit-java(emit):
+    MethodDec(MethodDecHead(mods, typeargs, ret, Id(name), params, throws), NoMethodBody) ->
+    |[ ~*mods ~name (~*<emit> params' : <emit> ret) throws ~*throws' ]|
+    where params' := <emit> params;
+          throws' := <maybe(emit, ![])> throws
+
+  /** Emit empty-body method in interface. */
+  emit-java(emit):
+    AbstractMethodDec(mods, typeargs, ret, Id(name), params, throws) ->
+    |[ abstract public ~*mods ~name (~*params' : <emit> ret) throws ~*throws' ]|
+    where params' := <emit> params;
+          throws' := <maybe(emit, ![])> throws
+
+  emit-java(emit):
+    ThrowsDec(<id>) ->
+    exceptions
+    where map(
+            is-subtype(|ClassType(TypeName(PackageName([Id("java"),Id("lang")]),Id("Throwable")),None));
+            ?ClassType(<id>, _);
+            !Class(<emit>)
+          <+
+            emit-error(emit |"A subtype of Throwable is expected in throws clause.")
+          ) => exceptions
+           
+
+  /** @internal */
+  ensure-return-instruction(|type) =
+    if !type => Void then
+      <conc> (<as-list>, [RETURN])
+    end

@@ -6,7 +6,7 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/jls/types/Raw
+module org/sugarj/dryad/compiler/dryad/jls/types/Raw
 strategies
 
   /**

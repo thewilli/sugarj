@@ -1,20 +1,20 @@
 /**
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/reclassify/Body
+module org/sugarj/dryad/compiler/dryad/reclassify/Body
 imports
-  dryad/reclassify/ContextuallyAmbName
-  dryad/reclassify/MeaningOfPackageOrTypeName
-  dryad/reclassify/MeaningOfExpressionNames
+  org/sugarj/dryad/compiler/dryad/reclassify/ContextuallyAmbName
+  org/sugarj/dryad/compiler/dryad/reclassify/MeaningOfPackageOrTypeName
+  org/sugarj/dryad/compiler/dryad/reclassify/MeaningOfExpressionNames
   
-  dryad/reclassify/declare/ClassMembers
-  dryad/reclassify/declare/FormalParameters
-  dryad/reclassify/declare/FormalTypeParameters
-  dryad/reclassify/declare/Imports
-  dryad/reclassify/declare/LocalVariables    
-  dryad/reclassify/declare/This  
+  org/sugarj/dryad/compiler/dryad/reclassify/declare/ClassMembers
+  org/sugarj/dryad/compiler/dryad/reclassify/declare/FormalParameters
+  org/sugarj/dryad/compiler/dryad/reclassify/declare/FormalTypeParameters
+  org/sugarj/dryad/compiler/dryad/reclassify/declare/Imports
+  org/sugarj/dryad/compiler/dryad/reclassify/declare/LocalVariables    
+  org/sugarj/dryad/compiler/dryad/reclassify/declare/This  
   
-  dryad/source/Extensions 
+  org/sugarj/dryad/compiler/dryad/source/Extensions 
   
 
 strategies

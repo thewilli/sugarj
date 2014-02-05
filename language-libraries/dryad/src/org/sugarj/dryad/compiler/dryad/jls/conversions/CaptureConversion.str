@@ -10,7 +10,7 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/jls/conversions/CaptureConversion
+module org/sugarj/dryad/compiler/dryad/jls/conversions/CaptureConversion
 strategies
 
   /**

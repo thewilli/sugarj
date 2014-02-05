@@ -4,7 +4,7 @@
  * @todo   The distinction between methods and abstract methods is annoying. Normalize?
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/source-method
+module org/sugarj/dryad/compiler/dryad/model/source-method
 
 /**
  * Constructors

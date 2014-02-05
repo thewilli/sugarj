@@ -1,10 +1,10 @@
 /**
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/reclassify/Bytecode
+module org/sugarj/dryad/compiler/dryad/reclassify/Bytecode
 imports
-  dryad/reclassify/Main
-  dryad/reclassify/ClassOrInterfaceType
+  org/sugarj/dryad/compiler/dryad/reclassify/Main
+  org/sugarj/dryad/compiler/dryad/reclassify/ClassOrInterfaceType
   
 strategies
 

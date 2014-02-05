@@ -1,4 +1,4 @@
-module dryad/lib-ext/log
+module org/sugarj/dryad/compiler/dryad/lib-ext/log
 strategies
 
   log-timed(s|msg,level) =

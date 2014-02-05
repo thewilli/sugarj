@@ -1,4 +1,4 @@
-module dryad/lib-ext/wannabe-lisp
+module org/sugarj/dryad/compiler/dryad/lib-ext/wannabe-lisp
 strategies
 
   /**

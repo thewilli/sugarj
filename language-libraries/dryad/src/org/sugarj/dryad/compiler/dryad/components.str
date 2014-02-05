@@ -1,14 +1,14 @@
 /**
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/components
+module org/sugarj/dryad/compiler/dryad/components
 imports
-  liblib
+  org/sugarj/dryad/compiler/liblib
   libstratego-sglr
-  dryad/util/option
-  dryad/reclassify/Main
-  dryad/type-check/Main
-  dryad/lib-ext/log
+  org/sugarj/dryad/compiler/dryad/util/option
+  org/sugarj/dryad/compiler/dryad/reclassify/Main
+  org/sugarj/dryad/compiler/dryad/type-check/Main
+  org/sugarj/dryad/compiler/dryad/lib-ext/log
 
 signature
   constructors
@@ -62,7 +62,7 @@ strategies
       if get-parse-error => error then
         report-error(|error)
       else
-        <perror> "dryad: could not read Java source file"
+        <perror> "org/sugarj/dryad/compiler/dryad: could not read Java source file"
       end
     )
       

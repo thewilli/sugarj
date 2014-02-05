@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer 
  */
-module dryad/type-check/invoke/StepAppropriate
+module org/sugarj/dryad/compiler/dryad/type-check/invoke/StepAppropriate
 strategies
 
   /**

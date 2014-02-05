@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/type-check/primary/QualifiedThis
+module org/sugarj/dryad/compiler/dryad/type-check/primary/QualifiedThis
 strategies
 
   dryad-type-of :

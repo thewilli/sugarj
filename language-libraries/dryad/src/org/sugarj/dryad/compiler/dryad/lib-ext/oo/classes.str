@@ -1,9 +1,9 @@
 /**
  * Support for classes.
  */
-module dryad/lib-ext/oo/classes
+module org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
 imports
-  dryad/lib-ext/hash-table
+  org/sugarj/dryad/compiler/dryad/lib-ext/hash-table
   
 signature
   constructors

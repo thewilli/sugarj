@@ -1,4 +1,4 @@
-module dryad/ClassTree
+module org/sugarj/dryad/compiler/dryad/ClassTree
 
 signature
   constructors

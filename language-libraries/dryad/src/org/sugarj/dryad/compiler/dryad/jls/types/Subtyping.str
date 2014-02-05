@@ -3,13 +3,13 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/types/Subtyping
+module org/sugarj/dryad/compiler/dryad/jls/types/Subtyping
 imports
-  dryad/jls/types/Parameterized
-  dryad/jls/types/Primitive
-  dryad/jls/types/Reference
-  dryad/model/-
-  dryad/util/jtree-overlays
+  org/sugarj/dryad/compiler/dryad/jls/types/Parameterized
+  org/sugarj/dryad/compiler/dryad/jls/types/Primitive
+  org/sugarj/dryad/compiler/dryad/jls/types/Reference
+  org/sugarj/dryad/compiler/dryad/model/-
+  org/sugarj/dryad/compiler/dryad/util/jtree-overlays
 
 strategies
 

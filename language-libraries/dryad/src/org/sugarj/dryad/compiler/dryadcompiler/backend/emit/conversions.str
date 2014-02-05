@@ -1,0 +1,64 @@
+/**
+ * dryad-compiler emit implicit conversions and casts.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/emit/conversions
+
+/**
+ * Explicit typecasts.
+ * These instructions are specialized (or removed when unnecesary) by bc-asm.
+ */
+strategies
+
+  emit-java(emit): |[ (byte) e ]|   -> |[ <emit> e; x2i; i2b ]|
+  emit-java(emit): |[ (short) e ]|  -> |[ <emit> e; x2i; i2s ]|
+  emit-java(emit): |[ (char) e ]|   -> |[ <emit> e; x2i; i2c ]|
+  emit-java(emit): |[ (int) e ]|    -> |[ <emit> e; x2i ]|
+  emit-java(emit): |[ (long) e ]|   -> |[ <emit> e; x2l ]|
+  emit-java(emit): |[ (double) e ]| -> |[ <emit> e; x2d ]|
+  emit-java(emit): |[ (float) e ]|  -> |[ <emit> e; x2f ]|
+  emit-java(emit): CastRef(type, e) -> |[ <emit> e; checkcast <emit> type ]|
+
+strategies
+
+  emit-converted-args(emit|args) =
+    if get-annos(Conversions(map(?MethodInvocationConversion(<id>)) => c)) then
+      conversions := <map(map(emit-java-conversion(emit)))> c;
+      <zip(TupleToList); flatten-list> (<emit> args, conversions)
+    else // Arguments need conversions (e.g., boxing)
+      <emit> args
+    end
+
+  emit-assign-conversion(emit):
+    e {a*} -> converts
+    where if <one(AssignmentConversion(?c))> a* then
+            converts := <map(emit-java-conversion(emit))> c
+          else
+            converts := []
+          end
+        <+
+          emit-error(emit|"Assignment conversion failed")
+
+  emit-java-conversion(emit):
+    IdentityConversion(_) -> []
+   
+  emit-java-conversion(emit):
+    UnboxingConversion(ClassType(class, _), <id>) ->
+    |[ invokevirtual <emit> class.~method(<id>) ]|
+    where method :=
+            <Int;    !"intValue"    + Long;  !"longValue" +
+             Double; !"doubleValue" + Float; !"floatValue">
+    
+  emit-java-conversion(emit):
+    BoxingConversion(from, ClassType(class, _)) ->
+    |[ invokestatic <emit> class.valueOf(~from : ~ObjectType(<emit> class)) ]|
+    
+  emit-java-conversion(emit):
+    WideningReferenceConversion(_) -> []
+
+  emit-java-conversion(emit):
+    WideningPrimitiveConversion(_, type) -> [ x2x ]
+    where !type; // (note: assembly removes redundant X2X constructions)
+          x2x := <Int; !X2I + Long; !X2L + Double; !X2D + Float; !X2F>
+  

@@ -4,7 +4,7 @@
  * @todo  Annotate promoted type?
  * @todo  Reference quality: check if the types of the operands are convertible.
  */
-module dryad/type-check/EqualityOperators
+module org/sugarj/dryad/compiler/dryad/type-check/EqualityOperators
 strategies
 
   dryad-type-of :

@@ -4,12 +4,12 @@
  * @author Martin Bravenboer
  * @todo   Use the detailed rules or the conversions?
  */
-module dryad/jls/conversions/CastingConversion
+module org/sugarj/dryad/compiler/dryad/jls/conversions/CastingConversion
 imports
-  dryad/jls/conversions/NarrowingPrimitive
-  dryad/jls/conversions/NarrowingReference
-  dryad/jls/conversions/WideningPrimitive
-  dryad/jls/conversions/WideningReference
+  org/sugarj/dryad/compiler/dryad/jls/conversions/NarrowingPrimitive
+  org/sugarj/dryad/compiler/dryad/jls/conversions/NarrowingReference
+  org/sugarj/dryad/compiler/dryad/jls/conversions/WideningPrimitive
+  org/sugarj/dryad/compiler/dryad/jls/conversions/WideningReference
 
 strategies
 

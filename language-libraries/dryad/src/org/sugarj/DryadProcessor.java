@@ -178,6 +178,8 @@ public class DryadProcessor extends AbstractBaseProcessor {
       //String fileContent = readFile(compileFile.getAbsolutePath(), Charset.defaultCharset());
       //IStrategoTerm parsedContent = getInterpreter().getCompiledContext().getFactory().parseFromString(fileContent);
       IStrategoTerm parsedContent = getInterpreter().current();
+      //FIXME
+      parsedContent = getInterpreter().getFactory().parseFromString("CompilationUnit(None(),[],[ClassDec(ClassDecHead([],Id(\"Calculator\"),None(),None(),None()),ClassBody([]))])");
       parsedContent = getInterpreter().getCompiledContext().invokeStrategy("willispecial", parsedContent);
       String x = "5";
       }catch(Exception ex){

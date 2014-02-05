@@ -1,7 +1,7 @@
 /**
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/util/jtree-overlays
+module org/sugarj/dryad/compiler/dryad/util/jtree-overlays
 imports libstratego-lib
 
 /**

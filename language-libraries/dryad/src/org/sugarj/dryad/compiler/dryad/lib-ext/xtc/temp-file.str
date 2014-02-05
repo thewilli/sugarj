@@ -1,4 +1,4 @@
-module dryad/lib-ext/xtc/temp-file
+module org/sugarj/dryad/compiler/dryad/lib-ext/xtc/temp-file
 strategies
 
   xtc-new-ffd =

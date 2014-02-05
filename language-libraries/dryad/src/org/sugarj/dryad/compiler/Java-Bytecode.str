@@ -1,4 +1,4 @@
-module Java-Bytecode
+module org/sugarj/languages/Java-Bytecode
 
 signature
   constructors

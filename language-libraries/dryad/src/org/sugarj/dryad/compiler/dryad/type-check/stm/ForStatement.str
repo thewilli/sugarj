@@ -3,7 +3,7 @@
  *
  * @author Lennart Kats <lennart add lclnet.nl>
  */
-module dryad/type-check/stm/ForStatement
+module org/sugarj/dryad/compiler/dryad/type-check/stm/ForStatement
 rules
       
   /**

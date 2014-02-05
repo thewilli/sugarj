@@ -1,4 +1,4 @@
-module libstratego-jvm
+module org/sugarj/dryad/compiler/libstratego-jvm
 
 imports
   libstratego-lib

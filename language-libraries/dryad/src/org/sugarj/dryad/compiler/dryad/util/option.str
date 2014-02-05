@@ -3,12 +3,12 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/util/option
+module org/sugarj/dryad/compiler/dryad/util/option
 imports
-  dryad/model/classpath
-  dryad/model/bytecode-class
-  dryad/model/package
-  dryad/model/repository
+  org/sugarj/dryad/compiler/dryad/model/classpath
+  org/sugarj/dryad/compiler/dryad/model/bytecode-class
+  org/sugarj/dryad/compiler/dryad/model/package
+  org/sugarj/dryad/compiler/dryad/model/repository
 
 /**
  * The Dryad Compiler does not directly support a specification of a classpath.

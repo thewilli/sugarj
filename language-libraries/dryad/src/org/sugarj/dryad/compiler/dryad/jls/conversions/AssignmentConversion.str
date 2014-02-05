@@ -3,9 +3,9 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/conversions/AssignmentConversion
+module org/sugarj/dryad/compiler/dryad/jls/conversions/AssignmentConversion
 imports
-  dryad/jls/conversions/Kinds
+  org/sugarj/dryad/compiler/dryad/jls/conversions/Kinds
 
 signature
   constructors

@@ -1,7 +1,7 @@
 /**
  * 15.23: Conditional-And Operator &&
  */
-module dryad/type-check/ConditionalAndOperator
+module org/sugarj/dryad/compiler/dryad/type-check/ConditionalAndOperator
 strategies
 
   dryad-type-of :

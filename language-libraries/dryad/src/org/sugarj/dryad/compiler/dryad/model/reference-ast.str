@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/reference-ast
+module org/sugarj/dryad/compiler/dryad/model/reference-ast
 strategies
 
   apply-to-reference(s) =

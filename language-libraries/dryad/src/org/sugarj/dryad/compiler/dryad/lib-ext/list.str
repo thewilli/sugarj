@@ -1,4 +1,4 @@
-module dryad/lib-ext/list
+module org/sugarj/dryad/compiler/dryad/lib-ext/list
 strategies
 
   /**

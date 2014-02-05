@@ -1,0 +1,85 @@
+/**
+ * dryad-compiler basic bytecode matching.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/asm/matching
+
+strategies
+
+  is-ClassFile = ?ClassFile(_, _, _, _, _, _, _, _, _)
+  is-Code = ?Code(_, _, _, _, _)
+  is-Field = ?Field(_, _, _, _)
+  is-Method = ?Method(_, _, _, _)
+
+  bc-get-method-code =
+    ?Method(_, _, _, Attributes(<id>));
+    fetch-elem(is-Code)
+  
+  bc-get-method-body =
+    try(bc-get-method-code);
+    ?Code(_, _, Instructions(<id>), _, _)
+
+  bc-extract-literal =
+    \Int(x)     -> (Int, x)\
+  + \Boolean(x) -> (Boolean, x)\
+  + \Byte(x)    -> (Byte, x)\
+  + \Short(x)   -> (Short, x)\
+  + \Long(x)    -> (Long, x)\
+  + \Double(x)  -> (Double, x)\
+  + \Float(x)   -> (Float, x)\
+  + \String(x)  -> (ObjectType("java.lang.String"), x)\
+  + \Class(x)   -> (ObjectType("java.lang.Class"), x)\
+
+  bc-get-invoked(out-class, out-name, out-params, out-ret) =
+    (?INVOKESTATIC(<id>) + ?INVOKEVIRTUAL(<id>) + ?INVOKESPECIAL(<id>));
+    ?MethodRef(<out-class>, Name(<out-name>), MethodDescriptor(<out-params>, <out-ret>))          
+  <+
+    ?INVOKEINTERFACE(<id>);
+    ?InterfaceMethodRef(<out-class>, Name(<out-name>) ,MethodDescriptor(<out-params>, <out-ret>))
+
+  is-bc-invoke =
+    where(bc-get-invoked(id, id, id, id))
+
+  is-rich-bc-instruction =
+    jdebug(!"is-rich-bc-instruction");
+    ( Label(is-string) + Final(is-string) + where(bc-get-jump-target)
+    + LOAD(id) + STORE(id) + ALOAD + ASTORE + NEWARRAY(id) + MULTIANEWARRAY(id, id)
+    + is-bc-invoke + MULTIANEWARRAY(id, id) + JavaExpr(id) + JavaStm(id)
+    )    
+  <+ // For the greater part of the instructions, use the verifier
+     // as instruction matcher. This allows easy addition of instructions,
+     // without code duplication, at a small run-time penalty.
+    {| IgnoreAllAsmErrors: // ignore any messages
+      rules(IgnoreAllAsmErrors: _);
+      where(<bc-stack-effect> ([Any, Any, Any, Any], <id>))
+    |}
+
+  is-embedded-bytecode =
+    BytecodeExpr(id) + BytecodeStm(id)
+  
+  is-embedded-java =
+    JavaStm(id) + JavaExpr(id)
+
+  /** Heuristically determine if the given list contains rich bytecode instructions. */
+  is-rich-bc-instructions = // Does not assume correct input w/ return
+    is-list;
+    bc-one(is-rich-bc-instruction)  
+
+  /** Heuristically determine if the given list contains bytecode instructions. */
+  is-bc-instructions = // Assumes correct input w/ return
+    fetch(ATHROW + RETURN + IRETURN + LRETURN + DRETURN + FRETURN + ARETURN)
+
+  /** Succeeds for any of the single-word integral types. */
+  is-single-integral = Int + Byte + Boolean + Char + Short
+
+  bc-type-word-size = (Double + Long) < !2 + !1 // (note: 'Any' is 1 too)
+
+  bc-get-jump-target =
+    ( ?GOTO(<id>) + ?JSR(<id>)
+    + ?IF_ACMPEQ(<id>) + ?IF_ACMPNE(<id>) + ?IF_ICMPEQ(<id>) + ?IF_ICMPGE(<id>)
+    + ?IF_ICMPGT(<id>) + ?IF_ICMPLE(<id>) + ?IF_ICMPLT(<id>) + ?IF_ICMPNE(<id>)
+    + ?IFEQ(<id>) + ?IFGE(<id>) + ?IFGT(<id>) + ?IFLE(<id>) + ?IFLT(<id>)
+    + ?IFNE(<id>) + ?IFNONNULL(<id>) + ?IFNULL(<id>)
+    );
+    try(?Label(<id>))

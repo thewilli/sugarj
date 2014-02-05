@@ -4,9 +4,9 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/lib-ext/xtc/multi-options
+module org/sugarj/dryad/compiler/dryad/lib-ext/xtc/multi-options
 imports
-  dryad/lib-ext/multi-options
+  org/sugarj/dryad/compiler/dryad/lib-ext/multi-options
 
 strategies
 

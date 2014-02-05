@@ -4,11 +4,11 @@
  * This module defines the structure of a serialized Dryad repository
  * and provides strategies to (de)serialize such a serialized repository.
  */
-module dryad/model/classpath
+module org/sugarj/dryad/compiler/dryad/model/classpath
 imports
-  liblib
-  dryad/jls/binary/Form
-  dryad/model/repository
+  org/sugarj/dryad/compiler/liblib
+  org/sugarj/dryad/compiler/dryad/jls/binary/Form
+  org/sugarj/dryad/compiler/dryad/model/repository
 
 signature
   constructors
@@ -158,7 +158,7 @@ strategies
    * Imports a serialized Dryad repository by registering a package, its subpackages and 
    * all classes in the Dryad repository.
    *
-   * The structure of the ExportedPackage input is specified in dryad/model/classpath.
+   * The structure of the ExportedPackage input is specified in org/sugarj/dryad/compiler/dryad/model/classpath.
    *
    * @type ExportedPackage -> ExportedPackage
    */
@@ -179,7 +179,7 @@ strategies
 
   /**
    * Exports the current Dryad repository by constructing an ATerm that represents its content.
-   * The structure of the ExportedPackage result is specified in dryad/model/classpath.
+   * The structure of the ExportedPackage result is specified in org/sugarj/dryad/compiler/dryad/model/classpath.
    *
    * @type _ -> ExportedPackage
    */

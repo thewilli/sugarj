@@ -1,0 +1,77 @@
+/**
+ * General Stratego utility strategies.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/lib-ext/common
+
+imports
+  libstratego-lib
+
+strategies
+
+  /**
+   * Set (keyvalue,keyvalue) in the config table, and return the entry to its
+   * original state after executing s.
+   */
+  scoped-set-config(keyvalue,s) =
+    scoped-set-config(keyvalue, keyvalue, s)
+
+  /**
+   * Set (key,value) in the config table, and return the entry to its original
+   * state after executing s.
+   *
+   * Example: scoped-set-config(!"--verbose", !-1, loud-strategy).
+   */
+  scoped-set-config(key,value,s) =
+    where(
+      risky((k, v) := (<key>, <value>) |"Internal error: scoped-set-config arguments fail");
+      try(oldvalue := <get-config> k);
+      <set-config> (k, v)
+    );
+    finally(
+      s, 
+      <set-config> (k, oldvalue) <+ <rm-config> k
+    )
+  
+  /** Apply 'anno' to the first annotation it succeeds on. */
+  get-annos(anno) =
+    get-annos; fetch(anno)
+  
+  /**
+   * Execute strategy s if 'switch' is on, or use the default value if it is
+   * undefined. 
+   *
+   * @see if-switch
+   */
+  if-switch-on(switch, default, s) =
+    where(try(SwitchOption(|<switch>, <default>, <!"">)));
+    if-switch(switch, s)
+
+  /** Higher-order variant of the 'id' strategy; accepts one argument. */
+  id-s(ignored) = id
+
+  /** Higher-order variant of the 'fail' strategy; accepts one argument. */
+  fail-s(ignored) = fail
+
+  /**
+   * Collect all terms invoked on the strategy argument of a specified strategy.
+   *
+   * Example: <collect-argument-invokes(topdown)> [1,2] => [[1,2],1,2]
+   *
+   * Other examples include collecting all errors in strategies that
+   * report all errors to the argument strategy. See also bc-verify.
+   */
+  collect-argument-invokes(s : (a -> a) -> a) =
+    where(new-iset => set);
+    s(try(where(
+      { x: ?x; <iset-add(|x)> set }
+    )));
+    <iset-elements> set
+
+  log-timed-risky(s|msg,level) =
+    restore(
+      log-timed(s|msg,level)
+    , if-verbose4(err(|<conc-strings> ("Failed: ", msg))); // also prints term term
+      if-less-verbose3(err-msg(|<conc-strings> ("Failed: ", msg)))
+    )

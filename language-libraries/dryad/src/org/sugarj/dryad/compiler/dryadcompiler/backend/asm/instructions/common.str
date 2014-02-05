@@ -1,0 +1,65 @@
+/**
+ * dryad-compiler common instruction rewriting strategies.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module org/sugarj/dryad/compiler/dryadcompiler/backend/asm/instructions/common
+
+imports
+  org/sugarj/dryad/compiler/dryadcompiler/backend/asm/common
+
+signature constructors // HACK: c'tors should be auto-generated
+
+  NPAIR        : Int * LabelId              -> Instruction
+  LOOKUPSWITCH : List * LabelId             -> Instruction
+  TABLESWITCH  : Int * Int * List * LabelId -> Instruction
+  Jump         : LabelId                    -> Instruction
+
+strategies
+
+  bc-input-error(|stack, byte, inputs) =
+    where(
+      input := <take(|inputs); reverse> stack
+    );
+    bc-error(|"Illegal input for this operation", input, byte)
+  <+
+    bc-error(|"Insufficient arguments for this operation", byte)
+
+  /**
+   * Returns an instruction depending on the input type, which can be
+   * b, s, c, i, l, d, f, or a (i.e.; byte, short, char, int, ..., object).
+   * @internal
+   */
+  bc-type-switch(|byte, b, s, c, i, l, d, f, a) =
+    ?type;
+    (  (Boolean + Byte); !b
+    <+ Char;             !c
+    <+ Short;            !s
+    <+ Int;              !i
+    <+ Long;             !l
+    <+ Double;           !d
+    <+ Float;            !f
+    <+                   !a
+    );
+    if None then
+      bc-error(|"Illegal input type for this operation", type, byte) // (but don't fail)
+    end
+
+  // Trivial overload
+  bc-type-switch(|byte, i, l, d, f, a) =
+    bc-type-switch(|byte, i, i, i, i, l, d, f, a)
+  
+  /**
+   * @internal    
+   * Example: <stack-to-words> [Int, Long, Int] => [Int, Long, Long, Int]
+   */
+  stack-to-words =
+    flatten-list(try(\w -> [w, w] where Long + Double\))
+
+  /** @internal */
+  words-to-stack =
+    [not(Double + Long) | words-to-stack]
+  <+
+    \[w, w | tail] -> [w, <words-to-stack> tail]\
+  <+
+    []

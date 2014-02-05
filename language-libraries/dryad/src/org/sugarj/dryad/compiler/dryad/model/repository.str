@@ -6,15 +6,15 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/repository
+module org/sugarj/dryad/compiler/dryad/model/repository
 imports
-  dryad/components
-  dryad/model/array-class
-  dryad/model/classpath  
-  dryad/model/class  
-  dryad/model/compilation-unit
-  dryad/model/package
-  dryad/simplify/Sanity
+  org/sugarj/dryad/compiler/dryad/components
+  org/sugarj/dryad/compiler/dryad/model/array-class
+  org/sugarj/dryad/compiler/dryad/model/classpath  
+  org/sugarj/dryad/compiler/dryad/model/class  
+  org/sugarj/dryad/compiler/dryad/model/compilation-unit
+  org/sugarj/dryad/compiler/dryad/model/package
+  org/sugarj/dryad/compiler/dryad/simplify/Sanity
 
 /**
  * Lookup packages

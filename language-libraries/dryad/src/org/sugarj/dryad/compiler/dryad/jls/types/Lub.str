@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/jls/types/Lub
+module org/sugarj/dryad/compiler/dryad/jls/types/Lub
 imports
-  dryad/jls/types/Erasure
+  org/sugarj/dryad/compiler/dryad/jls/types/Erasure
 
 strategies
 

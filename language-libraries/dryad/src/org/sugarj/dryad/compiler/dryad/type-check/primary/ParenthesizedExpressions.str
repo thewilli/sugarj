@@ -6,5 +6,5 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/type-check/primary/ParenthesizedExpressions
+module org/sugarj/dryad/compiler/dryad/type-check/primary/ParenthesizedExpressions
 strategies

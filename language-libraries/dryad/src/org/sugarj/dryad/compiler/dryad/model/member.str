@@ -1,7 +1,7 @@
 /**
  * Abstract class for Java members (field, constructor, method)
  */
-module dryad/model/member
+module org/sugarj/dryad/compiler/dryad/model/member
 strategies
 
   /**

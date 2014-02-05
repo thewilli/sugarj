@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/jls/conversions/Unboxing
+module org/sugarj/dryad/compiler/dryad/jls/conversions/Unboxing
 imports
-  dryad/jls/types/Primitive
+  org/sugarj/dryad/compiler/dryad/jls/types/Primitive
   
 signature
   constructors

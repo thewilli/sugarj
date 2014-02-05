@@ -1,7 +1,7 @@
 /**
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/reclassify/declare/FormalParameters
+module org/sugarj/dryad/compiler/dryad/reclassify/declare/FormalParameters
 strategies
 
   /**

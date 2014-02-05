@@ -3,9 +3,9 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/source-field
+module org/sugarj/dryad/compiler/dryad/model/source-field
 imports
-  dryad/model/field
+  org/sugarj/dryad/compiler/dryad/model/field
    
 strategies
 

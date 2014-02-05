@@ -1,4 +1,4 @@
-module dryad/bytecode/ClassSignature
+module org/sugarj/dryad/compiler/dryad/bytecode/ClassSignature
 
 signature
   constructors

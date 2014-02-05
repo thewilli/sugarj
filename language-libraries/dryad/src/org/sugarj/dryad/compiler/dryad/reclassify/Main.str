@@ -3,24 +3,24 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/reclassify/Main
+module org/sugarj/dryad/compiler/dryad/reclassify/Main
 imports
   libstratego-lib
   libjava-front
   
-  dryad/lib-ext/list  
+  org/sugarj/dryad/compiler/dryad/lib-ext/list  
   
-  dryad/model/bytecode-class
-  dryad/model/source-class
-  dryad/model/classpath
-  dryad/model/reference-ast  
+  org/sugarj/dryad/compiler/dryad/model/bytecode-class
+  org/sugarj/dryad/compiler/dryad/model/source-class
+  org/sugarj/dryad/compiler/dryad/model/classpath
+  org/sugarj/dryad/compiler/dryad/model/reference-ast  
  
-  dryad/reclassify/Body
-  dryad/reclassify/Check 
-  dryad/reclassify/Header
+  org/sugarj/dryad/compiler/dryad/reclassify/Body
+  org/sugarj/dryad/compiler/dryad/reclassify/Check 
+  org/sugarj/dryad/compiler/dryad/reclassify/Header
 
-  dryad/util/jtree
-  dryad/util/option
+  org/sugarj/dryad/compiler/dryad/util/jtree
+  org/sugarj/dryad/compiler/dryad/util/option
 
 strategies
 

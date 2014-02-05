@@ -3,8 +3,8 @@
  *
  * @author  Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/jls/conversions/NarrowingReference
-imports dryad/util/jtree-overlays
+module org/sugarj/dryad/compiler/dryad/jls/conversions/NarrowingReference
+imports org/sugarj/dryad/compiler/dryad/util/jtree-overlays
 strategies
 
 /**

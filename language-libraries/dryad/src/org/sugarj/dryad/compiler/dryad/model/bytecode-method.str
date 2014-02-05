@@ -1,9 +1,9 @@
 /**
  * Bytecode Method
  */
-module dryad/model/bytecode-method
+module org/sugarj/dryad/compiler/dryad/model/bytecode-method
 imports
-  dryad/reclassify/Bytecode
+  org/sugarj/dryad/compiler/dryad/reclassify/Bytecode
 
 strategies
 

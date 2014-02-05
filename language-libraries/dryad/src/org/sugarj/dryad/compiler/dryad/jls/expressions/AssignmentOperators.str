@@ -3,7 +3,8 @@
  *
  * @author Martin Bravenboer
  */
-module dryad/jls/expressions/AssignmentOperators
+module org/sugarj/dryad/compiler/dryad/jls/expressions/AssignmentOperators
+imports
 
 /** Get the lhs of an assignment operator. */
 rules

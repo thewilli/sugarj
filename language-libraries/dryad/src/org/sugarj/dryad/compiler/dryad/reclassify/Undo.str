@@ -8,7 +8,7 @@
  * @author Martin Bravenboer <martin@cs.uu.nl>
  * @author Lennart Kats <lclkats@cs.uu.nl>
  */
-module dryad/reclassify/Undo
+module org/sugarj/dryad/compiler/dryad/reclassify/Undo
 strategies
 
   /**

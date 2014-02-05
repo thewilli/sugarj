@@ -3,7 +3,7 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/source-constructor
+module org/sugarj/dryad/compiler/dryad/model/source-constructor
 strategies
 
   /**

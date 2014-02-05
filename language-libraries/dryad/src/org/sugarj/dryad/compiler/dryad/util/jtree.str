@@ -1,7 +1,7 @@
 /**
  * Utils for Java Abstract Syntax Trees
  */
-module dryad/util/jtree
+module org/sugarj/dryad/compiler/dryad/util/jtree
 imports
   libjava-front
 

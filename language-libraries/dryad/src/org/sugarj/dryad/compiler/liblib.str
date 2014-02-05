@@ -1,4 +1,4 @@
-module liblib
+module org/sugarj/dryad/liblib
 imports
   libstratego-lib
   libstratego-xtc

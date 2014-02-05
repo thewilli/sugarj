@@ -5,13 +5,13 @@
  * @author Martin Bravenboer <martin@cs.uu.nl>
  * @author Lennart Kats <l.c.l.kats@tudelft.nl>
  */
-module dryad/bytecode/Bridge
+module org/sugarj/dryad/compiler/dryad/bytecode/Bridge
 imports
-  libstratego-jvm
-  dryad/bytecode/Signature
-  dryad/bytecode/ClassSignature
-  dryad/bytecode/MethodSignature
-  dryad/bytecode/FieldSignature
+  org/sugarj/dryad/compiler/libstratego-jvm
+  org/sugarj/dryad/compiler/dryad/bytecode/Signature
+  org/sugarj/dryad/compiler/dryad/bytecode/ClassSignature
+  org/sugarj/dryad/compiler/dryad/bytecode/MethodSignature
+  org/sugarj/dryad/compiler/dryad/bytecode/FieldSignature
   
 strategies
 

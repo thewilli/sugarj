@@ -3,10 +3,10 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module dryad/model/method
+module org/sugarj/dryad/compiler/dryad/model/method
 imports
-  dryad/model/member
-  dryad/lib-ext/oo/classes
+  org/sugarj/dryad/compiler/dryad/model/member
+  org/sugarj/dryad/compiler/dryad/lib-ext/oo/classes
   
 /**
  * Names

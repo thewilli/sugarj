@@ -4,7 +4,7 @@
  * @todo Annotate the promoted type? (int/long or float/double)
  * @author Martin Bravenboer
  */
-module dryad/type-check/RelationalOperators
+module org/sugarj/dryad/compiler/dryad/type-check/RelationalOperators
 strategies
 
   dryad-type-of :
