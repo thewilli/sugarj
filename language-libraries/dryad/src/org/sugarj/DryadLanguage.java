@@ -77,21 +77,21 @@ public class DryadLanguage extends AbstractBaseLanguage {
 
   @Override
   public boolean isExtensionDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"JasminExtension"))
+    if(isApplication(decl,"DryadExtension"))
       return true;
     return false;
   }
       
   @Override
   public boolean isImportDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"JasminImport"))
+    if(isApplication(decl,"DryadImport"))
       return true;
     return false;
   }
 
   @Override
   public boolean isBaseDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"JasminBody") || isNamespaceDec(decl))
+    if(isApplication(decl,"DryadBody") || isNamespaceDec(decl))
       return true;
     return false;
   }
@@ -110,8 +110,8 @@ public class DryadLanguage extends AbstractBaseLanguage {
   @Override
   public List<Path> getPackagedGrammars() {
     List<Path> grammars = new LinkedList<Path>(super.getPackagedGrammars());
-    grammars.add(ensureFile("org/sugarj/languages/SugarJasmin.def"));
-    grammars.add(ensureFile("org/sugarj/languages/Jasmin.def"));
+    grammars.add(ensureFile("org/sugarj/languages/SugarDryad.def"));
+    grammars.add(ensureFile("org/sugarj/languages/Dryad.def"));
     return Collections.unmodifiableList(grammars);
   }
 

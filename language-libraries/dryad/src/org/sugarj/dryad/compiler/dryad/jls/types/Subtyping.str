@@ -1,0 +1,200 @@
+/**
+ * 4.10: Subtyping
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/types/Subtyping
+imports
+  dryad/jls/types/Parameterized
+  dryad/jls/types/Primitive
+  dryad/jls/types/Reference
+  dryad/model/-
+  dryad/util/jtree-overlays
+
+strategies
+
+  /**
+   * Checks if the current term is a subtype of the specified type.
+   *
+   * @param t Type
+   * @type    Type -> Type
+   */
+  is-subtype(|type) =
+    where(supertypes; fetch(?type))
+
+  /**
+   * The special Null type is a subtype of every type.
+   *
+   * @todo I think null is only a subtype of reference types. Submitted. (4.10)
+   */
+  is-subtype(|type) =
+    ?Null()
+    ; where(<is-reference-type> type)
+
+  is-proper-subtype(|type) =
+    where(proper-supertypes; fetch(?type))
+
+  /**
+   * Returns all (not just the direct) proper supertypes of the given Type.
+   *
+   * @type Type -> List(Type)
+   */
+  supertypes =
+    ![<id> | <proper-supertypes>]
+
+  /**
+   * Returns all (not just the direct) proper supertypes of the given Type.
+   *
+   * @type Type -> List(Type)
+   */
+  proper-supertypes =
+    ?type
+    ; direct-supertypes => types
+    ; new-iset
+    ; iset-addlist(|types)
+    ; iset-fixpoint(direct-supertypes)
+    ; iset-elements
+
+  /**
+   * Checks if the current term is a proper supertype of the specified type
+   */
+  is-proper-supertype(|of) =
+    ?type
+    ; where(<proper-supertypes> of; fetch(?type))
+      
+  /**
+   * Checks if the two type arguments have a subtype relation.
+   *
+   * @param Type
+   * @param Type   
+   */
+  have-subtype-relation(|t1, t2) =
+    <is-subtype(|t2)> t1 + <is-subtype(|t1)> t2  
+
+/**
+ * 4.10.1: Subtyping among Primitive Types
+ */
+strategies
+
+  /**
+   * Returns the direct supertypes of a type.
+   *
+   * @type Type -> List(Type)
+   */
+  direct-supertypes : Double()  -> []
+  direct-supertypes : Float()   -> [Double()]
+  direct-supertypes : Long()    -> [Float()]
+  direct-supertypes : Int()     -> [Long()]
+  direct-supertypes : Char()    -> [Int()]
+  direct-supertypes : Short()   -> [Int()]
+  direct-supertypes : Byte()    -> [Short()]
+  direct-supertypes : Boolean() -> []
+
+/**
+ * 4.10.2: Subtyping among Class and Interface Types
+ *
+ * @todo Supertypes of intersection types.
+ * @todo Supertypes of null is not supported (all reference types)
+ * @todo A type variable is a direct supertype of its lower bound. Yikes: DRY-155
+ * @todo Parameterized types with wildcards.
+ */
+strategies
+
+  /**
+   * Case: Class, raw or unparameterized.
+   */
+  direct-supertypes =
+    ?type@ClassType(tn, None())
+    ; <log-lookup-class> tn
+    ; direct-supertypes-of-class-helper(|type)
+    
+  /**
+   * Case: Interface, raw or unparameterized.
+   */
+  direct-supertypes =
+    ?type@InterfaceType(tn, None())
+    ; <log-lookup-class> tn
+    ; direct-supertypes-of-interface-helper(|type)    
+    
+  /**
+   * Case: Class, parameterized.
+   *
+   * @todo The second 'contains' option.
+   * @todo Check the number of arguments (invoke separate strategy)
+   */
+  direct-supertypes =
+    ?type@ClassType(tn, Some(TypeArgs(args)))
+    ; <log-lookup-class> tn
+    ; direct-supertypes-of-class-helper(|type)
+    ; ![ClassType(tn, None()) | <id>]
+    
+  /**
+   * Case: Interface, parameterized.
+   */
+  direct-supertypes =
+    ?type@InterfaceType(tn, Some(TypeArgs(args)))
+    ; <log-lookup-class> tn
+    ; direct-supertypes-of-interface-helper(|type)    
+    ; ![InterfaceType(tn, None()) | <id>]
+
+strategies    
+
+  direct-supertypes-of-class-helper(|type) =
+    ?class
+    ; <get-superinterfaces(|type)> class => superinterfaces
+    ; if <get-superclass(|type)> class => superclass then
+        ![superclass | superinterfaces]
+      else
+        if not(!type => TypeObject) then
+          log(|Error(), "Cannot find superclass of", type)
+        end
+      end
+      
+  direct-supertypes-of-interface-helper(|type) =      
+    ?class
+    ; <get-superinterfaces(|type)> class => superinterfaces
+    ; if !superinterfaces => [] then
+        ![TypeObject() | <id>]
+      end
+
+/**
+ * Direct supertypes of type variables.
+ *
+ * @todo Need information about the type in which this typevar occurs.
+ *       In other words: get-upper-bound needs an 'in' argument.
+ */
+strategies
+
+  direct-supertypes =
+    ?TypeVar(Fresh(_), _)
+    ; FreshTypeVarUpperBound
+    
+  direct-supertypes =
+    ?TypeVar(qualifier, _)
+    ; lookup-type-parameter
+    ; get-upper-bound
+
+/**
+ * 4.10.3: Subtyping among Array Types
+ *
+ * Terminology: component type (can be array) and element type (not array)
+ */
+strategies
+
+  direct-supertypes =
+    ?ArrayType(component)
+
+    ; if <is-reference-type> component then
+        <direct-supertypes> component
+        ; map(!ArrayType(<id>))
+      else
+        ![]
+      end
+
+    ; if !component => TypeObject() then
+        ![TypeObject(), TypeCloneable(), TypeSerializable() | <id>]
+      end
+
+    ; if <is-primitive-type> component then
+        ![TypeObject(), TypeCloneable(), TypeSerializable() | <id> ]
+      end

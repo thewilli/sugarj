@@ -1,0 +1,160 @@
+/**
+ * Access to Java bytecode by conversion to ATerms.
+ *
+ * @todo Use libstratego-sglr for parsing signatures
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ * @author Lennart Kats <l.c.l.kats@tudelft.nl>
+ */
+module dryad/bytecode/Bridge
+imports
+  libstratego-jvm
+  dryad/bytecode/Signature
+  dryad/bytecode/ClassSignature
+  dryad/bytecode/MethodSignature
+  dryad/bytecode/FieldSignature
+  
+strategies
+
+  read-class-file =
+    jdebug(!"read-class-file") ;
+    ?Jar(jarpath, filepath)
+    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
+    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)    
+    ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm_from_jar")> [jarpath, filepath]
+    ; parse-signatures
+    
+  read-class-file =
+    jdebug(!"read-class-file 2") ;
+    (?ClassFile(path) + ?FILE(path))
+    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
+    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
+    ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm")> [path, "off"]
+    ; parse-signatures
+    
+  read-class-file-disasm = 
+    jdebug(!"read-class-file-disasm: ") ;
+    (?ClassFile(path) + ?FILE(path))
+    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
+    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
+    ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm")> [path, "on"]
+    ; parse-signatures
+    
+  /**
+   * Serializes a Java class file to a file.
+   * The output file name and path is determined from the package and class name.
+   *
+   * @type ClassFile -> FILE
+   */
+  write-class-file:
+    //jdebug(!"write-class-file: ") ;
+    classfile @ ClassFile(_, _, _, ThisClass(name), _, _, _, _, _) -> FILE(output)
+    where
+      path         := <add-extension> (<string-replace(|".", "/")> name, "class")
+    ; FILE(output) := <write-class-file(|path)> classfile
+
+  /**
+   * Serializes a Java class file to a file.
+   *
+   * @type ClassFile -> FILE
+   */
+  write-class-file(|path):
+    ClassFile(_, _, _, _, _, _, _, _, _) -> FILE(path)
+    where
+      write-to
+    ; xtc-transform(!"baffle", !["-ws"]) => FILE(input)
+    
+    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
+    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
+    
+    ; <strjvm-callstatic(|jvm, "str/classtree/ATerm2Class", "asm")> [input, path]
+
+strategies  
+    
+  get-jvm(|classpath) =
+    GetJVM
+    <+ strjvm-create(|classpath) => jvm
+       ; rules(GetJVM: _ -> jvm)
+
+strategies
+
+  parse-signatures =
+    topdown(try(
+      ?ClassSignature(<parse-class-signature>)
+    + ?MethodSignature(<parse-method-signature>)
+    + ?FieldSignature(<parse-field-signature>)
+    ))
+
+  parse-class-signature =
+    //parse-signature(|"ClassSignature.tbl")
+    parse-signature(|"/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/trans/ClassSignature.tbl")
+
+  parse-method-signature =
+    //parse-signature(|"MethodSignature.tbl")
+    parse-signature(|"/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/trans/MethodSignature.tbl")
+    
+  parse-field-signature =
+    //parse-signature(|"FieldSignature.tbl")
+    parse-signature(|"/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/trans/FieldSignature.tbl")
+
+  parse-signature(|tbl) =
+    jdebug(<concat-strings> ["parse-signature (",tbl,")"]);
+    where(<get-signature-parse-table> tbl => opentbl)
+    ; (parse-string(|opentbl) <+ report-parse-error; fail)
+    ; desugar-signature
+
+  get-signature-parse-table =
+    ?tbl
+    ; ( ParseTable
+        //<+ <xtc-find> tbl
+        <+ !tbl
+           ; ReadFromFile
+           ; open-parse-table => opentbl
+           ; rules(ParseTable: tbl -> opentbl)
+      )
+
+  desugar-signature =
+    jdebug(!"desugar-signature 1");
+    alltd(
+      ( ?ClassSignature(_, _, _)
+      + ?MethodSignature(_, _, _, _)
+      + ?FieldSignature(_)
+      )
+      ; topdown(repeat(DesugarSignature))
+    )
+    ; jdebug(!"desugar-signature 2")
+
+    
+  DesugarSignature :
+    MethodSignature(Some(t1), t2, t3, t4) -> MethodSignature(t1, t2, t3, t4)
+    
+  DesugarSignature :    
+    MethodSignature(None(), t2, t3, t4) -> MethodSignature(TypeParams([]), t2, t3, t4)
+    
+  DesugarSignature :
+    ClassSignature(Some(t1), t2, t3) -> ClassSignature(t1, t2, t3)
+
+  DesugarSignature :
+    ClassSignature(None(), t2, t3) -> ClassSignature(TypeParams([]), t2, t3)
+    
+  DesugarSignature :
+    TypeName(Id(x)) -> TypeName(PackageName([]), Id(x))
+    
+  DesugarSignature :
+    TypeArg(None(), type) -> type
+
+  /**
+   * @todo Desugar None ClassBound
+   */  
+  DesugarSignature :
+    TypeParam(Id(x), ClassBound(Some(ftype)), is)
+      ->
+    TypeParam(Id(x), Some(TypeBound([ftype | is])))
+    
+  DesugarSignature :
+    Class(type) -> type
+
+  /**
+   * @todo Temporary hack to support ? extends E by rewriting to E.
+   */    
+  DesugarSignature :    
+    TypeArg(Some(Plus), TypeVar(Id(x))) -> TypeArg(None(), TypeVar(Id(x)))

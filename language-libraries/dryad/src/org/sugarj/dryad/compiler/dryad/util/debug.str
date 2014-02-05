@@ -1,0 +1,72 @@
+/** 
+ * Utility strategies for debugging and inspecting the
+ * Dryad model.
+ *
+ * @author Karl Trygve Kalleberg <karltk@cs.uu.nl>
+ */
+module dryad/util/debug
+imports
+	liblib
+	dryad/model/package
+	dryad/model/class
+	
+strategies
+
+	/**
+	 * Prints the name of a package, class, method or field to screen,
+	 * preceeded by a string prefix.
+	 *
+	 * @param pfx - the string to prepend before printing
+	 * @type Class Object | Method Object | Package Object | Field Object -> same
+	 */
+	dump-name(|pfx) =
+		where(get-simple-name => x	; <concat-strings; debug> [ pfx, x ])
+
+	/**
+	 * Prints all methods of a class, preceeded by a string prefix.
+	 *
+	 * @param pfx - the string to be prepended before printing
+	 * @type Class Object -> Class Object
+	 */
+	dump-methods(|pfx) =
+		where(get-methods ; map(dump-name(|pfx)))
+
+	
+	/**
+	 * Prints all fields of a class, preceeded by a string prefix.
+	 *
+	 * @param pfx - the string to be prepended before printing
+	 * @type Class Object -> Class Object
+	 */
+	dump-fields(|pfx) = 
+		where(get-fields ; map(dump-name(|pfx)))
+
+		
+	/**
+	 * Print structural information about a Class Object to stdout,
+	 * each line prefixed by pfx.
+	 *
+	 * @param pfx - the string to be prepended before printing
+	 * @type Class Object -> Class Object
+	 */
+	dump-classes(|pfx) = 
+		where(<concat-strings> [ pfx, " * "] => cpfx)
+		; where(<concat-strings> [ pfx, "  - "] => mpfx)
+		; where(
+			get-toplevel-classes
+			; map(dump-name(|cpfx) ; dump-fields(|mpfx) ; dump-methods(|mpfx))
+		)
+				
+	/**
+	 * Print structural information about a Package Object to stdout,
+	 * each line prefixed by pfx.
+	 *
+	 * @param pfx - the string to be prepended before printing
+	 * @type Package Object -> Package Object
+	 */
+	dump-packages(|pfx) =
+		where(try(dump-classes(|pfx)))
+		; get-subpackages
+		; map(try(dump-name(|pfx)) ; try(dump-classes(|pfx)) ; dump-packages(|<concat-strings> [ " ", pfx ]))
+
+		

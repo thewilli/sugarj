@@ -1,0 +1,878 @@
+/**
+ * Abstract class that represents a Java Class.
+ *
+ * Concrete implementations of this class are for example bytecode-class and source-class.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/class
+imports
+  dryad/model/member
+  dryad/model/repository
+  dryad/lib-ext/oo/classes
+  dryad/jls/types/Erasure
+
+/**
+ * Names
+ */
+strategies
+
+  /**
+   * Returns the simple name of this class.
+   *
+   * @type Class Object -> String
+   */
+  get-simple-name = instanceof-JavaClass;
+    classes_get-instance-field(|"simple-name")
+    
+  /**
+   * Returns the canonical name of this class.
+   *
+   * @type Class Object -> TypeName
+   */
+  get-name = instanceof-JavaClass;
+    get-canonical-name
+
+  /**
+   * Returns the canonical name of this class.
+   *
+   * Canonical names (see section 6.7) are fully qualified names
+   * that uniquely identify a class. There are no two different 
+   * canonical names that refer to the same class.
+   *
+   * @type Class Object -> TypeName
+   */    
+  get-canonical-name = instanceof-JavaClass; ?this;
+    if get-declaring-class => class then
+      !TypeName(<get-canonical-name> class, Id(<get-simple-name> this))
+    else
+      !TypeName(<get-package; get-canonical-name> this, Id(<get-simple-name> this))
+    end
+
+  /**
+   * Returns the canonical name of this class, which is a fully qualified name.
+   *
+   * @type Class Object -> TypeName
+   */    
+  get-fully-qualified-name = instanceof-JavaClass;
+    get-canonical-name
+    
+/**
+ * Formal type parameters
+ */
+strategies
+
+  /**
+   * Succeeds if this class has a type parameter of the given name.
+   *
+   * @param  Simple name of the type parameter (String)
+   * @type   Class Object -> TypeParam   
+   */
+  has-formal-type-parameter(|name) = instanceof-JavaClass;
+    where(get-formal-type-parameter(|name))
+    
+  /**
+   * Returns the type parameter of the given name, or fails
+   * if this class thus have a type parameter with this name.
+   *
+   * @param  Simple name of the type parameter (String)
+   * @type   Class Object -> TypeParam
+   */
+  get-formal-type-parameter(|name) = instanceof-JavaClass;
+    get-formal-type-parameters
+    ; fetch-elem(?TypeParam(Id(name), _))
+
+  /**
+   * Abstract method. Has to declared in subclasses.
+   *
+   * @type   Class Object -> List(TypeParam)
+   */
+  get-formal-type-parameters =
+    fail
+    
+  /**
+   * Succeeds if this is a generic class (i.e. has formal type parameters).
+   */
+  is-generic = instanceof-JavaClass;
+    where(get-formal-type-parameters => [_ | _])
+
+/**
+ * Superclass
+ */
+strategies
+
+  /**
+   * Returns the super class of this class.
+   * Fails if this class has no superclass (i.e. this class is java.lang.Object)
+   *
+   * @type Class Object -> Class Object
+   */
+  get-superclass =
+    get-superclass-as-type
+    ; lookup-class
+
+  /**
+   * Returns the super class of this class as a type.
+   *
+   * Abstract method. Must be implemented by the subclass.
+   *
+   * @type Class Object -> Source Type
+   */
+  get-superclass-as-type =
+    fail
+   
+  get-superclass-type =
+    get-superclass-as-type
+    
+  /**
+   * Succeeds if this class is subclass of the given class.
+   *
+   * @param The possible superclass.
+   * @type Class Object -> Class Object
+   */
+  is-subclass(|class) =
+    where(
+      get-superclass
+      ; if ?class then
+          true
+        else
+          is-subclass(|class)
+        end
+    )
+
+strategies
+
+  /**
+   * Superclass of a parameterized types.
+   *
+   * @param Type
+   * @type Class Object -> Source Type
+   */
+  get-superclass(|intype) = ?this;
+    where(is-generic)  
+    ; where(!intype; (?ClassType(_, Some(TypeArgs(args))) + ?InterfaceType(_, Some(TypeArgs(args)))))
+    ; get-superclass-as-type
+    ; apply-type-substitution(|this, args)
+
+  /**
+   * Superclass of a raw type.
+   */
+  get-superclass(|intype) = ?this;
+    where(is-generic)
+    ; where(!intype; (?ClassType(_, None()) + ?InterfaceType(_, None())))
+    ; get-superclass-as-type
+    ; type-erasure
+    
+  /**
+   * Superclass of a unparameterized type.
+   */
+  get-superclass(|intype) =
+    where(not(is-generic))
+    ; get-superclass-as-type
+
+/**
+ * Superinterfaces
+ */
+strategies
+
+  /**
+   * Returns the direct super interfaces
+   *
+   * @type Class Object -> Class Object
+   */
+  get-superinterfaces =
+    get-superinterfaces-as-type
+    ; map(lookup-class)
+
+  /**
+   * Returns the interfaces implemented by this class as types.  
+   *
+   * Abstract method. Must be implemented by the subclass.
+   *
+   * @type Class Object -> List(Source Type)
+   */
+  get-superinterfaces-as-type =
+    fail
+    
+strategies
+
+  /**
+   * @param Type
+   * @type Class Object -> List(Source Type)
+   */
+  get-superinterfaces(|intype) = ?this;
+    where(is-generic)
+    ; where(!intype; (?ClassType(_, Some(TypeArgs(args))) + ?InterfaceType(_, Some(TypeArgs(args)))))
+    ; get-superinterfaces-as-type
+    ; apply-type-substitution(|this, args)
+
+  /**
+   * Superclass of a raw type.
+   */
+  get-superinterfaces(|intype) = ?this;
+    where(is-generic)
+    ; where(!intype; (?ClassType(_, None()) + ?InterfaceType(_, None())))
+    ; get-superinterfaces-as-type
+    ; map(type-erasure)
+    
+  /**
+   * Superclass of a unparameterized type.
+   */
+  get-superinterfaces(|intype) =
+    where(not(is-generic))
+    ; get-superinterfaces-as-type
+
+/**
+ * Fields.
+ */
+strategies
+
+  /**
+   * Returns all fields of this class, including those inherited from 
+   * superclasses and superinterfaces.
+   *
+   * For array classes, this method does return the length field (java.lang.getFields does
+   * not return the length field for an array class).
+   *
+   * @type Class Object -> List(Field Object)
+   */
+  get-fields =
+    <conc> (<get-declared-fields>, <get-inherited-fields>)
+
+  /**
+   * Returns the field for the given name.
+   *
+   * If multiple fields are accessible, then an access of this field ambiguous 
+   * and this strategy will fail. Use get-fields(|name) if you need all 
+   * the field declarations of the given name.
+   *
+   * If the class is an array class, then this method will succeed and 
+   * return a field if 
+   *
+   * @param String
+   * @type Class Object -> Field Object
+   */
+  get-field(|name) =
+    get-fields(|name)
+    ; ?[<id>]
+    
+  /**
+   * Returns all the visible fields with the given name.
+   *
+   * For valid Java classes, this should return a singleton
+   * list. For invalid Java classes, there might be multiple
+   * declarations with the same name.
+   * 
+   * @todo Optimize by not retrieving all the fields first.
+   * @param String   
+   * @type Class Object -> List(Field Object)
+   */
+  get-fields(|name) =
+    get-fields
+    ; retain-all(where(get-simple-name => name))    
+    
+  /**
+   * Succeeds if the current class has a field with this name.
+   * The field might be inherited.
+   *
+   * @param String   
+   * @type Class Object -> Class Object
+   */
+  has-field(|name) =
+    where(get-field(|name))
+
+/**
+ * Declared fields
+ */
+strategies
+
+  /**
+   * @type Class Object -> List(Field Object)
+   */
+  get-declared-fields =
+    get-declared-field-table
+    ; hashtable-values
+ 
+  /**
+   * Returns the field 'name', which must be declared in this class.
+   *
+   * @param String   
+   * @type Class Object -> Field Object
+   */
+  get-declared-field(|name) =
+    get-declared-field-table
+    ; hashtable-get(|name)
+    
+  /**
+   * Succeeds if the current class declares a field with this name.
+   *
+   * @param String   
+   * @type Class Object -> Class Object 
+   */
+  has-declared-field(|name) =
+    where(get-declared-field(|name))
+   
+/**
+ * Inherited fields
+ */
+strategies
+
+  /**
+   * Returns all fields of this class that are inherited from superclasses and superinterfaces.
+   *
+   * @type Class Object -> List(Fields Object)
+   */
+  get-inherited-fields = ?this;
+    <concat> [
+      <get-superclass < get-fields + ![]>
+    | <get-superinterfaces; map(get-fields)>
+    ]
+    ; remove-all(is-not-inherited(|this))
+    ; make-set
+    
+  /**
+   * Returns all fields of this class that are inherited from superclasses and superinterfaces.
+   *
+   * @param Simple name of the field (String)
+   * @type  Class Object -> List(Field Object)
+   */
+  get-inherited-fields(|name) = ?this;
+    <concat> [
+      <get-superclass < get-fields(|name) + ![]>
+    | <get-superinterfaces; map(get-fields(|name))>
+    ]
+    ; remove-all(is-not-inherited(|this))
+    ; make-set
+
+  /**
+   * Succeeds if the current class inherits a field with this name.
+   *
+   * @param Simple name of the class (String)
+   * @type Class Object -> Class Object
+   */
+  has-inherited-field(|name) = instanceof-JavaClass;
+    where(
+      get-inherited-fields(|name)
+      ; ?[_ | _]
+    )
+
+/**
+ * Private helpers for fields.
+ */
+strategies
+
+  /**
+   * Private. Do not invoke.
+   */
+  get-declared-field-table =
+    classes_get-instance-field(init-declared-field-table; get-declared-field-table |"declared-field-table")
+
+  /**
+   * Abstract strategy. Must be implemented by subclasses.
+   */
+  init-declared-field-table =
+    fail
+
+  /**
+   * Default implementation of init-declared-field-table, which requires the
+   * subclass to implement init-get-declared-field-list.
+   */
+  init-declared-field-table =
+    where(
+      init-get-declared-field-list
+      ; where(<new-hashtable> () => fieldtbl)
+      ; map({field, name:
+          ?field
+        ; get-simple-name => name
+        ; <hashtable-put(|name, field)> fieldtbl
+        })
+    )
+    ; classes_set-instance-field(|"declared-field-table", fieldtbl)
+    
+  /**
+   * Abstract strategy. Must be implemented by subclasses if the default 
+   * init-declared-field-table is used.
+   */    
+  init-get-declared-field-list =
+    fail
+
+/**
+ * Abstract support for constructors
+ *
+ * All classes must have a constructor hashtable.
+ */
+strategies
+
+  /**
+   * Returns a list of the constructors declared in this class.
+   *
+   * @type Class Object -> List(Constructor Object)
+   */
+  get-declared-constructors =
+    get-declared-constructor-list
+
+  /**
+   * Returns all constructors of this class, including superclasses.
+   *
+   * @type Class Object -> List(Constructor Object)
+   */
+  get-constructors =
+    <conc> (<get-declared-constructors>, <get-superclass < get-constructors + ![]>)
+
+  /**
+   * Returns a list of the constructors declared in this class.
+   *
+   * Don't invoke directly: use get-declared-constructors
+   *
+   * @type Class Object -> List(Constructor Object)
+   * @todo Is a list the most efficient way for storing constructors?
+   */
+  get-declared-constructor-list =
+    classes_get-instance-field(init-declared-constructor-list; get-declared-constructor-list |"declared-constructor-list")
+
+   /**
+    * Must be implemented by subclasses.
+    */
+  init-declared-constructor-list =
+    fail
+
+  /**
+   * Default implementation (not required to use this).
+   */
+  init-declared-constructor-list =
+    where(
+      init-get-declared-constructor-list
+      ; ?cons
+    )
+    ; classes_set-instance-field(|"declared-constructor-list", cons)
+
+/**
+ * Declared methods
+ */
+strategies
+
+  /**
+   * Returns a list of the methods declared in this class.
+   *
+   * @type Class Object -> List(Method Object)
+   */
+  get-declared-methods =
+    get-declared-method-table
+    ; hashtable-values
+    ; concat
+
+  /**
+   * Returns the methods 'name', which must be declared in this class.
+   * If no such method exits, the empty list is returned.
+   *
+   * @param String
+   * @type  Class Object -> List(Method Object)
+   */
+  get-declared-methods(|name) = instanceof-JavaClass;
+    get-declared-method-table
+    ; (hashtable-get(|name) <+ ![])
+
+  /**
+   * Succeeds if the current class declares a method with this name.
+   *
+   * @param String   
+   * @type Class Object -> Class Object
+   */
+  has-declared-method(|name) = instanceof-JavaClass;
+    where(
+      get-declared-methods(|name)
+      ; ?[_ | _]
+    )
+    
+/**
+ * Methods
+ */
+strategies
+
+  /**
+   * Returns all member methods of this class.
+   * Including superclasses and superinterfaces.
+   *
+   * @type Class Object -> List(Method Object)
+   */
+  get-methods =
+    <conc> (<get-declared-methods>, <get-inherited-methods>)
+    
+  /**
+   * Returns all member methods of this class with this name.
+   * Including superclasses and superinterfaces.
+   *
+   * @param String
+   * @type  Class Object -> List(Method Object)
+   */
+  get-methods(|name) =
+    <conc> (<get-declared-methods(|name)>, <get-inherited-methods(|name)>)
+    
+  /**
+   * Succeeds if this has a member method with the given name.
+   * 
+   * @type Class Object -> Class Object
+   * @type name String   
+   */
+  has-method(|name) =
+    has-declared-method(|name)
+    <+ has-inherited-method(|name)
+    
+/**
+ * Inherited methods
+ */
+strategies
+
+  /**
+   * Returns all methods of this class that are inherited from superclasses and superinterfaces.
+   *
+   * @type Class Object -> List(Method Object)
+   */
+  get-inherited-methods = ?this;
+    <concat> [
+      <get-superclass < get-methods + ![]>
+    | <get-superinterfaces; map(get-methods)>
+    ]
+    ; remove-all(is-not-inherited(|this))    
+    ; make-set
+
+  /**
+   * Returns all methods of this class with this name that are inherited 
+   * from superclasses and superinterfaces.
+   *
+   * @type Class Object -> List(Method Object)
+   */
+  get-inherited-methods(|name) = ?this;
+    <concat> [
+      <get-superclass < get-methods(|name) + ![]>
+    | <get-superinterfaces; map(get-methods(|name))>
+    ]
+    ; remove-all(is-not-inherited(|this))    
+    ; make-set
+    
+  /**
+   * Succeeds if the current class inherits a method with this name.
+   *
+   * @param String
+   * @type Class Object -> Class Object
+   */
+  has-inherited-method(|name) = instanceof-JavaClass;
+    where(
+      get-inherited-methods(|name)
+      ; ?[_ | _]
+    )
+
+/**
+ * Private helpers for methods.
+ */
+strategies
+      
+  /**
+   * Returns a hashtable of the methods declared in this class.
+   *
+   * @type Class Object -> HashTable(String, Method Object)
+   */
+  get-declared-method-table =
+    classes_get-instance-field(init-declared-method-table; get-declared-method-table |"declared-method-table")
+      
+  /**
+   * Abstract strategy. Must be implemented by subclasses.
+   */
+  init-declared-method-table =
+    fail
+
+  /**
+   * Default implementation.
+   */    
+  init-declared-method-table =
+    where(
+      init-get-declared-method-list
+      ; where(new-hashtable => methodtbl)
+      ; map({name, method:
+          ?method
+          ; get-simple-name => name
+          ; <hashtable-push(|name, method)> methodtbl
+        })
+      )
+    ; classes_set-instance-field(|"declared-method-table", methodtbl)
+
+  init-get-declared-method-list =
+    fail
+   
+    
+/**
+ * Inheritance
+ */
+strategies
+
+  /**
+   * Private methods are not inherited.
+   *
+   * This strategy is defined as not-inherited to allow overloading.
+   *
+   * @param Class Object
+   * @type Method Object -> Method Object
+   */
+  is-not-inherited(|inclass) =
+    is-private
+    
+  /**
+   * Hidden fields are not inherited.
+   *
+   * @param Class Object
+   * @type Field Object -> Field Object
+   */
+  is-not-inherited(|inclass) =
+    where(
+      instanceof-JavaField
+      ; get-simple-name => name
+      ; <has-declared-field(|name)> inclass
+    )
+    
+  /**
+   * Hidden member types are not inherited.
+   *
+   * @param Class Object
+   * @type Field Object -> Field Object
+   */
+  is-not-inherited(|inclass) =
+    where(
+      instanceof-JavaClass
+      ; get-simple-name => name
+      ; <has-declared-member-type(|name)> inclass
+    )
+    
+  /**
+   * Members with default access are not inherited into classes defined in a different package.
+   */
+  is-not-inherited(|inclass) = ?this;
+    where(
+      <get-declaring-class; get-package> this => decpackage
+      ; <get-package> inclass => package
+      ; if not(!decpackage => package) then
+          <get-access> this => DefaultAccess()
+        else
+          /**
+           * This is a bit confusing: the strategy must succeed if the method is not inherited.
+           */
+          fail
+        end
+      )
+    
+/**
+ * Member Types
+ */
+strategies
+
+  /**
+   * Returns all member types of this class.
+   *
+   * @type Class Object -> List(Class Object)   
+   */
+  get-member-types =
+    <conc> (<get-declared-member-types>, <get-inherited-member-types>)
+
+  /**
+   * Returns the member type of this class with this name.
+   *
+   * @param String
+   * @type  Class Object -> Class Object
+   */    
+  get-member-type(|name) =
+    get-member-types(|name)
+    ; ?[<id>]
+
+  /**
+   * Returns the member types of this class with this name.
+   * For valid classes, this always returns a singleton list.
+   *
+   * @param String
+   * @type  Class Object -> List(Class Object)
+   * @todo  Store member types in a list an remove the ![<id>]?
+   */
+  get-member-types(|name) =
+    get-declared-member-type(|name); ![<id>]
+    <+ get-inherited-member-types(|name)
+
+  /**
+   * Succeeds if this has a member type with the given name.
+   * 
+   * @type Class Object -> Class Object
+   * @type name String   
+   */
+  has-member-type(|name) =
+    has-declared-member-type(|name)
+    <+ has-inherited-member-type(|name)
+    
+/**
+ * Declared Member Types
+ */
+strategies
+
+  /**
+   * Returns all the member types declared in this class.
+   *
+   * @type Class Object -> List(Class Object)
+   */
+  get-declared-member-types =
+    get-declared-member-type-table
+    ; hashtable-values
+
+  /**
+   * Returns the type 'name', which must be declared in this class.
+   *
+   * @param name  String   
+   * @type Class Object -> Class Object
+   */
+  get-declared-member-type(|name) =
+    get-declared-member-type-table
+    ; hashtable-get(|name)
+
+  /**
+   * Succeeds if the current class declares a class with this name.
+   *
+   * @type Class Object -> Class Object 
+   */
+  has-declared-member-type(|name) =
+    where(get-declared-member-type(|name))
+    
+  /**
+   * @todo Maybe this should be in the subclasses, since the implementation is different
+   *       for source and bytecode classes.
+   */
+  add-declared-member-type(|class) = ?this;
+    where(
+      where(<get-simple-name> class => name)
+      ; get-declared-member-type-table
+      ; hashtable-put(|name, class)
+    )
+    
+/**
+ * Inherited Member Types
+ */
+strategies    
+
+  /**
+   * Returns all member types of this class that are inherited from superclasses and superinterfaces.
+   *
+   * @type Class Object -> List(Class Object)
+   */
+  get-inherited-member-types = ?this;
+    <concat> [
+      <get-superclass < get-member-types + ![]>
+    | <get-superinterfaces; map(get-member-types)>
+    ]
+    ; remove-all(is-not-inherited(|this))
+    ; make-set
+
+  /**
+   * Returns all member types of this class with the given name
+   * that are inherited from superclasses and superinterfaces.
+   *
+   * @param Simple name of the class (String)
+   * @type  Class Object -> List(Class Object)
+   */
+  get-inherited-member-types(|name) = ?this;
+    <concat> [
+      <get-superclass < get-member-types(|name) + ![]>
+    | <get-superinterfaces; map(get-member-types(|name))>
+    ]
+    ; remove-all(is-not-inherited(|this))
+    ; make-set
+    
+  /**
+   * Succeeds if the current class inherits a member type with this name.
+   *
+   * @param Simple name of the class (String)
+   * @type Class Object -> Class Object
+   */
+  has-inherited-member-type(|name) = instanceof-JavaClass;
+    where(
+      get-inherited-member-types(|name)
+      ; ?[_ | _]
+    )
+
+/**
+ * Private member type utils.
+ */
+strategies
+    
+  /**
+   * Private. Do not invoke directly.
+   *
+   * @type Hashtable(String, Class Object)
+   */
+  get-declared-member-type-table =
+    classes_get-instance-field(
+      init-declared-member-type-table
+      ; get-declared-member-type-table
+    | "declared-member-type-table")
+    
+  /**
+   * Should be overridden by a subclass.
+   */    
+  init-declared-member-type-table = fail        
+
+/**
+ * Abstract support for member classes.
+ */
+strategies
+
+  /**
+   * Succeeds if this is a top level class.
+   */
+  is-top-level-class =
+    not(is-nested-class)
+ 
+  /**
+   * Succeeds if this is a nested class.
+   */   
+  is-nested-class =
+      is-member-type
+    + is-local-class
+    + is-anonymous-class
+    
+  /**
+   * @todo Stub: implement.
+   */
+  is-anonymous-class =
+    fail
+    
+  /**
+   * Succeeds if this class is a member of an enclosing class.
+   */
+  is-member-type =
+    where(get-declaring-class)
+    
+  /**
+   * @todo Implement: Stub
+   */
+  is-local-class =
+    fail
+
+  /**
+   * @todo Anonymous classes don't have a declaring class.
+   */
+  get-enclosing-class =
+    get-declaring-class
+
+/**
+ * Stratego class support.
+ */
+strategies
+
+  /**
+   * Checks if current term is an instance of JavaClass.
+   * Subclasses of class implement this strategy.
+   */
+  instanceof-JavaClass =
+    fail
+    
+  /**
+   * Succeeds if the current term is an instance of a Java member.
+   * This alternative declares a JavaClass to be a JavaMember.
+   *
+   * @todo Make a member class a separate subclass?
+   */
+  instanceof-JavaMember =
+    instanceof-JavaClass

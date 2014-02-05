@@ -1,0 +1,285 @@
+/**
+ * Class that represents a Java Package.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/package
+imports
+  dryad/model/repository  
+  dryad/util/option
+
+strategies
+
+  /**
+   * Creates a new package. If not parent package is specified, then
+   * the new package is a top level package.
+   *
+   * @param Optional parent (Some(Package Object))
+   * @param Name of the package (String)
+   * @type  _ -> Package Object
+   */
+  new-package(|opt-parentpkg, simple-name) =
+    <classes_get-class> JavaPackage()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"simple-name", simple-name)    
+    ; classes_set-instance-field(|"package-table", <new-hashtable>)
+    ; if !opt-parentpkg => Some(pkg) then
+        classes_set-instance-field(|"parent-package", pkg)
+      end
+
+  /**
+   * Succeeds if this is the root package.
+   * 
+   * @type Package Object -> Package Object   
+   */
+  is-root-package =
+    where(not(get-parent-package))
+
+  /**
+   * Returns the parent package.
+   * Fails if this is the root (default) package.
+   *
+   * @type Package Object -> Package Object      
+   */
+  get-parent-package = instanceof-JavaPackage;
+    classes_get-instance-field(|"parent-package")
+
+/**
+ * Names
+ */
+strategies
+
+  /**
+   * Returns the simple name of this package.
+   * i.e. package org.foo.bar will return "bar".
+   *
+   * @type Package Object -> String   
+   */
+  get-simple-name = instanceof-JavaPackage;
+    classes_get-instance-field(|"simple-name")
+    
+  /**
+   * Returns the canonical name of this package.
+   *
+   * @type Package Object -> TypeName
+   */   
+  get-canonical-name =  instanceof-JavaPackage; ?this;
+    let do = !PackageName(<private-get-fully-qualified-name(|[])>)
+     in classes_get-instance-field(do |"fully-qualified-name")
+    end
+
+  /**
+   * Returns the full qualified name of this package.
+   *
+   * @type Package Object -> TypeName   
+   */
+  get-fully-qualified-name = instanceof-JavaPackage;
+    get-canonical-name
+
+  /**
+   * Private helper. Don't invoke directly.
+   *
+   * @type Package Object -> List(Id)
+   */
+  private-get-fully-qualified-name(|acc) = instanceof-JavaPackage; ?this;
+    if get-parent-package => pkg then  
+      <private-get-fully-qualified-name(|[Id(<get-simple-name> this) | acc])> pkg
+    else
+      !acc
+    end
+    
+strategies
+    
+  /**
+   * Returns all subpackages.
+   * 
+   * @type  Package Object -> List(Package Object)
+   */
+  get-subpackages = instanceof-JavaPackage;
+    classes_get-instance-field(|"package-table")
+    ; hashtable-values
+
+  /**
+   * Returns the subpackage of the specified name.
+   * This strategy fails if there is no subpackage with this name.
+   * 
+   * @param  Name of the package (String)
+   * @type   Package Object -> Package Object
+   */
+  get-subpackage(|name) = instanceof-JavaPackage;
+    classes_get-instance-field(|"package-table")
+    ; hashtable-get(|name)
+
+  /**
+   * Creates a new subpackage in the current package.
+   * Returns the package object of the new subpackage.
+   *
+   * @param String
+   * @type  Package Object -> Package Object
+   */
+  add-subpackage(|name) =  instanceof-JavaPackage; ?this;
+    where(new-package(|Some(this), name) => pkg)
+    ; classes_get-instance-field(|"package-table")
+    ; hashtable-put(|name, pkg)
+    ; !pkg
+    
+  /**
+   * Ensures that a subpackage exists in the current package.
+   *
+   * @param String
+   * @type  Package Object -> Package Object   
+   */    
+  get-or-add-subpackage(|name) =
+    get-subpackage(|name)
+    <+ add-subpackage(|name)
+    
+  /**
+   * Returns the direct or indirect subpackage of the given name.
+   * The subpackage can be multiple levels deep.
+   *
+   * For example, in current package 'org' invoking this
+   * strategy with names ["foo", "bar"], will return the
+   * package 'org.foo.bar' (if this package exists).
+   * 
+   * @param List(String)
+   * @type  Package Object -> Package Object
+   */
+  get-subsubpackage(|names) =
+    foldl(get-subpackage | names)
+
+  /**
+   * Ensures that a subpackage exists in the current package.
+   * The subpackage can be multiple levels deep.
+   *
+   * For example, in current package 'org' invoking this
+   * strategy with names ["foo", "bar"], will create a 
+   * subpackage 'org.foo.bar'.
+   *
+   * @param List(String)   
+   * @type  Package Object -> Package Object
+   */
+  get-or-add-subsubpackage(|names) = instanceof-JavaPackage;
+    foldl(get-or-add-subpackage | names)
+
+  /**
+   * Succeeds if this package has a subpackage 'name'
+   *
+   * @param String
+   * @type  Package Object -> Package Object
+   */
+  has-subpackage(|name) =
+    where(get-subpackage(|name))
+
+  /**
+   * Alias of has-subpackage.
+   */
+  is-subpackage(|name) =
+    has-subpackage(|name)
+
+  /**
+   * @type Package Object -> Package Object
+   */
+  is-subsubpackage(|names) =
+    where(get-subsubpackage(|names))
+
+  /**
+   * @todo Set the package object of the class?
+   * @type Package Object -> Package Object
+   */
+  add-toplevel-class(|class) =  instanceof-JavaPackage;
+    ?this
+    ; where(<get-simple-name> class => name)
+    ; where(
+        get-toplevel-classtable
+        ; hashtable-put(|name, class)
+      )
+      
+  /**
+   * Succeeds if this package has a toplevel class of the specified name.
+   *
+   * @param Name of the class (String)
+   * @type Package Object -> Package Object
+   */
+  has-toplevel-class(|name) =
+    where(get-toplevel-class(|name))
+
+  /**
+   * @type Package Object -> Class Object
+   */
+  get-toplevel-class(|name) =  instanceof-JavaPackage;
+    get-toplevel-classtable
+    ; hashtable-get(|name)
+
+  /**
+   * @type Package Object -> List(Class Object)
+   */
+  get-toplevel-classes =  instanceof-JavaPackage;
+    get-toplevel-classtable => classtbl
+    ; hashtable-keys
+    ; map( \ name -> <hashtable-get(|name)> classtbl \ )
+
+strategies
+
+  /**
+   * @type Package Object -> Hashtable(String, Class Object)
+   */
+  get-toplevel-classtable = instanceof-JavaPackage;
+    classes_get-instance-field(init-toplevel-bytecode-classes | "classtable")
+
+  /**
+   * @todo Check if the table is already there. If so, then we have to add
+   *       the classes to the actual table.
+   */
+  set-toplevel-bytecode-classes(|data) =  instanceof-JavaPackage;
+    ?this; where(
+      if classes_get-instance-field(|"lazy-classtable") => data1 then
+        <union> (data, data1)
+      else
+        !data
+      end
+      ; ?realdata
+      ; <classes_set-instance-field(|"lazy-classtable", realdata)> this
+    )
+
+  init-toplevel-bytecode-classes = instanceof-JavaPackage;
+    ?pkg
+    ; new-hashtable => toplevel
+    ; if <classes_get-instance-field(|"lazy-classtable")> pkg => classes then
+        !classes
+        ; let create-class = {class, simplename, location, memberclasses:
+                ?Class(simplename, location, memberclasses)
+                ; new-bytecode-class(|simplename) => class
+                ; set-location(|location)
+                ; set-package(|pkg)
+                ; <map({nestedclass:
+                    create-class => nestedclass
+                    ; <add-declared-member-type(|nestedclass)> class
+                    ; <set-declaring-class(|class)> nestedclass
+                  })> memberclasses
+                ; !class
+              }
+
+           in map({simplename, class:
+                create-class => class
+                ; <get-simple-name> class => simplename
+                ; <hashtable-put(|simplename, class)> toplevel
+              })
+          end
+      end
+    ; !toplevel
+
+/**
+ * Stratego Class support for packages
+ */    
+signature
+  constructors
+    /**
+     * Identifier for the class Package.
+     */
+    JavaPackage : ClassName
+  
+strategies
+
+  instanceof-JavaPackage =
+    classes_instanceof(|JavaPackage())
+    

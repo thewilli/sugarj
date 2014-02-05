@@ -1,0 +1,21 @@
+module dryad/lib-ext/log
+strategies
+
+  log-timed(s|msg,level) =
+    if <geq>(<get-config> "--statistics", level) then 
+      where(times => starttimes)
+    ; s 
+    ; where(
+        <diff-times>(<times>, starttimes)
+      ; <concat-strings>[ <align-left>(' ', msg, 27)
+                        , " : [user/system] = ["
+                        , <self-children-user-time; ticks-to-seconds ; real-to-string(|2)>
+                        , "s/"
+                        , <self-children-sys-time; ticks-to-seconds ; real-to-string(|2)>
+                        , "s]"
+                        ]
+      ; log(|Info(),<id>)
+      )
+    else
+      s
+    end

@@ -1,0 +1,122 @@
+/**
+ * 15.9: Class Instance Creation Expressions
+ *
+ * @todo Implement qualifed class instance creation expressions.
+ * @todo Implement anonymous class declarations.
+ */
+module dryad/type-check/ClassInstanceCreationExpressions
+strategies
+
+  /**
+   * @todo ClassType cannot be enum
+   * @todo ClassType cannot be abstract.
+   * @todo TypeArgs may not be a wildcard type argument.
+   * @todo Constructor selection uses the same rules as for method invocations.
+   * @todo Pass type arguments to the determine-method-signature strategy.
+   * @todo ClassBody
+   */
+  dryad-attributes-of :
+    e@NewInstance(None(), type@ClassType(_, _), args, None())
+      ->
+    [ Type(type), Declaration(<get-canonical-name> constructor) | attrs]
+    where
+        log(|Debug(), "Constructor invocation", <id>)
+      ; <log-lookup-class> type => class
+      ; log(|Debug(), "Class being instantiated:", <id>)
+
+        // dirty hook into the implementation of method invocations
+      ; <determine-method-signature(|type, class, <ThisClass>)> e => (constructor, attrs)
+      ; log(|Debug(), "Constructor", <id>)
+
+  /**
+   * @todo Type attribute?  
+   * @todo Support for type arguments in first parameter of determine-method-signature.
+   */
+  dryad-attributes-of :
+    e@AltConstrInv(_, args)
+      ->
+    [ Declaration(<get-canonical-name> constructor) | attrs ]
+    where
+      ThisClass => class
+      ; <get-canonical-name> class => name
+      ; <determine-method-signature(|ClassType(name, None()), class, <ThisClass>)> e => (constructor, attrs)
+    
+
+  /**
+   * @todo Type attribute?
+   * @todo Support for type arguments in first parameter of determine-method-signature.   
+   */
+  dryad-attributes-of :    
+    e@SuperConstrInv(_, args)
+      ->
+    [ Declaration(<get-canonical-name> constructor) | attrs]
+    where
+      ThisClass; get-superclass => class
+      ; <get-canonical-name> class => name
+      ; <determine-method-signature(|ClassType(name, None()), class, <ThisClass>)> e => (constructor, attrs)
+
+  /*
+  dryad-attributes-of :    
+    e@QSuperConstrInv(_, _, args)
+      ->    
+    [ Type(type), Declaration(<get-canonical-name> constructor) | attrs]
+    */
+
+strategies
+
+  /**
+   * @todo This is a dirty hook into the code for type checking method invocations.
+   */
+  identify-potentially-applicable-methods(|class, fromclass) =
+    get-arguments-of-constructor-invocation => args
+    ; where(<length> args => arity)
+    ; <get-declared-constructors> class
+
+      /**
+       * If no constructors are found and the artiy is 0, then the
+       * default constructor might be applicable.
+       */
+    ; if ?[]; !arity => 0 then
+       try(![<get-default-constructor> class])
+      end
+
+    ; filter(id
+        // - constructor is accessible
+      ; is-accessible-from(|fromclass)        
+
+        // - arity of member is less or equal (todo: duplicate check?)
+      ; id
+
+        // - variable arity
+        // - same fixed arity
+      ; where(
+          if is-fixed-arity-constructor then
+            get-arity => arity
+          else
+            <geq> (arity, <subt> (<get-arity>, 1))
+          end
+        )
+
+        // - same number of explicit type parameters
+      ; id
+      )
+
+strategies
+
+  /**
+   * @todo This is a dirty hook into the code for type checking method invocations.
+   */
+  get-arguments-of-invocation =
+    get-arguments-of-constructor-invocation
+
+  get-arguments-of-constructor-invocation =
+    ?NewInstance(_, _, <id>, _)
+    
+  get-arguments-of-constructor-invocation =
+    ?AltConstrInv(_, <id>)
+    
+  get-arguments-of-constructor-invocation =
+    ?SuperConstrInv(_, <id>)
+    
+  get-arguments-of-constructor-invocation =
+    ?QSuperConstrInv(_, _, <id>)

@@ -1,0 +1,99 @@
+/**
+ * 5.2: Assignment Conversion
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/AssignmentConversion
+imports
+  dryad/jls/conversions/Kinds
+
+signature
+  constructors
+    AssignmentConversion : List(Conversion) -> AssignmentConversion
+
+strategies
+
+  /**
+   * Checks if the current type is assignment convertable to type to.
+   *
+   * @todo  Additional conversion rules for constant expressions (5.2)
+   * @todo  Optimize conversion to Object?
+   * @param Type
+   * @type  Type -> Type
+   */   
+  is-assignment-convertable(|to) =
+    where(assignment-conversion(|to))
+
+strategies      
+
+  /**
+   * @type Type -> AssignmentConversion
+   */
+  assignment-conversion(|to) = (
+      identity-conversion(|to)
+      ; ![<id>]
+
+    + widening-reference-conversions
+      ; maybe-unchecked-conversion(|to)
+
+    + adhoc-widening-reference-conversions(|to)
+
+    + widening-primitive-conversion(|to)
+      ; ![<id>]
+
+    + boxing-conversion
+      ; optional-widening-reference-conversion(|to)
+      
+    + unboxing-conversion
+      ; optional-widening-primitive-conversion(|to)
+    )
+    ; !AssignmentConversion(<id>)
+
+  /**
+   * @type Conversion -> List(Conversion)
+   */
+  optional-widening-reference-conversion(|to) =
+    ?conversion
+    ; where(result-of-conversion => current)
+    ; if !current => to then
+        ![conversion]
+      else
+        <widening-reference-conversions(|to)> current
+        // @todo what to do if there is more than one?
+        ; ?[<id> | _]
+        ; ![conversion, <id>]
+      end
+
+  /**
+   * @type Conversion -> List(Conversion)
+   */
+  optional-widening-primitive-conversion(|to) =
+    ?conversion
+    ; where(result-of-conversion => current)
+    ; if !current => to then
+        ![conversion]
+      else
+        <widening-primitive-conversion(|to)> current
+        ; ![conversion, <id>]
+      end
+
+strategies
+
+  /**
+   * Returns the types involved in this assignment conversion.
+   *
+   * @type Conversion -> List(Type)
+   */
+  types-of-conversion =
+    ?AssignmentConversion(<id>)
+    ; map(types-of-conversion)
+    ; concat
+    
+  /**
+   * Returns the result type of this assignment conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =    
+    ?AssignmentConversion(<last>)
+    ; result-of-conversion

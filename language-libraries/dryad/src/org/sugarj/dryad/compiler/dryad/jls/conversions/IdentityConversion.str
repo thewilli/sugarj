@@ -1,0 +1,55 @@
+/**
+ * 5.1.1: Identity Conversions
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/IdentityConversion
+signature
+  constructors
+    /**
+     * @param The type that is subjected to identity conversion.
+     */
+    IdentityConversion : Type -> IdentityConversion
+
+strategies
+
+  /**
+   * Succeeds if the type is convertable to the argument type by identity conversion.
+   *
+   * @param Type
+   * @type Type -> Type
+   */
+  is-identity-convertable(|to) =
+    ?to
+
+rules
+
+  /**
+   * @type Type -> IdentityConversion
+   */
+  identity-conversion(|to) :
+    to -> IdentityConversion(to)
+    
+  identity-conversion =
+    !IdentityConversion(<id>)    
+
+/**
+ * Getting info about a IdentityConversion
+ */
+rules
+
+  /**
+   * Returns the types involved in this IdentityConversion.
+   *
+   * @type IdentityConversion -> List(Type)
+   */
+  types-of-conversion :
+    IdentityConversion(t) -> [t]
+
+  /**
+   * Returns the result type of this IdentityConversion.
+   *
+   * @type IdentityConversion -> Type
+   */
+  result-of-conversion :
+    IdentityConversion(t) -> t

@@ -1,0 +1,90 @@
+/**
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/components
+imports
+  liblib
+  libstratego-sglr
+  dryad/util/option
+  dryad/reclassify/Main
+  dryad/type-check/Main
+  dryad/lib-ext/log
+
+signature
+  constructors
+    StartLineColumn : Int * Int -> PosInfo
+
+/**
+ * Apply the front-end of Dryad to a list of Java sources
+ */
+strategies
+
+  /**
+   * @todo Should the tc conditional be here?
+   * @type List(FILE) -> List(CompilationUnit)
+   */
+  dryad-front = id
+    ; log-timed(parse-java | "parsing sources", 0)
+    ; map(define-compilation-unit)
+    ; log-timed( dryad-reclassify | "reclassifying", 0)
+    ; if-switch(!"tc", 
+        log-timed( map(dryad-type-checker)      | "type checking", 0)
+      )
+    ; map(get-ast)
+
+/**
+ * Parse Java code
+ */
+strategies
+
+  /**
+   * @type List(FILE) -> List(CompilationUnit)
+   */
+  parse-java =
+    where(<get-java-parse-table> "CompilationUnit" => tbl)
+    ; map({input:
+        ?input
+        ; ( parse-xtc-file(|tbl)
+          <+ <report-parse-error> input
+            ; fail)
+      })
+
+  annotate-start-line-column =
+    dryad-add-pos-info
+
+  external dryad-add-pos-info(|)
+
+  /**
+   * @type FILE -> FILE
+   */    
+  report-parse-error =
+    where(
+      if get-parse-error => error then
+        report-error(|error)
+      else
+        <perror> "dryad: could not read Java source file"
+      end
+    )
+      
+strategies
+   
+  /**
+   * @type List(FILE) -> List(FILE)
+   */
+  do-dryad-simplify =
+    map(xtc-transform(!"dryad-simplify", pass-verbose))
+
+  /**
+  do-dryad-emit =
+    profile'(<printnl> (stderr, ["code emission:         " | <id>]),
+      map(xtc-io-transform(dryad-emit))
+    )
+  */
+
+  /**
+   * @type List(FILE) -> List(FILE)
+   * @obsolete Use write-class-file instead.
+   */
+  do-dryad-aterm2class =
+    map(xtc-transform(!"aterm2class", pass-verbose))
+    

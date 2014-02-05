@@ -1,0 +1,60 @@
+/**
+ * 6.5.6: Meaning of Expression Names
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/MeaningOfExpressionNames
+
+/**
+ * 6.5.6.1: Simple Expression Names
+ */
+strategies
+
+  /**
+   * Expression name consists of a single Identifier.
+   */
+  Reclassify-SimpleExprName(rec) =
+    ?ExprName(Id(x))
+    ; ReclassifySimpleInScopeVar
+
+/**
+ * 6.5.6.2: Qualified Expression Names
+ */
+strategies
+
+  /**
+   * If an expression is of the form Q.Id
+   */
+  Reclassify-QualifiedExprName(rec) =
+  
+    /**
+     * The qualifier is first reclassified
+     */
+    ExprName(rec, id); (
+    
+      /**
+       * If Q is a PackageName.
+       */
+      ?ExprName(PackageName(_), Id(_))
+      ; maybe-exit(|"Qualifier of expression name cannot be a package: ")
+
+       /**
+        * If Q is a TypeName
+        *
+        * Note that the difference between classes and interface is not relevant here.        
+        *
+        * @todo Accessible checks are in the type checker. Include them here?
+        * @todo Field must be an instance field (check in type checker)
+        * @todo Handle final fields (again, type checker)        
+        */
+    <+ \ ExprName(tn@TypeName(_, _), Id(x)) -> Field(tn, Id(x)) \
+
+       /**
+        * If Q is an ExprName
+        */
+    <+ \ ExprName(en@ExprName(_), Id(x)) -> Field(en, Id(x)) \
+       
+    <+ \ ExprName(f@Field(_), Id(x)) -> Field(f, Id(x)) \
+       
+    <+ \ ExprName(f@Field(_, _), Id(x)) -> Field(f, Id(x)) \
+    )

@@ -1,0 +1,659 @@
+module Dryad
+
+signature
+  constructors
+    Some                    : TypeArgs_Java -> OptTypeArgs_Java0
+    None                    : OptTypeArgs_Java0
+                            : TypeArgs_Java -> OptTypeArgs_Java0
+                            : ClassMod_Java -> Anno_Java_ClassMod_Java0
+                            : Anno_Java -> Anno_Java_ClassMod_Java0
+                            : InterfaceMod_Java -> Anno_Java_InterfaceMod_Java0
+                            : Anno_Java -> Anno_Java_InterfaceMod_Java0
+                            : AbstractMethodMod_Java -> Anno_Java_AbstractMethodMod_Java0
+                            : Anno_Java -> Anno_Java_AbstractMethodMod_Java0
+                            : ConstantMod_Java -> Anno_Java_ConstantMod_Java0
+                            : Anno_Java -> Anno_Java_ConstantMod_Java0
+    None                    : OptEnumConstArgs_Java0
+                            : ConstrMod_Java -> Anno_Java_ConstrMod_Java0
+                            : Anno_Java -> Anno_Java_ConstrMod_Java0
+                            : VarMod_Java -> Anno_Java_VarMod_Java0
+                            : Anno_Java -> Anno_Java_VarMod_Java0
+                            : MethodMod_Java -> Anno_Java_MethodMod_Java0
+                            : Anno_Java -> Anno_Java_MethodMod_Java0
+                            : FieldMod_Java -> Anno_Java_FieldMod_Java0
+                            : Anno_Java -> Anno_Java_FieldMod_Java0
+    Conc                    : ListStarOfCharClass1 * ListPlusOfCharClass1 -> ListPlusOfCharClass1
+    Conc                    : ListPlusOfCharClass1 * ListStarOfCharClass1 -> ListPlusOfCharClass1
+    Conc                    : ListPlusOfCharClass1 * ListPlusOfCharClass1 -> ListPlusOfCharClass1
+    Cons                    : Int * ListStarOfCharClass1 -> ListPlusOfCharClass1
+                            : AnyType -> ClassTypeId_AnyType0
+                            : ClassTypeId -> ClassTypeId_AnyType0
+                            : CompilationUnit -> Start
+    Labeled                 : Id_Java * MakeEmpty -> EmptyJavaLabel
+    Empty                   : MakeEmpty
+                            : CompilationUnit -> CompilationUnit_Java
+    CompilationUnit         : Option(PackageDec_Java) * List(ImportDec_Java) * List(TypeDec_Java) -> CompilationUnit_Java
+    Semicolon               : TypeDec_Java
+                            : InterfaceDec_Java -> TypeDec_Java
+                            : ClassDec_Java -> TypeDec_Java
+    StaticImportOnDemandDec : TypeName_Java -> ImportDec_Java
+    StaticImportDec         : TypeName_Java * Id_Java -> ImportDec_Java
+    TypeImportOnDemandDec   : PackageName_Java -> ImportDec_Java
+    TypeImportDec           : TypeName_Java -> ImportDec_Java
+    PackageDec              : List(Anno_Java) * PackageName_Java -> PackageDec_Java
+    ElemValArrayInit        : List(ElemVal_Java) -> ElemVal_Java
+                            : Anno_Java -> ElemVal_Java
+                            : Expr_Java -> ElemVal_Java
+    ElemValPair             : Id_Java * ElemVal_Java -> ElemValPair_Java
+    MarkerAnno              : TypeName_Java -> Anno_Java
+    SingleElemAnno          : TypeName_Java * ElemVal_Java -> Anno_Java
+    Anno                    : TypeName_Java * List(ElemValPair_Java) -> Anno_Java
+                            : FieldAccess_Java -> LHS_Java
+                            : ExprName_Java -> LHS_Java
+    GenericMethod           : AmbName_Java * TypeArgs_Java * Id_Java -> MethodSpec_Java
+    QSuperMethod            : TypeName_Java * OptTypeArgs_Java0 * Id_Java -> MethodSpec_Java
+    SuperMethod             : OptTypeArgs_Java0 * Id_Java -> MethodSpec_Java
+    Method                  : Expr_Java * OptTypeArgs_Java0 * Id_Java -> MethodSpec_Java
+    Method                  : MethodName_Java -> MethodSpec_Java
+    QSuperField             : TypeName_Java * Id_Java -> FieldAccess_Java
+    SuperField              : Id_Java -> FieldAccess_Java
+    Field                   : Expr_Java * Id_Java -> FieldAccess_Java
+    Dim                     : Expr_Java -> DimExpr_Java
+    UnboundWld              : TypeName_Java -> ArrayBaseType_Java
+                            : TypeName_Java -> ArrayBaseType_Java
+                            : PrimType_Java -> ArrayBaseType_Java
+    NewArray                : ArrayBaseType_Java * List(Dim_Java) * ArrayInit_Java -> ArrayCreationExpr_Java
+    NewArray                : ArrayBaseType_Java * List(DimExpr_Java) * List(Dim_Java) -> ArrayCreationExpr_Java
+    Semicolon               : ClassMemberDec_Java
+                            : InterfaceDec_Java -> ClassMemberDec_Java
+                            : ClassDec_Java -> ClassMemberDec_Java
+                            : MethodDec_Java -> ClassMemberDec_Java
+                            : FieldDec_Java -> ClassMemberDec_Java
+                            : ConstrDec_Java -> ClassBodyDec_Java
+                            : StaticInit_Java -> ClassBodyDec_Java
+                            : InstanceInit_Java -> ClassBodyDec_Java
+                            : ClassMemberDec_Java -> ClassBodyDec_Java
+    ImplementsDec           : List(InterfaceType_Java) -> Interfaces_Java
+    SuperDec                : ClassType_Java -> Super_Java
+                            : StrictFP_Java -> ClassMod_Java
+                            : Final_Java -> ClassMod_Java
+                            : Static_Java -> ClassMod_Java
+                            : Private_Java -> ClassMod_Java
+                            : Protected_Java -> ClassMod_Java
+                            : Public_Java -> ClassMod_Java
+                            : Abstract_Java -> ClassMod_Java
+    ClassDecHead            : List(Anno_Java_ClassMod_Java0) * Id_Java * Option(TypeParams_Java) * Option(Super_Java) * Option(Interfaces_Java) -> ClassDecHead_Java
+    ClassBody               : List(ClassBodyDec_Java) -> ClassBody_Java
+    ClassDec                : ClassDecHead_Java * ClassBody_Java -> ClassDec_Java
+                            : EnumDec_Java -> ClassDec_Java
+                            : StrictFP_Java -> InterfaceMod_Java
+                            : Static_Java -> InterfaceMod_Java
+                            : Abstract_Java -> InterfaceMod_Java
+                            : Private_Java -> InterfaceMod_Java
+                            : Protected_Java -> InterfaceMod_Java
+                            : Public_Java -> InterfaceMod_Java
+    Semicolon               : InterfaceMemberDec_Java
+                            : InterfaceDec_Java -> InterfaceMemberDec_Java
+                            : ClassDec_Java -> InterfaceMemberDec_Java
+                            : AbstractMethodDec_Java -> InterfaceMemberDec_Java
+                            : ConstantDec_Java -> InterfaceMemberDec_Java
+    ExtendsInterfaces       : List(InterfaceType_Java) -> ExtendsInterfaces_Java
+    InterfaceDecHead        : List(Anno_Java_InterfaceMod_Java0) * Id_Java * Option(TypeParams_Java) * Option(ExtendsInterfaces_Java) -> InterfaceDecHead_Java
+    InterfaceDec            : InterfaceDecHead_Java * List(InterfaceMemberDec_Java) -> InterfaceDec_Java
+                            : AnnoDec_Java -> InterfaceDec_Java
+    DefaultVal              : ElemVal_Java -> DefaultVal_Java
+    Semicolon               : AnnoElemDec_Java
+                            : AnnoDec_Java -> AnnoElemDec_Java
+                            : EnumDec_Java -> AnnoElemDec_Java
+                            : InterfaceDec_Java -> AnnoElemDec_Java
+                            : ClassDec_Java -> AnnoElemDec_Java
+                            : ConstantDec_Java -> AnnoElemDec_Java
+    AnnoMethodDec           : List(AbstractMethodMod_Java) * Type_Java * Id_Java * Option(DefaultVal_Java) -> AnnoElemDec_Java
+    AnnoDecHead             : List(Anno_Java_InterfaceMod_Java0) * Id_Java -> AnnoDecHead_Java
+    AnnoDec                 : AnnoDecHead_Java * List(AnnoElemDec_Java) -> AnnoDec_Java
+                            : Abstract_Java -> AbstractMethodMod_Java
+                            : Public_Java -> AbstractMethodMod_Java
+    DeprAbstractMethodDec   : List(Anno_Java_AbstractMethodMod_Java0) * Option(TypeParams_Java) * ResultType_Java * Id_Java * List(FormalParam_Java) * List(Dim_Java) * Option(Throws_Java) -> AbstractMethodDec_Java
+    AbstractMethodDec       : List(Anno_Java_AbstractMethodMod_Java0) * Option(TypeParams_Java) * ResultType_Java * Id_Java * List(FormalParam_Java) * Option(Throws_Java) -> AbstractMethodDec_Java
+                            : Final_Java -> ConstantMod_Java
+                            : Static_Java -> ConstantMod_Java
+                            : Public_Java -> ConstantMod_Java
+    ConstantDec             : List(Anno_Java_ConstantMod_Java0) * Type_Java * List(VarDec_Java) -> ConstantDec_Java
+    EnumBodyDecs            : List(ClassBodyDec_Java) -> EnumBodyDecs_Java
+    EnumConst               : Id_Java * OptEnumConstArgs_Java0 * Option(ClassBody_Java) -> EnumConst_Java
+    EnumBody                : List(EnumConst_Java) * Option(EnumBodyDecs_Java) -> EnumBody_Java
+    EnumDecHead             : List(Anno_Java_ClassMod_Java0) * Id_Java * Option(Interfaces_Java) -> EnumDecHead_Java
+    EnumDec                 : EnumDecHead_Java * EnumBody_Java -> EnumDec_Java
+                            : Private_Java -> ConstrMod_Java
+                            : Protected_Java -> ConstrMod_Java
+                            : Public_Java -> ConstrMod_Java
+    QSuperConstrInv         : Expr_Java * OptTypeArgs_Java0 * List(Expr_Java) -> ConstrInv_Java
+    SuperConstrInv          : OptTypeArgs_Java0 * List(Expr_Java) -> ConstrInv_Java
+    AltConstrInv            : OptTypeArgs_Java0 * List(Expr_Java) -> ConstrInv_Java
+    ConstrBody              : Option(ConstrInv_Java) * List(BlockStm_Java) -> ConstrBody_Java
+    ConstrDecHead           : List(Anno_Java_ConstrMod_Java0) * Option(TypeParams_Java) * Id_Java * List(FormalParam_Java) * Option(Throws_Java) -> ConstrHead_Java
+    ConstrDec               : ConstrHead_Java * ConstrBody_Java -> ConstrDec_Java
+    StaticInit              : Block_Java -> StaticInit_Java
+    InstanceInit            : Block_Java -> InstanceInit_Java
+    NoMethodBody            : MethodBody_Java
+                            : Block_Java -> MethodBody_Java
+                            : ClassType_Java -> ExceptionType_Java
+    ThrowsDec               : List(ExceptionType_Java) -> Throws_Java
+                            : StrictFP_Java -> MethodMod_Java
+                            : Native_Java -> MethodMod_Java
+                            : Synchronized_Java -> MethodMod_Java
+                            : Final_Java -> MethodMod_Java
+                            : Static_Java -> MethodMod_Java
+                            : Abstract_Java -> MethodMod_Java
+                            : Private_Java -> MethodMod_Java
+                            : Protected_Java -> MethodMod_Java
+                            : Public_Java -> MethodMod_Java
+                            : Final_Java -> VarMod_Java
+    VarArityParam           : List(Anno_Java_VarMod_Java0) * Type_Java * VarDecId_Java -> FormalParam_Java
+    Param                   : List(Anno_Java_VarMod_Java0) * Type_Java * VarDecId_Java -> FormalParam_Java
+    Void                    : ResultType_Java
+                            : Type_Java -> ResultType_Java
+    DeprMethodDecHead       : List(Anno_Java_MethodMod_Java0) * Option(TypeParams_Java) * ResultType_Java * Id_Java * List(FormalParam_Java) * List(Dim_Java) * Option(Throws_Java) -> MethodDecHead_Java
+    MethodDecHead           : List(Anno_Java_MethodMod_Java0) * Option(TypeParams_Java) * ResultType_Java * Id_Java * List(FormalParam_Java) * Option(Throws_Java) -> MethodDecHead_Java
+                            : Method -> MethodDec_Java
+    MethodDec               : MethodDecHead_Java * MethodBody_Java -> MethodDec_Java
+    EndTrace                : List(BlockStm_Java) -> BlockStm_Java
+    Trace                   : InstructionTrace * List(BlockStm_Java) -> BlockStm_Java
+    BytecodeStm             : Instruction -> BlockStm_Java
+    BytecodeStm             : InstructionList -> BlockStm_Java
+                            : Stm_Java -> BlockStm_Java
+    ClassDecStm             : ClassDec_Java -> BlockStm_Java
+                            : LocalVarDecStm_Java -> BlockStm_Java
+    Block                   : List(BlockStm_Java) -> Block_Java
+    Catch                   : FormalParam_Java * Block_Java -> CatchClause_Java
+    Default                 : SwitchLabel_Java
+    Case                    : Expr_Java -> SwitchLabel_Java
+    SwitchGroup             : List(SwitchLabel_Java) * List(BlockStm_Java) -> SwitchGroup_Java
+    SwitchBlock             : List(SwitchGroup_Java) * List(SwitchLabel_Java) -> SwitchBlock_Java
+                            : EmptyJavaLabel -> Stm_Java
+    EndTrace                : List(Stm_Java) -> Stm_Java
+    Trace                   : InstructionTrace * List(Stm_Java) -> Stm_Java
+    BytecodeStm             : Instruction -> Stm_Java
+    BytecodeStm             : InstructionList -> Stm_Java
+    Try                     : Block_Java * List(CatchClause_Java) * Block_Java -> Stm_Java
+    Try                     : Block_Java * List(CatchClause_Java) -> Stm_Java
+    Synchronized            : Expr_Java * Block_Java -> Stm_Java
+    Throw                   : Expr_Java -> Stm_Java
+    Return                  : Option(Expr_Java) -> Stm_Java
+    Continue                : Option(Id_Java) -> Stm_Java
+    Break                   : Option(Id_Java) -> Stm_Java
+    ForEach                 : FormalParam_Java * Expr_Java * Stm_Java -> Stm_Java
+    For                     : List(Expr_Java) * Option(Expr_Java) * List(Expr_Java) * Stm_Java -> Stm_Java
+    For                     : LocalVarDec_Java * Option(Expr_Java) * List(Expr_Java) * Stm_Java -> Stm_Java
+    DoWhile                 : Stm_Java * Expr_Java -> Stm_Java
+    While                   : Expr_Java * Stm_Java -> Stm_Java
+    Switch                  : Expr_Java * SwitchBlock_Java -> Stm_Java
+    AssertStm               : Expr_Java * Expr_Java -> Stm_Java
+    AssertStm               : Expr_Java -> Stm_Java
+    If                      : Expr_Java * Stm_Java * Stm_Java -> Stm_Java
+    If                      : Expr_Java * Stm_Java -> Stm_Java
+    ExprStm                 : Expr_Java -> Stm_Java
+    Labeled                 : Id_Java * Stm_Java -> Stm_Java
+    Empty                   : Stm_Java
+                            : Block_Java -> Stm_Java
+    LocalVarDec             : List(Anno_Java_VarMod_Java0) * Type_Java * List(VarDec_Java) -> LocalVarDec_Java
+    LocalVarDecStm          : LocalVarDec_Java -> LocalVarDecStm_Java
+                            : Volatile_Java -> FieldMod_Java
+                            : Transient_Java -> FieldMod_Java
+                            : Final_Java -> FieldMod_Java
+                            : Static_Java -> FieldMod_Java
+                            : Private_Java -> FieldMod_Java
+                            : Protected_Java -> FieldMod_Java
+                            : Public_Java -> FieldMod_Java
+                            : ArrayInit_Java -> VarInit_Java
+                            : Expr_Java -> VarInit_Java
+    Dim                     : Dim_Java
+    ArrayVarDecId           : Id_Java * List(Dim_Java) -> VarDecId_Java
+                            : Id_Java -> VarDecId_Java
+    VarDec                  : VarDecId_Java * VarInit_Java -> VarDec_Java
+    VarDec                  : VarDecId_Java -> VarDec_Java
+                            : Field -> FieldDec_Java
+    FieldDec                : List(Anno_Java_FieldMod_Java0) * Type_Java * List(VarDec_Java) -> FieldDec_Java
+    ArrayInit               : List(VarInit_Java) -> ArrayInit_Java
+    VoidClass               : ClassLiteral_Java
+    Class                   : Type_Java -> ClassLiteral_Java
+                            : ClassLiteral_Java -> Literal_Java
+                            : NullLiteral_Java -> Literal_Java
+                            : StringLiteral_Java -> Literal_Java
+                            : CharLiteral_Java -> Literal_Java
+                            : BoolLiteral_Java -> Literal_Java
+                            : FloatLiteral_Java -> Literal_Java
+                            : IntLiteral_Java -> Literal_Java
+    EndTrace                : Expr_Java -> Expr_Java
+    Trace                   : InstructionTrace * Expr_Java -> Expr_Java
+    BytecodeExpr            : Instruction -> Expr_Java
+    BytecodeExpr            : InstructionList -> Expr_Java
+    AssignOr                : LHS_Java * Expr_Java -> Expr_Java
+    AssignExcOr             : LHS_Java * Expr_Java -> Expr_Java
+    AssignAnd               : LHS_Java * Expr_Java -> Expr_Java
+    AssignURightShift       : LHS_Java * Expr_Java -> Expr_Java
+    AssignRightShift        : LHS_Java * Expr_Java -> Expr_Java
+    AssignLeftShift         : LHS_Java * Expr_Java -> Expr_Java
+    AssignMinus             : LHS_Java * Expr_Java -> Expr_Java
+    AssignPlus              : LHS_Java * Expr_Java -> Expr_Java
+    AssignRemain            : LHS_Java * Expr_Java -> Expr_Java
+    AssignDiv               : LHS_Java * Expr_Java -> Expr_Java
+    AssignMul               : LHS_Java * Expr_Java -> Expr_Java
+    Assign                  : LHS_Java * Expr_Java -> Expr_Java
+    Or                      : Expr_Java * Expr_Java -> Expr_Java
+    ExcOr                   : Expr_Java * Expr_Java -> Expr_Java
+    And                     : Expr_Java * Expr_Java -> Expr_Java
+    LazyOr                  : Expr_Java * Expr_Java -> Expr_Java
+    LazyAnd                 : Expr_Java * Expr_Java -> Expr_Java
+    NotEq                   : Expr_Java * Expr_Java -> Expr_Java
+    Eq                      : Expr_Java * Expr_Java -> Expr_Java
+    GtEq                    : Expr_Java * Expr_Java -> Expr_Java
+    LtEq                    : Expr_Java * Expr_Java -> Expr_Java
+    Gt                      : Expr_Java * Expr_Java -> Expr_Java
+    Lt                      : Expr_Java * Expr_Java -> Expr_Java
+    URightShift             : Expr_Java * Expr_Java -> Expr_Java
+    RightShift              : Expr_Java * Expr_Java -> Expr_Java
+    LeftShift               : Expr_Java * Expr_Java -> Expr_Java
+    Minus                   : Expr_Java * Expr_Java -> Expr_Java
+    Plus                    : Expr_Java * Expr_Java -> Expr_Java
+    Remain                  : Expr_Java * Expr_Java -> Expr_Java
+    Div                     : Expr_Java * Expr_Java -> Expr_Java
+    Mul                     : Expr_Java * Expr_Java -> Expr_Java
+    InstanceOf              : Expr_Java * RefType_Java -> Expr_Java
+    CastRef                 : RefType_Java * Expr_Java -> Expr_Java
+    CastPrim                : PrimType_Java * Expr_Java -> Expr_Java
+    Not                     : Expr_Java -> Expr_Java
+    Complement              : Expr_Java -> Expr_Java
+    PreDecr                 : Expr_Java -> Expr_Java
+    PreIncr                 : Expr_Java -> Expr_Java
+    Minus                   : Expr_Java -> Expr_Java
+    Plus                    : Expr_Java -> Expr_Java
+    PostDecr                : Expr_Java -> Expr_Java
+    PostIncr                : Expr_Java -> Expr_Java
+                            : ExprName_Java -> Expr_Java
+    Invoke                  : MethodSpec_Java * List(Expr_Java) -> Expr_Java
+                            : FieldAccess_Java -> Expr_Java
+                            : ArrayCreationExpr_Java -> Expr_Java
+    QNewInstance            : Expr_Java * OptTypeArgs_Java0 * Id_Java * OptTypeArgs_Java0 * List(Expr_Java) * Option(ClassBody_Java) -> Expr_Java
+    NewInstance             : OptTypeArgs_Java0 * ClassOrInterfaceType_Java * List(Expr_Java) * Option(ClassBody_Java) -> Expr_Java
+    QThis                   : TypeName_Java -> Expr_Java
+    This                    : Expr_Java
+    Lit                     : Literal_Java -> Expr_Java
+                            : RefType_Java -> Type_Java
+                            : PrimType_Java -> Type_Java
+    ArrayType               : Type_Java -> ArrayType_Java
+    Member                  : TypeDecSpec_Java * TypeArgs_Java * Id_Java -> TypeDecSpec_Java
+                            : TypeName_Java -> TypeDecSpec_Java
+    InterfaceType           : TypeDecSpec_Java * OptTypeArgs_Java0 -> InterfaceType_Java
+    ClassType               : TypeDecSpec_Java * OptTypeArgs_Java0 -> ClassType_Java
+    ClassOrInterfaceType    : TypeDecSpec_Java * OptTypeArgs_Java0 -> ClassOrInterfaceType_Java
+                            : ArrayType_Java -> RefType_Java
+                            : ClassOrInterfaceType_Java -> RefType_Java
+                            : Id_Java -> TypeVarId_Java
+    TypeParams              : List(TypeParam_Java) -> TypeParams_Java
+    TypeBound               : List(ClassOrInterfaceType_Java) -> TypeBound_Java
+    TypeParam               : TypeVarId_Java * Option(TypeBound_Java) -> TypeParam_Java
+    WildcardLowerBound      : RefType_Java -> WildcardBound_Java
+    WildcardUpperBound      : RefType_Java -> WildcardBound_Java
+    Wildcard                : Option(WildcardBound_Java) -> ActualTypeArg_Java
+                            : Type_Java -> ActualTypeArg_Java
+    TypeArgs                : List(ActualTypeArg_Java) -> TypeArgs_Java
+    PackageOrTypeName       : PackageOrTypeName_Java * Id_Java -> PackageOrTypeName_Java
+    PackageOrTypeName       : Id_Java -> PackageOrTypeName_Java
+    MethodName              : AmbName_Java * Id_Java -> MethodName_Java
+    MethodName              : Id_Java -> MethodName_Java
+    ExprName                : AmbName_Java * Id_Java -> ExprName_Java
+    ExprName                : Id_Java -> ExprName_Java
+    TypeName                : PackageOrTypeName_Java * Id_Java -> TypeName_Java
+    TypeName                : Id_Java -> TypeName_Java
+    AmbName                 : AmbName_Java * Id_Java -> AmbName_Java
+    AmbName                 : Id_Java -> AmbName_Java
+    PackageName             : List(Id_Java) -> PackageName_Java
+    Double                  : FloatType_Java
+    Float                   : FloatType_Java
+    Char                    : IntType_Java
+    Long                    : IntType_Java
+    Int                     : IntType_Java
+    Short                   : IntType_Java
+    Byte                    : IntType_Java
+                            : FloatType_Java -> NumType_Java
+                            : IntType_Java -> NumType_Java
+    Boolean                 : PrimType_Java
+                            : NumType_Java -> PrimType_Java
+    Null                    : NullLiteral_Java
+                            : String -> StringChars_Java
+                            : EscapeSeq_Java -> StringPart_Java
+                            : UnicodeEscape -> StringPart_Java
+    Chars                   : StringChars_Java -> StringPart_Java
+    String                  : List(StringPart_Java) -> StringLiteral_Java
+                            : Int -> SingleChar_Java
+                            : EscapeSeq_Java -> CharContent_Java
+                            : UnicodeEscape -> CharContent_Java
+    Single                  : SingleChar_Java -> CharContent_Java
+    Char                    : CharContent_Java -> CharLiteral_Java
+                            : Int -> LastOcta_Java
+    OctaEscape3             : Int * Int * Int -> OctaEscape_Java
+    OctaEscape2             : Int * Int -> OctaEscape_Java
+    OctaEscape2             : Int * LastOcta_Java -> OctaEscape_Java
+    OctaEscape1             : LastOcta_Java -> OctaEscape_Java
+    NamedEscape             : Int -> NamedEscape_Java
+                            : NamedEscape_Java -> EscapeSeq_Java
+                            : OctaEscape_Java -> EscapeSeq_Java
+    False                   : Bool_Java
+    True                    : Bool_Java
+    Bool                    : Bool_Java -> BoolLiteral_Java
+    Float                   : HexaFloatLiteral_Java -> FloatLiteral_Java
+    Float                   : DeciFloatLiteral_Java -> FloatLiteral_Java
+                            : String -> HexaFloatLiteral_Java
+                            : String -> DeciFloatLiteral_Java
+    Octa                    : OctaLiteral_Java -> IntLiteral_Java
+    Hexa                    : HexaLiteral_Java -> IntLiteral_Java
+    Deci                    : DeciLiteral_Java -> IntLiteral_Java
+                            : String -> OctaLiteral_Java
+                            : String -> HexaLiteral_Java
+                            : String -> DeciLiteral_Java
+    StrictFP                : StrictFP_Java
+    Synchronized            : Synchronized_Java
+    Volatile                : Volatile_Java
+    Transient               : Transient_Java
+    Native                  : Native_Java
+    Static                  : Static_Java
+    Final                   : Final_Java
+    Abstract                : Abstract_Java
+    Protected               : Protected_Java
+    Private                 : Private_Java
+    Public                  : Public_Java
+    Id                      : ID_Java -> Id_Java
+                            : String -> ID_Java
+    UnicodeEscape           : ListPlusOfCharClass1 * Int * Int * Int * Int -> UnicodeEscape
+                            : String -> UnicodeEscape
+                            : CompilationUnit_Java -> CompilationUnit
+    EndTrace                : CompilationUnit -> CompilationUnit
+    Trace                   : ClassTrace * CompilationUnit -> CompilationUnit
+                            : QEndTrace -> ClassTrace
+                            : EnumConst_Java -> MemberTrace
+                            : InterfaceMemberDec_Java -> MemberTrace
+                            : ClassMemberDec_Java -> MemberTrace
+                            : QEndTrace -> MemberTrace
+                            : Expr_Java -> InstructionTrace
+                            : BlockStm_Java -> InstructionTrace
+                            : QEndTrace -> InstructionTrace
+    Quoted                  : String -> QEndTrace
+    Catch                   : LabelId * ClassTypeId_AnyType0 -> CatchHeader
+    Any                     : AnyType
+    UnknownAttribute        : String -> FieldAttribute
+    ConstantValue           : Constant -> FieldAttribute
+    FieldSignature          : FieldSignature -> FieldAttribute
+    Attributes              : List(FieldAttribute) -> FieldAttributes
+    FieldDescriptor         : Type -> FieldDescriptor
+    Field                   : AccessFlags * FieldName * FieldDescriptor * FieldAttributes -> Field
+    Attributes              : ListStarOfUndefined0 -> CodeAttributes
+    None                    : None
+    Some                    : Int -> SomeInt
+    MaxLocals               : None -> MaxLocals
+    MaxLocals               : SomeInt -> MaxLocals
+    MaxStack                : None -> MaxStack
+    MaxStack                : SomeInt -> MaxStack
+    ExceptionTable          : ListStarOfUndefined0 -> ExceptionTable
+    UnknownAttribute        : String -> MethodAttribute
+    Synthetic               : MethodAttribute
+    MethodSignature         : MethodSignature -> MethodAttribute
+    Exceptions              : List(ClassType) -> MethodAttribute
+    Code                    : MaxStack * MaxLocals * Instructions * ExceptionTable * CodeAttributes -> MethodAttribute
+    Attributes              : List(MethodAttribute) -> MethodAttributes
+    MethodDescriptor        : ListStarOfUndefined0 * ReturnType -> MethodDescriptor
+    MethodDescriptor        : List(Param) * ReturnType -> MethodDescriptor
+    EndTrace                : Method -> Method
+    Trace                   : MemberTrace * Method -> Method
+    Method                  : AccessFlags * MethodName * MethodDescriptor * MethodAttributes -> Method
+                            : Id -> LabelId
+    JavaStm                 : List(BlockStm_Java) -> Instruction
+    JavaStm                 : BlockStm_Java -> Instruction
+    JavaExpr                : Expr_Java -> Instruction
+    AALOAD                  : Instruction
+    DALOAD                  : Instruction
+    FALOAD                  : Instruction
+    SALOAD                  : Instruction
+    CALOAD                  : Instruction
+    BALOAD                  : Instruction
+    LALOAD                  : Instruction
+    IALOAD                  : Instruction
+    AASTORE                 : Instruction
+    DASTORE                 : Instruction
+    FASTORE                 : Instruction
+    SASTORE                 : Instruction
+    CASTORE                 : Instruction
+    BASTORE                 : Instruction
+    LASTORE                 : Instruction
+    IASTORE                 : Instruction
+    LXOR                    : Instruction
+    LUSHR                   : Instruction
+    LSUB                    : Instruction
+    LSHR                    : Instruction
+    LSHL                    : Instruction
+    LREM                    : Instruction
+    LOR                     : Instruction
+    LNEG                    : Instruction
+    LMUL                    : Instruction
+    LDIV                    : Instruction
+    LAND                    : Instruction
+    LADD                    : Instruction
+    IXOR                    : Instruction
+    IUSHR                   : Instruction
+    ISUB                    : Instruction
+    ISHR                    : Instruction
+    ISHL                    : Instruction
+    IREM                    : Instruction
+    IOR                     : Instruction
+    INEG                    : Instruction
+    IMUL                    : Instruction
+    IDIV                    : Instruction
+    IAND                    : Instruction
+    IADD                    : Instruction
+    FSUB                    : Instruction
+    FREM                    : Instruction
+    FNEG                    : Instruction
+    FMUL                    : Instruction
+    FDIV                    : Instruction
+    FADD                    : Instruction
+    DSUB                    : Instruction
+    DREM                    : Instruction
+    DNEG                    : Instruction
+    DMUL                    : Instruction
+    DDIV                    : Instruction
+    DADD                    : Instruction
+    ASTORE                  : Id -> Instruction
+    DSTORE                  : Id -> Instruction
+    FSTORE                  : Id -> Instruction
+    LSTORE                  : Id -> Instruction
+    ISTORE                  : Id -> Instruction
+    IINC                    : Id * Int -> Instruction
+    ALOAD                   : Id -> Instruction
+    DLOAD                   : Id -> Instruction
+    FLOAD                   : Id -> Instruction
+    LLOAD                   : Id -> Instruction
+    ILOAD                   : Id -> Instruction
+    LDC_W                   : Constant -> Instruction
+    ACONST_NULL             : Instruction
+    FCONST_2                : Instruction
+    FCONST_1                : Instruction
+    FCONST_0                : Instruction
+    DCONST_1                : Instruction
+    DCONST_0                : Instruction
+    LCONST_1                : Instruction
+    LCONST_0                : Instruction
+    ICONST_5                : Instruction
+    ICONST_4                : Instruction
+    ICONST_3                : Instruction
+    ICONST_2                : Instruction
+    ICONST_1                : Instruction
+    ICONST_0                : Instruction
+    ICONST_M1               : Instruction
+    SIPUSH                  : Int -> Instruction
+    BIPUSH                  : Int -> Instruction
+    EndTrace                : InstructionList -> Instruction
+    Trace                   : InstructionTrace * InstructionList -> Instruction
+    CatchWrap               : List(CatchHeader) * InstructionList -> Instruction
+    BREAKPOINT              : Instruction
+    NOP                     : Instruction
+    INSTANCEOF              : Type -> Instruction
+    CHECKCAST               : Type -> Instruction
+    MONITOREXIT             : Instruction
+    MONITORENTER            : Instruction
+    Label                   : LabelId -> Instruction
+    XRETURN                 : Instruction
+    RETURN                  : Instruction
+    ATHROW                  : Instruction
+    GOTO                    : LabelId -> Instruction
+    IFNE                    : LabelId -> Instruction
+    IFEQ                    : LabelId -> Instruction
+    NE                      : Instruction
+    GE                      : Instruction
+    LE                      : Instruction
+    EQ                      : Instruction
+    GT                      : Instruction
+    LT                      : Instruction
+    I2C                     : Instruction
+    I2S                     : Instruction
+    I2B                     : Instruction
+    X2F                     : Instruction
+    X2D                     : Instruction
+    X2L                     : Instruction
+    X2I                     : Instruction
+    DEC                     : Instruction
+    INC                     : Instruction
+    OR                      : Instruction
+    AND                     : Instruction
+    XOR_M1                  : Instruction
+    XOR                     : Instruction
+    USHR                    : Instruction
+    SHR                     : Instruction
+    SHL                     : Instruction
+    SUB                     : Instruction
+    REM                     : Instruction
+    NEG                     : Instruction
+    MUL                     : Instruction
+    DIV                     : Instruction
+    ADD                     : Instruction
+    MULTIANEWARRAY          : Type * Int -> Instruction
+    NEWARRAY                : Type -> Instruction
+    ARRAYLENGTH             : Instruction
+    ASTORE                  : Instruction
+    ALOAD                   : Instruction
+    Final                   : Id -> Instruction
+    STORE                   : Id -> Instruction
+    LOAD                    : Id -> Instruction
+    PUTFIELD                : FieldRef -> Instruction
+    GETFIELD                : FieldRef -> Instruction
+    PUTSTATIC               : FieldRef -> Instruction
+    GETSTATIC               : FieldRef -> Instruction
+    INVOKEINTERFACE         : InterfaceMethodRef -> Instruction
+    INVOKESTATIC            : MethodRef -> Instruction
+    INVOKEVIRTUAL           : MethodRef -> Instruction
+    INVOKESPECIAL           : MethodRef -> Instruction
+    SWAP                    : Instruction
+    DUP2_X2                 : Instruction
+    DUP2_X1                 : Instruction
+    DUP2                    : Instruction
+    DUP_X2                  : Instruction
+    POP2                    : Instruction
+    DUP_X1                  : Instruction
+    DUP                     : Instruction
+    POP                     : Instruction
+    NEW                     : Type -> Instruction
+    LDC                     : TwoWordConstant -> Instruction
+    LDC                     : OneWordConstant -> Instruction
+    Instructions            : InstructionList -> Instructions
+                            : List(ListedInstruction) -> InstructionList
+                            : Instruction -> ListedInstruction
+    FieldRef                : ClassType * FieldName * FieldDescriptor -> FieldRef
+    InterfaceMethodRef      : InterfaceType * MethodName * MethodDescriptor -> InterfaceMethodRef
+    MethodRef               : ClassType * MethodName * MethodDescriptor -> MethodRef
+    Param                   : Type * Id -> Param
+                            : Type -> Param
+    Name                    : Id -> FieldName
+    Name                    : InitId -> MethodName
+    Name                    : Id -> MethodName
+    Class                   : ClassTypeId -> ClassType
+    Interface               : ClassTypeId -> InterfaceType
+                            : String -> InitId
+                            : String -> Id
+    FieldSignature          : SimpleString -> FieldSignature
+    MethodSignature         : SimpleString -> MethodSignature
+    Double                  : Float -> TwoWordConstant
+    Long                    : Int -> TwoWordConstant
+                            : Constant -> TwoWordConstant
+    Float                   : Float -> OneWordConstant
+    Int                     : Int -> OneWordConstant
+                            : Constant -> OneWordConstant
+    Null                    : Constant
+    Class                   : ObjectType -> Constant
+    String                  : String -> Constant
+    Float                   : Float -> Constant
+    Double                  : Float -> Constant
+    Long                    : Int -> Constant
+    Int                     : Int -> Constant
+    Short                   : Int -> Constant
+    Char                    : Int -> Constant
+    Byte                    : Int -> Constant
+    Boolean                 : Boolean -> Constant
+    False                   : Boolean
+    True                    : Boolean
+                            : SimpleString -> String
+                            : StringChars -> SimpleString
+                            : String -> StringChars
+                            : String -> Float
+                            : String -> Int
+    ArrayType               : ObjectType -> ObjectType
+    ObjectType              : ClassTypeId -> ObjectType
+    Void                    : ReturnType
+                            : Type -> ReturnType
+    ObjectType              : ClassTypeId -> Type
+    ArrayType               : Type -> Type
+    Boolean                 : Type
+    Short                   : Type
+    Long                    : Type
+    Int                     : Type
+    Float                   : Type
+    Double                  : Type
+    Char                    : Type
+    Byte                    : Type
+                            : String -> ClassTypeId
+    Enum                    : AccessFlag
+    Annotation              : AccessFlag
+    Synthetic               : AccessFlag
+    Strict                  : AccessFlag
+    Abstract                : AccessFlag
+    Interface               : AccessFlag
+    Native                  : AccessFlag
+    Transient               : AccessFlag
+    Varargs                 : AccessFlag
+    Volatile                : AccessFlag
+    Bridge                  : AccessFlag
+    Super                   : AccessFlag
+    Synchronized            : AccessFlag
+    Final                   : AccessFlag
+    Static                  : AccessFlag
+    Protected               : AccessFlag
+    Private                 : AccessFlag
+    Public                  : AccessFlag
+    AccessFlags             : List(AccessFlag) -> AccessFlags
+
+
+signature
+  constructors
+    Some : a -> Option(a)
+    None : Option(a)
+
+
+signature
+  constructors
+    Cons : a * List(a) -> List(a)
+    Nil  : List(a)
+    Conc : List(a) * List(a) -> List(a)
+
+rules
+	replCalc : Id("Calculator") -> Id("Muh")
+
+strategies
+	willispecial = try(outermost(replCalc))

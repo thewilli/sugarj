@@ -1,0 +1,325 @@
+/**
+ * Source Class
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/source-class
+imports
+  dryad/lib-ext/oo/classes
+  dryad/model/class
+  dryad/model/compilation-unit  
+  dryad/model/source-field  
+  dryad/model/source-constructor
+  dryad/model/source-method
+  dryad/util/jtree
+  dryad/util/jtree-overlays
+
+signature
+  constructors
+    JavaSourceClass : ClassName
+
+/**
+ * Stratego class support for source classes.
+ */
+strategies
+
+  /**
+   * Constructs a new source class.
+   *
+   * @type  _ -> Class
+   */
+  new-source-class(|simple-name) =
+    <classes_get-class> JavaSourceClass()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"simple-name", simple-name)
+
+  /**
+   * Succeeds if the current term is an instance of Java source class
+   */
+  instanceof-JavaSourceClass =
+    classes_instanceof(|JavaSourceClass())
+
+  /**
+   * Succeeds if the current term is an instance of a Java class.
+   * This alternative declares a JavaSourceClass to be a JavaClass.
+   */
+  instanceof-JavaClass =
+    instanceof-JavaSourceClass
+    
+/**
+ * Access Control
+ */
+strategies
+
+  /**
+   * @todo This is the same for all source members. Generalize?
+   * @type SourceClass Object -> Access Modifier
+   */
+  get-access = instanceof-JavaSourceClass; ?this;
+    get-modifiers
+    ; ( fetch-elem(?Public() + ?Private() + ?Protected())
+     <+ if <get-declaring-class> this; is-interface then
+          !Public()
+        else
+          !DefaultAccess()
+        end
+      )     
+
+  get-modifiers = instanceof-JavaSourceClass;
+    get-reference-ast
+    ; ( ?ClassDec(ClassDecHead(<id>, _, _, _, _), _)
+     <+ ?InterfaceDec(InterfaceDecHead(<id>, _, _, _), _))
+
+strategies
+
+  /**
+   * @type SourceClass Object -> Source Type
+   * @todo java.lang.Object has no superclass.
+   */
+  get-superclass-as-type = instanceof-JavaSourceClass; ?this;
+    get-reference-ast
+    ; ( get-superclass-of-typedec
+        <+ if get-canonical-name => TypeName(PackageName([Id("java"), Id("lang")]), Id("Object"))
+           then
+             fail
+           else
+             !TypeObject()
+           end
+      )
+
+  /**
+   * @type SourceClass Object -> List(Source Type)
+   */   
+  get-superinterfaces-as-type = instanceof-JavaSourceClass;
+    get-reference-ast
+    ; (get-superinterfaces-of-typedec <+ ![])
+    
+strategies
+
+  /**
+   * @type SourceClass Object -> List(TypeParam)
+   */
+  get-formal-type-parameters =  instanceof-JavaSourceClass;
+    get-reference-ast
+    ; ( ?ClassDec(ClassDecHead(_, _, Some(TypeParams(<id>)), _, _), _)
+     <+ ?InterfaceDec(InterfaceDecHead(_, _, Some(TypeParams(<id>)), _), _)
+     <+ ?ClassDec(ClassDecHead(_, _, None(), _, _), _)
+        ; ![]
+     <+ ?InterfaceDec(InterfaceDecHead(_, _, None(), _), _)
+        ; ![]
+      )
+
+/**
+ * Compilation Units
+ */
+strategies
+
+  /**
+   * @type SourceClass Object -> CompilationUnit Object
+   */
+  get-compilation-unit = instanceof-JavaSourceClass;
+    classes_get-instance-field(|"compilation-unit")
+
+  /**
+   * @param CompilationUnit Object
+   * @type  SourceClass Object -> SourceClass Object
+   */
+  set-compilation-unit(|cu) = instanceof-JavaSourceClass;
+    classes_set-instance-field(|"compilation-unit", cu)
+  
+  /**
+   * @todo Maybe move the fallback to the declaring class' compilation-unit into get-compilation-unit.
+   * @type SourceClass Object -> Package Object
+   */
+  get-package =
+    (get-compilation-unit <+ get-declaring-class; get-compilation-unit)
+    ; get-package
+
+strategies
+
+  /**
+   * Succeeds if this class is an interface.
+   */
+  is-interface = instanceof-JavaSourceClass;
+    where(
+      get-reference-ast
+      ; ?InterfaceDec(_, _)
+    )
+
+  /**
+   * Succeeds if the class is a static (inner) class.
+   */
+  is-static = instanceof-JavaClass;
+    where(
+      get-modifiers
+      ; fetch(Static())
+    )
+
+/**
+ * Constructors
+ */
+strategies
+
+  /**
+   * Initializes the declared constructors list of the source class.
+   *
+   * @type SourceClass Object -> List(SourceConstructor Object)
+   */
+  init-get-declared-constructor-list = instanceof-JavaSourceClass;
+    get-reference-ast
+    ; get-body-decs-of-typedec
+    ; filter(instanceof-JavaConstructor)
+
+  /**
+   * @todo Default constructor for enum type must have private access.
+   * @todo The constructor should not be created again and again, since it is not garbage collected.
+   * @todo DRY-203: No super invocation for java.lang.Object source file.
+   * @todo DRY-202: Set the appropiate access modifiers (see 8.8.9)
+   */
+  get-default-constructor = instanceof-JavaSourceClass; ?this;
+    where(get-simple-name => name)
+    ; !ConstrDec(
+         ConstrDecHead([<get-access-of-default-constructor> this],None(), Id(name),[], None())
+       , ConstrBody(Some(SuperConstrInv(None(),[])),[])
+       )
+       ; new-source-constructor(|<id>)
+       ; set-declaring-class(|this)
+       
+  get-access-of-default-constructor = instanceof-JavaClass; ?this;
+    <get-access> this
+
+/**
+ * Fields
+ */
+strategies
+
+  /**
+   * Initializes the field table of a source class.
+   *
+   * @todo A fielddec can declare multiple variables. How should this be represented in the table?      
+   * @type SourceClass Object -> List(SourceClass Object)
+   */
+  init-get-declared-field-list = instanceof-JavaSourceClass;
+    get-reference-ast
+    ; get-body-decs-of-typedec
+    ; filter(instanceof-JavaField)
+
+/**
+ * Methods
+ */
+strategies
+
+  /**
+   * Initializes the declared method table of a source class.
+   *
+   * @type SourceClass Object -> List(SourceMethod Object)
+   */
+  init-get-declared-method-list = instanceof-JavaSourceClass;
+    get-reference-ast
+    ; get-body-decs-of-typedec
+    ; filter(instanceof-JavaMethod)
+    
+/**
+ * Member classes
+ */
+strategies
+
+  /**
+   * Initializes the declared member classes table of a source class.
+   *
+   * @type SourceClass Object -> SourceClass Object
+   */
+  init-declared-member-type-table = instanceof-JavaSourceClass;
+    ?this; where(
+      get-reference-ast
+      ; where(new-hashtable => classtbl)
+      ; get-body-decs-of-typedec
+      ; filter(instanceof-JavaClass)
+      ; map({class, name:
+          ?class
+        ; get-simple-name => name
+        ; <hashtable-put(|name, class)> classtbl
+        })
+      )
+    ; classes_set-instance-field(|"declared-member-type-table", classtbl)
+
+/**
+ * Reference AST of this source class.
+ */
+strategies
+
+  /**
+   * Returns the Reference AST of this source class.
+   *
+   * @type SourceClass Object -> ReferenceAST(TypeDec)
+   */
+  get-reference-ast = instanceof-JavaSourceClass;
+    classes_get-instance-field(|"reference-ast")
+
+  /**
+   * @param ReferenceAST(TypeDec)
+   * @type  SourceClass Object -> SourceClass Object
+   */
+  set-reference-ast(|ref-ast) =  instanceof-JavaSourceClass;
+    classes_set-instance-field(|"reference-ast", ref-ast)
+
+strategies
+
+  /**
+   * Returns the AST of this source class.
+   *
+   * @type SourceClass Object -> TypeDec
+   */    
+  get-ast = instanceof-JavaSourceClass;
+    get-reference-ast
+    ; apply-to-body-decs-of-typedec(try(get-ast))
+
+  /**
+   * Initializes the RefAST of this SourceClass from the given AST.
+   *
+   * @param TypeDec
+   * @type  SourceClass Object -> SourceClass Object
+   */
+  set-ast(|ast) = instanceof-JavaSourceClass; ?this;
+    where(
+      !ast
+      
+        // Handle field declarations.
+      ; apply-to-field-decs-of-typedec({fdec, vdec, x, field :
+          ?fdec
+          ; let name-of-field =
+                  ?VarDec(Id(<id>)) 
+                + ?VarDec(Id(<id>), _)
+                + ?VarDec(ArrayVarDecId(Id(<id>), _))  
+                + ?VarDec(ArrayVarDecId(Id(<id>), _), _)
+             in (?FieldDec(_, _, [vdec]) + ?ConstantDec(_, _, [vdec]))
+              ; where(<name-of-field> vdec => x)
+              ; new-source-field(|x, fdec) => field
+              ; set-declaring-class(|this)
+            end
+        })
+        
+        // Handle method declarations
+      ; apply-to-method-decs-of-typedec(
+          new-source-method(|<id>)
+          ; set-declaring-class(|this)
+        )
+        
+        // Handle constructor declarations
+      ; apply-to-constructor-decs-of-typedec(
+          new-source-constructor(|<id>)
+          ; set-declaring-class(|this)
+        )
+
+        // Handle member type declarations.
+      ; apply-to-member-type-decs-of-typedec({tast, name, class:
+          ?tast
+          ; get-name-of-typedec => name      
+          ; new-source-class(|name) => class
+          ; set-declaring-class(|this)
+          ; set-ast(|tast)
+        })
+        
+      ; ?ref-ast
+    )
+    ; set-reference-ast(|ref-ast)

@@ -1,0 +1,85 @@
+/**
+ * dryad-compiler code-generation for array acces.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/emit/arrays
+
+// TODO2: emit-modify-variable for += support for arrays
+//        (like emit-modify-variable(emit|field)
+
+/** Array read/write access. */
+strategies
+
+  emit-java(emit):
+    ArrayAccess(array, index) ->
+    |[ <emit> array;
+       <emit> index;
+       aload
+    ]|
+
+  emit-java(emit):
+    Assign(ArrayAccess(array, index), value) ->
+    |[ <emit> array;
+       <emit> index;
+       <emit> value;
+       ~convert;
+       ~duplicate;
+       astore
+    ]|
+    where convert := <emit-assign-conversion(emit)>;
+          
+          // The assigned value must remain on the stack, we do this
+          // using the word-size dependant DUP_X2 or DUP2_X2 instruction.
+          if <bc-type-word-size> <type-attr> value => 2 then
+            duplicate := DUP2_X2
+          else
+            duplicate := DUP_X2
+          end
+
+/** Array construction. */
+strategies
+
+  /** Emit an array construction in the form of new type[dim]. */
+  emit-java(emit):
+    NewArray(_, [Dim(dim)], _) ->
+    |[ <emit> dim;
+       newarray <emit> type
+    ]|
+    where type-attr => ArrayType(type)
+  
+  /** Emit an array construction in the form of new type[dim*]. */
+  emit-java(emit):
+    NewArray(_, dims, _) ->
+    |[ ~dims';
+       multianewarray <emit> type ~count
+    ]|
+    where not([_] := dims); // only deal with >1 dims
+          type-attr => ArrayType(type);
+          count := <length; write-to-string> dims;
+          dims' := <map(?Dim(<emit>))> dims
+
+  /** Emit an array construction in the form of new type[] { ... }. */
+  emit-java(emit):
+    NewArray(_, _, init @ ArrayInit(_)) {a*} -> // (ignore this; use annotations)
+    <emit> init {a*} // HACK: Dryad doesn't annotate arrayinits yet
+  
+  /** Emit an array initializer expression. */
+  emit-java(emit):
+    ArrayInit(elems) ->
+    |[ ldc ~count : int;
+       newarray ~type;
+       ~assigns
+    ]|
+    where type-attr; emit => ArrayType(type);
+          count   := <length; write-to-string> elems;
+          assigns := <number(emit-java-assign-array-elem(emit))> elems
+  
+  /** @internal */
+  emit-java-assign-array-elem(emit):
+    (value, index) ->
+    |[ dup;
+       ldc <write-to-string> index : int;
+       <emit> value;
+       astore
+    ]|

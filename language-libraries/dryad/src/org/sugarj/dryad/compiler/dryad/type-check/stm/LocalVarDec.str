@@ -1,0 +1,14 @@
+/**
+ * 14.4: Local Variable Declaration Statements
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/stm/LocalVarDec
+rules
+
+  dryad-attributes-of(rec) =
+    ?VarDec(Id(x), e)
+    ; <TypeOf> Id(x) => type
+    ; <type-attr> e => rhs-type
+    ; <assignment-conversion(|type)> rhs-type
+    ; ![<id>]

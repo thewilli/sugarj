@@ -1,0 +1,28 @@
+module dryad/lib-ext/wannabe-lisp
+strategies
+
+  /**
+   * @todo  Use accumulator when Stratego implements tail recursion
+   * @type  List(a) -> List(b)
+   */
+  mapcan(f : (a -> a) * a -> a) =
+    if ?[a | as] then
+      <f(<mapcan(f)> as)> a
+    else
+      ?[]
+    end
+
+  mapcar(s) =
+    map(s)
+
+  mapcdr(s) =
+    rec x(?[_ | _]; s; [id | x] + ?[]; s)
+
+  car =
+    ?[<id> | _]
+
+  cdr =
+    ?[_ | <id>]
+
+  fetchcdr(s) =
+    rec x(?[_ | _]; s <+ [id | x])

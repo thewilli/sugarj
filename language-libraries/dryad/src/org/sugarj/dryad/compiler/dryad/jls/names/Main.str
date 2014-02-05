@@ -1,0 +1,13 @@
+/**
+ * Names
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/names/Main
+imports
+  dryad/jls/names/AccessControl
+
+strategies
+
+  is-type-name =
+    ?TypeName(_, _)

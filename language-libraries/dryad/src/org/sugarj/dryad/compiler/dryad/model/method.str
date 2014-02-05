@@ -1,0 +1,271 @@
+/**
+ * Abstract Java Method
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/method
+imports
+  dryad/model/member
+  dryad/lib-ext/oo/classes
+  
+/**
+ * Names
+ */
+strategies
+
+  /**
+   * Returns the MethodName of this method.
+   *
+   * Note that a MethodName not uniquely identifies a method
+   * (i.e. a different method can have the same name).
+   *
+   * @type Method Object -> MethodName
+   */
+  get-name = instanceof-JavaMethod; ?this;
+    where(get-declaring-class => class)
+    ; !MethodName(<get-canonical-name> class, Id(<get-simple-name> this))
+    
+  /**
+   * Return name that uniquely identifiers a method.
+   *
+   * Note that the JLS does not define canonical names for methods.
+   * We just use the same terminology for this unique method name, to
+   * avoid another kind of name.
+   *
+   * @todo Include type parameters one way or another?
+   */
+  get-canonical-name = instanceof-JavaMethod; ?this;
+    !MethodName(
+       <get-declaring-class; get-canonical-name> this
+     , Id(<get-simple-name> this)
+     , <get-formal-parameter-types> this
+     , <get-return-type> this
+     )
+
+/**
+ * Access
+ */
+strategies
+
+  /**
+   * Returns the access of this method.
+   * Must be implemented by subclasses.
+   *
+   * @type Method object -> Access Modifier
+   */
+  get-access =
+    fail
+
+/**
+ * Formal type parameters
+ *
+ * @todo Same code as for classes. Make this a superclass?
+ */
+strategies
+
+  /**
+   * Succeeds if this class has a type parameter of the given name.
+   *
+   * @param  Simple name of the type parameter (String)
+   * @type   Method Object -> TypeParam   
+   */
+  has-formal-type-parameter(|name) =  instanceof-JavaMethod;
+    where(get-formal-type-parameter(|name))
+    
+  /**
+   * Returns the type parameter of the given name, or fails
+   * if this class thus have a type parameter with this name.
+   *
+   * @param  Simple name of the type parameter (String)
+   * @type   Method Object -> TypeParam
+   */
+  get-formal-type-parameter(|name) = instanceof-JavaMethod;
+    get-formal-type-parameters
+    ; fetch-elem(?TypeParam(Id(name), _))
+
+  /**
+   * Abstract method. Has to declared in subclasses.
+   *
+   * @type   Method Object -> List(TypeParam)
+   */
+  get-formal-type-parameters =
+    fail
+
+  /**
+   * Succeeds if this is a generic method (i.e. has formal type parameters).
+   */
+  is-generic = instanceof-JavaMethod;
+    where(get-formal-type-parameters => [_ | _])
+
+/**
+ * Return Type
+ */
+strategies
+
+  get-return-type(|inclass) =
+    get-return-type-in-class(|inclass)
+    
+  get-return-type(|intype) =    
+    get-return-type-in-type(|intype)
+
+  /**
+   * Returns the return type of this method if this method is invoked
+   * as a member of the given class.
+   *
+   * If the method is not actually a member of the specified class, then 
+   * this strategy will fail.
+   *
+   * @param Class Object
+   */
+  get-return-type-in-class(|inclass) = instanceof-JavaMethod; ?this;
+    where(get-simple-name => name);  
+    get-member-type-in-class-helper(
+        get-declared-methods(|name)
+      , get-return-type
+      , get-return-type-in-type
+      | inclass
+      )
+    
+  /**
+   * Returns the return type of this method if this method is invoked
+   * as a member of the given type.
+   *
+   * If the method is not actually a member of the specified type, then 
+   * this strategy will fail.
+   *
+   * @param Type
+   */
+  get-return-type-in-type(|intype) = instanceof-JavaMethod; ?this;
+    where(<is-reference-type> intype)
+    ; get-member-type-in-type-helper(get-return-type-in-class | intype)
+
+/**
+ * Formal Parameters
+ */  
+strategies
+
+  /**
+   * Succeeds if this method does not take a variable number of arguments.
+   */
+  is-fixed-arity-method =
+    not(is-variable-arity-method)
+
+  get-formal-parameter-types(|inclass) =
+    get-formal-parameter-types-in-class(|inclass)
+    
+  get-formal-parameter-types(|intype) =    
+    get-formal-parameter-types-in-type(|intype)
+
+  /**
+   * Returns the formal parameter types of this method if this method is 
+   * invoked as a member of the given class.
+   *
+   * If the method is not actually a member of the specified class, then 
+   * this strategy will fail.
+   *
+   * @param Class Object
+   * @type Method Object -> List(Type)   
+   */
+  get-formal-parameter-types-in-class(|inclass) = instanceof-JavaMethod; ?this;
+    where(get-simple-name => name);
+    get-member-type-in-class-helper(
+        get-declared-methods(|name)
+      , get-formal-parameter-types
+      , get-formal-parameter-types-in-type
+      | inclass
+      )
+      
+  /**
+   * Returns the formal parameter types of this method if this method is invoked
+   * as a member of the given type.
+   *
+   * If the method is not actually a member of the specified type, then 
+   * this strategy will fail.
+   *
+   * @param Type
+   * @type Method Object -> List(Type)
+   */
+  get-formal-parameter-types-in-type(|intype) = instanceof-JavaMethod; ?this;
+    where(<is-reference-type> intype)
+    ; get-member-type-in-type-helper(get-formal-parameter-types-in-class | intype)
+
+strategies
+
+  /**
+   * @todo Reuse define-substition.
+   * @todo Raw types and type erasure.  
+   * @todo Check the bound
+   * @todo Does zip check that the number of arguments are equal?       
+   */
+  get-member-type-in-type-helper(getter : ClassObject * MethodObject -> a | intype) = ?this;
+    !intype;
+
+    if ?InterfaceType(typename, None()) + ?ClassType(typename, None()) then
+      where(<lookup-class> typename => c)
+      ; <getter(|c)> this      
+      ; if <is-generic> c then
+          if is-list then
+            map(type-erasure)
+          else
+            type-erasure
+          end
+        end
+    else
+      {| LookupTypeVar :
+        ( ?InterfaceType(typename, Some(TypeArgs(t*))) + ?ClassType(typename, Some(TypeArgs(t*))))
+        ; where(<lookup-class> typename => c)
+        ; <get-formal-type-parameters> c => a*
+        ; <zip> (t*, a*)
+        ; map({t, a:
+            ?(t, TypeParam(Id(a), _))
+            ; rules(LookupTypeVar : TypeVar(typename, Id(a)) -> t)
+          })
+        ; <getter(|c)> this
+      |}
+    end
+
+  /**
+   * OMG!
+   */
+  get-member-type-in-class-helper(
+            declaredgetter : ClassObject -> List(MemberObject)
+          , resultgetter : MemberObject -> a
+          , typegetter : ClassObject * MethodObject -> a
+          | inclass) =
+        
+    ?this
+    ; <instanceof-JavaClass> inclass
+    ; (
+    
+       <declaredgetter> inclass
+       ; fetch(?this)
+       ; <resultgetter> this
+       ; topdown(try(LookupTypeVar))
+
+    <+ <get-superclass-as-type> inclass 
+       ; topdown(try(LookupTypeVar)) => super
+       ; <typegetter(|super)> this
+
+    <+ get-superinterfaces-as-type
+       ; fetch-elem({interface: ?interface; <typegetter(|interface)> this})
+    )
+    
+
+/**
+ * Stratego class support.
+ */
+strategies
+
+  /**
+   * Checks if current term is an instance of JavaClass.
+   *
+   * Subclasses of method implement this strategy.
+   */
+  instanceof-JavaMethod =
+    fail
+
+  /**
+   * Every Java method is a Java member.
+   */
+  instanceof-JavaMember =
+    instanceof-JavaMethod       

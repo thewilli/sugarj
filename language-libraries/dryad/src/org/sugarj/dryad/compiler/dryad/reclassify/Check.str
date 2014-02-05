@@ -1,0 +1,37 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/Check
+strategies
+
+  /**
+   * Reports an error if the compilation unit still contains
+   * ambiguous constructs.
+   */
+  check-ambnames =
+    if oncetd(is-ambiguous-construct; ?amb) then
+      where( <maybe-exit(|"Ambiguous construct cannot be reclassified: ")>amb )
+    end
+
+  /**
+   * Succeeds if the current term is in any way ambiguous.
+   */
+  is-ambiguous-construct =
+    ?AmbName(_, _)
+    + ?AmbName(_)
+    + ?ClassOrInterfaceType(_, _)
+    + ?PackageOrTypeName(_, _)
+    + ?PackageOrTypeName(_)
+    
+strategies
+
+  /**
+   * Report an error if there are unqualified names left.
+   */
+  check-qualifiers =
+    if oncetd(is-unqualified-name; ?unq) then
+      where( <maybe-exit(|"Name cannot be qualified:")>unq )
+    end
+
+  is-unqualified-name =
+    ?TypeName(_)

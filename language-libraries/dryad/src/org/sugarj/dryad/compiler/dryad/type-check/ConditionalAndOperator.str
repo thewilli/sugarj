@@ -1,0 +1,8 @@
+/**
+ * 15.23: Conditional-And Operator &&
+ */
+module dryad/type-check/ConditionalAndOperator
+strategies
+
+  dryad-type-of :
+    |[ e1 && e2 ]| -> <dryad-type-of-cond-bin-op> (e1, e2)

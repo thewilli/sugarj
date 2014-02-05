@@ -1,0 +1,272 @@
+/**
+ * Utils for Java Abstract Syntax Trees
+ */
+module dryad/util/jtree
+imports
+  libjava-front
+
+/**
+ * Compilation Units
+ */
+strategies
+
+  /**
+   * @type  CompilationUnit -> PackageName
+   *
+   * Returns PackageName([]) for the root package.  
+   */
+  get-package-name-of-compilation-unit =
+    ?CompilationUnit(Some(PackageDec(_, <id>)), _, _)
+
+  get-package-name-of-compilation-unit =
+    ?CompilationUnit(None(), _, _)
+    ; !PackageName([])
+
+  /**
+   * Returns the package of a compilation unit.
+   *
+   * The package is created if it does not exist.
+   *
+   * @type  CompilationUnit -> Package Object
+   */
+  get-package-of-compilation-unit =
+    get-package-name-of-compilation-unit
+    ; lookup-or-add-package
+
+strategies
+
+  /**
+   * Dirty hack.
+   *
+   * @type  CompilationUnit -> List(CompilationUnit)
+   */
+  unpack-compilation-unit =
+    ?CompilationUnit(pkgdec, importdecs, decs)
+    ; <map(!CompilationUnit(pkgdec, importdecs, [<id>]))> decs
+
+  /**
+   * Dirty hack.
+   *
+   * @type  List(CompilationUnit) -> CompilationUnit
+   */
+  pack-compilation-unit =
+    map(?CompilationUnit(pkgdec, importdecs, [<id>]))
+    ; !CompilationUnit(pkgdec, importdecs, <id>)
+
+/**
+ * Type Declarations
+ */
+strategies
+
+  /**
+   * Returns the name of a type declaration.
+   *
+   * @type  TypeDec -> Strintg
+   */
+  get-name-of-typedec = 
+    ?ClassDec(ClassDecHead(_, Id(<id>), _, _, _), _)
+
+  get-name-of-typedec = 
+    ?InterfaceDec(InterfaceDecHead(_, Id(<id>), _, _), _)
+
+  /**
+   * Returns the superclass of a type declaration.
+   *
+   * This strategy does not return java.lang.Object if no superclass
+   * is defined.
+   *
+   * @type  TypeDec -> Type
+   */
+  get-superclass-of-typedec = 
+    ?ClassDec(ClassDecHead(_, _, _, Some(SuperDec(<id>)), _), _)
+    
+  /**
+   * Returns the superinterfaces of a type declaration.
+   *
+   * This strategy fails if no interfaces are implemented.
+   *
+   * @type  TypeDec -> List(Type)
+   */
+  get-superinterfaces-of-typedec = 
+    ?ClassDec(ClassDecHead(_, _, _, _, Some(ImplementsDec(<id>))), _)
+
+  get-superinterfaces-of-typedec = 
+    ?InterfaceDec(InterfaceDecHead(_, _, _, Some(ExtendsInterfaces(<id>))), _)
+    
+strategies
+
+  apply-to-constructor-decs-of-typedec(s) =
+    apply-to-body-decs-of-typedec(
+      if ?ConstrDec(_, _) then s else id end
+    )
+    
+  get-constructor-decs-of-typedec =
+    ?ClassDec(_, ClassBody(<id>))
+    ; filter(?ConstrDec(_, _))
+    
+strategies
+    
+  apply-to-method-decs-of-typedec(s) =
+    apply-to-body-decs-of-typedec(
+      if ?AbstractMethodDec(_, _, _, _, _, _) +  ?MethodDec(_, _) then s else id end
+    )
+    
+strategies
+    
+  get-field-decs-of-typedec =
+    ?ClassDec(_, ClassBody(<id>))
+    ; filter(?FieldDec(_, _, _))
+
+  get-field-decs-of-typedec =
+    ?InterfaceDec(_, <id>)
+    ; filter(?ConstantDec(_, _, _))
+    
+  apply-to-field-decs-of-typedec(s) =
+    apply-to-body-decs-of-typedec(
+      if ?FieldDec(_, _, _) +  ?ConstantDec(_, _, _) then s else id end
+    )
+
+strategies
+
+  get-body-decs-of-typedec =
+    ?ClassDec(_, ClassBody(<id>))
+    
+  get-body-decs-of-typedec =    
+    ?InterfaceDec(_, <id>)    
+
+  get-member-type-decs-of-typedec =
+    get-body-decs-of-typedec  
+    ; filter(?InterfaceDec(_, _) + ?ClassDec(_, _))
+    
+  apply-to-member-type-decs-of-typedec(s) =
+    apply-to-body-decs-of-typedec(
+      if ?InterfaceDec(_, _) + ?ClassDec(_, _) then s else id end
+    )
+    
+  apply-to-body-decs-of-typedec(s) =
+    ClassDec(id, ClassBody(map(s)))
+    
+  apply-to-body-decs-of-typedec(s) =    
+    InterfaceDec(id, map(s))
+    
+/**
+ * Formal parameters
+ */
+strategies
+
+  get-type-of-param =
+    ?Param(_, <id>, x)
+    ; type-add-dimensions-from-id(|x)
+
+  get-type-of-field(|x) =
+    where(vardecid := <get-vardecid-of-field(|x)>)
+    ; (?FieldDec(_, <id>, _) + ?ConstantDec(_, <id>, _))
+    ; type-add-dimensions-from-id(|vardecid)
+
+  get-vardec-of-field(|x) =
+    ( ?FieldDec(_, _, <id>) + ?ConstantDec(_, _, <id>))
+    ; fetch-elem(
+        ?VarDec(Id(x))
+        <+ ?VarDec(Id(x), _)
+        <+ ?VarDec(ArrayVarDecId(Id(x), _))
+        <+ ?VarDec(ArrayVarDecId(Id(x), _), _)
+      )
+
+  get-vardecid-of-field(|x) =
+    get-vardec-of-field(|x)
+    ; (?VarDec(<id>) <+ ?VarDec(<id>, _))
+
+  /**
+   * @type Type -> Type
+   */    
+  type-add-dimensions-from-id(|vardecid) =
+    where(!vardecid => Id(_))
+
+  type-add-dimensions-from-id(|vardecid) =
+    where(dims := <?ArrayVarDecId(_, <id>)> vardecid)
+    ; let next(|dim) = !ArrayType(<id>)
+       in foldl(next | dims )
+      end
+
+/**
+ * Initializers and constructors
+ */
+strategies
+
+  is-class-init-method =
+    ?StaticInit(_)
+
+  /**
+   * Succeeds if this is an instance initialization method (constructor).
+   *
+   * @type Bytecode Method -> Bytecode Method
+   */
+  is-instance-init-method =
+    ?InstanceInit(_) + ?ConstrDec(_, _)
+
+/**
+ * Literals
+ *
+ * @todo  Maybe Long literals should have an explicit structure.
+ */
+strategies
+
+  /**
+   * Succeeds if this is an integer literal (Long or Int)
+   *
+   * @type  Expr -> Expr
+   */
+  is-integer-literal =
+    ?Lit(Deci(_))
+
+  is-integer-literal =
+    ?Lit(Hexa(_))
+
+  is-integer-literal =
+    ?Lit(Octa(_))
+
+  /**
+   * Succeeds if this is a float or double literal.
+   */
+  is-floating-point-literal =
+    ?Lit(Float(_))
+
+  /**
+   * Succeeds if this is a long literal 
+   *
+   * @type  Expr -> Expr
+   */
+  is-long-literal =
+    let project-literal =
+            ?Lit(Deci(<id>))
+          + ?Lit(Hexa(<id>))
+          + ?Lit(Octa(<id>))
+
+     in where(
+          project-literal     
+          ; test-last-char('l' + 'L')
+        )
+    end
+
+  /**
+   * Succeeds if this is a float literal (ends with f or F)
+   *
+   * @type  Expr -> Expr
+   */
+  is-float-literal =
+    where(
+      ?Lit(Float(<id>))
+      ; test-last-char('f' + 'F')
+    )
+
+  /**
+   * s is applied to the last character of the string
+   *
+   * @type String -> String
+   */
+  test-last-char(s) = 
+    where(
+      explode-string
+      ; last
+      ; s
+    )

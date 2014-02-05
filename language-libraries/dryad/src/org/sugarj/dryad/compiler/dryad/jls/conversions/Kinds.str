@@ -1,0 +1,15 @@
+/**
+ * 5.1: Kinds of Conversions
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/Kinds
+imports
+  dryad/jls/conversions/IdentityConversion
+  dryad/jls/conversions/WideningPrimitive
+  dryad/jls/conversions/NarrowingPrimitive
+  dryad/jls/conversions/WideningReference
+  dryad/jls/conversions/CaptureConversion
+  dryad/jls/conversions/UncheckedConversion
+  dryad/jls/conversions/Unboxing
+  

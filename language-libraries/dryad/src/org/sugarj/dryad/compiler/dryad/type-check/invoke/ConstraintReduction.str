@@ -1,0 +1,241 @@
+/**
+ * 15.12.2.7: Reduction of Constraints (the huge itemize in this section)
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/invoke/ConstraintReduction
+imports
+  dryad/type-check/invoke/Constraints
+
+strategies
+
+  /**
+   * Inference of type arguments begins with a set of initial constraints of the 
+   * form A << F, A = F, or A >> F, where A is a type of an actual parameter, and F
+   * is a type of a formal parameter.
+   *
+   * These constraints are reduced to a set of simpler constraints of the forms T :> X, 
+   * T = X or T <: X, where T is a type parameter of the method.
+   *
+   * The result of this method is a list of these simpler constraints.
+   *
+   * @param List of type variables
+   * @type Constraint -> List(Constraint)   
+   */
+  reduce-constraint(|typevars) =
+    ?c@Constraint(_, a, f)
+    ; let involves-typevar = {t:
+            ?t; <fetch({tv: ?tv; <oncetd(?tv)> t})> typevars
+          }
+       in if not(<involves-typevar> f) then
+            ![]
+          else
+            if !a => Null() then
+              ![]
+            else
+              <map({tv:
+                 ?tv
+                 ; if <oncetd(?tv)> f then
+                     <reduce-real-constraint(
+                        reduce-constraint(|typevars)
+                      | tv
+                      )> c
+                   else
+                     ![]
+                   end
+              })> typevars
+            ; concat
+            end
+          end
+      end
+
+/**
+ * Form: A << F
+ */    
+strategies
+
+  /**
+   * @type Constraint -> List(Constraint)
+   */
+  reduce-real-constraint(rec | t) =
+    ?Constraint(LeftRightConvertible(), _, _); (
+       reduce-left-right-prim-constraint(rec | t)
+    <+ reduce-left-right-simple-constraint(rec | t)
+    <+ reduce-left-right-array-constraint(rec |t)
+    <+ reduce-left-right-generic-constraint(rec | t)
+    <+ ![]
+    )
+
+  /**
+   * If A is primitive type.
+   *
+   * @todo Recursive invocation of reduction or fixpoint strategy?
+   * @type Constraint -> List(Constraint)
+   */   
+  reduce-left-right-prim-constraint(rec | t) =   
+    ?Constraint(LeftRightConvertible(), a, f)
+    ; where(<is-primitive-type> a)
+    ; <rec> Constraint(LeftRightConvertible(), <boxing-conversion-of-type> a, f)
+
+  /**
+   * If F is Tj
+   *
+   * @type Constraint -> List(Constraint)   
+   */
+  reduce-left-right-simple-constraint(rec | t) :
+    Constraint(LeftRightConvertible(), a, t) -> [Constraint(SuperType(), t, a)]
+    
+  /**
+   * If F = U[]
+   *
+   * @todo Primitive arrays introduce no constraints. Test this.
+   * @todo TypeVariable upper bound case.
+   */
+  reduce-left-right-array-constraint(rec | t) :
+    Constraint(LeftRightConvertible(), ArrayType(v), ArrayType(u))
+      ->
+    <rec> Constraint(LeftRightConvertible(), v, u)
+    where
+      <is-reference-type> v
+      
+  /**
+   * If F has the form G< .... U .... >, where U is a type expression
+   *
+   * @type Constraint -> List(Constraint)      
+   */
+  reduce-left-right-generic-constraint(rec | t) =
+    ?Constraint(LeftRightConvertible(), a, ClassType(tn, Some(TypeArgs(<id>))))
+    ; helper-reduce-generic-constraint(
+        ?ClassType(tn, Some(TypeArgs(<id>)))
+      , rec
+      | a, t
+      )
+      
+  reduce-left-right-generic-constraint(rec | t) =
+    ?Constraint(LeftRightConvertible(), a, InterfaceType(tn, Some(TypeArgs(<id>))))
+    ; helper-reduce-generic-constraint(
+        ?InterfaceType(tn, Some(TypeArgs(<id>)))
+      , rec        
+      | a, t
+      )
+
+  /**
+   * If F has the form G<..., Yk-1, ? extends U, Yk+1, ...>, where U involves Tj
+   *
+   * @todo Implement.
+   */
+
+  /**
+   * If F has the form G<..., Yk-1, ? super U, Yk+1, ...>, where U involves Tj
+   *
+   * @todo Implement.
+   */
+      
+strategies
+
+  /**
+   * Helper used for A << F and A = F.
+   *
+   * @todo Check that u is a type expression.
+   * @todo Check that v is a type expression.   
+   * @todo Should the fetch-elem be a retain-all?
+   * @type List(ActualTypeArg) -> List(Constraint)
+   */
+  helper-reduce-generic-constraint(s, rec | a, t) :
+    us -> <map(rec); concat> cs
+    where
+      <oncetd(?t)> us  // us inolves t
+      ; <supertypes> a
+      ; let consider(|u) =
+              where(<oncetd(?t)> u)
+              ; !Constraint(Equal(), <id>, u)
+              
+         in fetch-elem(s; filter-zip(consider | us))
+        end
+      ; not(?[]) => cs
+
+/**
+ * Form: A = F
+ */
+strategies
+   
+  /**
+   * @type Constraint -> List(Constraint)         
+   */
+  reduce-real-constraint(rec | t) =
+    ?Constraint(Equal(), _, _); (
+       reduce-equal-simple-constraint(rec | t)
+    <+ reduce-equal-array-constraint(rec | t)
+    <+ reduce-equal-generic-constraint(rec | t)    
+    <+ ![]
+    )
+    
+  /**
+   * If F is Tj, then the constraint Tj = A is implied.
+   *
+   * @type Constraint -> List(Constraint)   
+   */
+  reduce-equal-simple-constraint(rec | t) :
+    Constraint(Equal(), a, t) -> [Constraint(Equal(), t, a)]
+    
+  /**
+   * If F = U[] where the type U involves Tj, then if A is an array
+   * type V[], or a type variable with an upper bound that is an array
+   * type V[], where V is a reference type, this algorithm is applied
+   * recursively to the constraint V = U.
+   *
+   * @todo Primitive arrays introduce no constraints. Test this.
+   * @todo TypeVariable upper bound case.
+   * @type Constraint -> List(Constraint)         
+   */
+  reduce-equal-array-constraint(rec | t) :
+    Constraint(Equal(), ArrayType(v), ArrayType(u))
+      ->
+    <rec> Constraint(Equal(), v, u)
+    where
+      <is-reference-type> v
+      
+  /**
+   * If F has the form G< .... U .... >, where U is a type expression
+   *
+   * @type Constraint -> List(Constraint)      
+   */
+  reduce-equal-generic-constraint(rec | t) =
+    ?Constraint(Equal(), a, ClassType(tn, Some(TypeArgs(<id>))))
+    ; helper-reduce-generic-constraint(
+        ?ClassType(tn, Some(TypeArgs(<id>)))
+      , rec
+      | a, t
+      )
+      
+  reduce-equal-generic-constraint(rec | t) =
+    ?Constraint(Equal(), a, InterfaceType(tn, Some(TypeArgs(<id>))))
+    ; helper-reduce-generic-constraint(
+        ?InterfaceType(tn, Some(TypeArgs(<id>)))
+      , rec
+      | a, t
+      )
+
+  /**
+   * If F has the form G<..., Yk-1, ? extends U, Yk+1, ...>, where U involves Tj
+   *
+   * @todo Implement
+   */
+
+  /**
+   * If F has the form G<..., Yk-1, ? super U, Yk+1 ,...>, where U involves Tj
+   *
+   * @todo Implement
+   */
+
+/**
+ * Form: A >> F
+ */
+strategies
+
+  reduce-real-constraint(rec | t) =
+    ?Constraint(RightLeftConvertible(), _, _); (
+       fail
+    <+ log(|Error(), "A >> F constraints are not yet supported", <id>)
+       ; fail
+    )

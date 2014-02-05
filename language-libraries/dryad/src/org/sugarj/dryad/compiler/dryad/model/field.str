@@ -1,0 +1,47 @@
+/**
+ * Abstract Java field
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/field
+imports
+  dryad/model/member
+  dryad/lib-ext/oo/classes
+  
+strategies
+ 
+  /**
+   * Returns the simple name of this field.
+   *
+   * @type Field Object -> String
+   */
+  get-simple-name = instanceof-JavaField;
+    classes_get-instance-field(|"simple-name")  
+    
+  /**
+   * Returns the name of this field.
+   *
+   * @todo Introduce a FieldName?
+   * @type Field Object -> ExprName
+   */
+  get-name = instanceof-JavaField; ?this;
+    where(get-declaring-class => class)
+    ; !ExprName(<get-fully-qualified-name> class, Id(<get-simple-name> this))
+
+/**
+ * Stratego class support for fields.
+ */
+strategies
+
+  /**
+   * Succeeds if the current term is an instance of a field.
+   *
+   * Subclasses of field implement this strategy.   
+   */
+  instanceof-JavaField = fail
+
+  /**
+   * Every Java field is a Java member.
+   */
+  instanceof-JavaMember =
+    instanceof-JavaField

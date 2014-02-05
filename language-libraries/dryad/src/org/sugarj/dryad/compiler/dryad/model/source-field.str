@@ -1,0 +1,109 @@
+/**
+ * Source Field
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/source-field
+imports
+  dryad/model/field
+   
+strategies
+
+  /**
+   * Constructs a new source field.
+   *
+   * @todo A name is required here, since the fielddec can declare multiple fields.
+   * @type  _ -> SourceField Object
+   */
+  new-source-field(|simple-name, ast) =
+    <classes_get-class> JavaSourceField()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"reference-ast", ast)
+    ; classes_set-instance-field(|"simple-name", simple-name)
+
+  /**
+   * Succeeds if a field is static
+   *
+   * @type Field Object -> Field Object
+   */
+  is-static =  instanceof-JavaSourceField; 
+    where(
+      get-modifiers
+      ; fetch(?Static())
+    )
+
+/**
+ * Modifiers.
+ */
+strategies
+
+  /**
+   * @type Field Object -> Access Modifier
+   */
+  get-access = instanceof-JavaSourceField; ?this;
+    get-modifiers
+    ; ( fetch-elem(?Public() + ?Private() + ?Protected())
+     <+ if <get-declaring-class> this; is-interface then
+          !Public()
+        else
+          !DefaultAccess()
+        end
+      )
+
+  /**
+   * Returns the modifiers of a field.
+   *
+   * @type Field Object -> List(Modifier)
+   */
+  get-modifiers =  instanceof-JavaSourceField;
+    get-reference-ast
+    ; ( ?FieldDec(<id>, _, _)
+      + ?ConstantDec(<id>, _, _)
+      )
+
+strategies
+
+  /**
+   * @type Field Object -> Type
+   */
+  get-type = instanceof-JavaSourceField; ?this;
+    get-reference-ast
+    ; get-type-of-field(|<get-simple-name> this)
+
+/**
+ * AST representation
+ */
+strategies
+
+  get-ast = instanceof-JavaSourceField;
+    get-reference-ast
+    
+  get-reference-ast = instanceof-JavaSourceField;
+    classes_get-instance-field(|"reference-ast")  
+    
+  set-reference-ast(|refast) =  instanceof-JavaSourceField;
+    classes_set-instance-field(|"reference-ast", refast)
+
+/**
+ * Stratego class support for source fields
+ */
+signature
+  constructors
+    JavaSourceField : ClassName
+ 
+strategies
+
+  /**
+   * Succeeds if the current term is an instance of Java source field
+   */
+  instanceof-JavaSourceField =
+    classes_instanceof(|JavaSourceField())
+
+  /**
+   * Succeeds if the current term is an instance of a Java field.
+   *
+   * This alternative declares a JavaSourceField to be a JavaField.
+   */
+  instanceof-JavaField =
+    classes_instanceof(|JavaSourceField())
+    

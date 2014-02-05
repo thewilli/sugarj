@@ -1,0 +1,31 @@
+/**
+ * Extensions of the Java AST introduced by Dryad to make the meaning of
+ * constructs more clear.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/source/Extensions
+signature
+  constructors
+    TypeVar : TypeVarQualifier * Id -> TypeVar
+
+            : TypeName        -> TypeVarQualifier
+            : MethodName      -> TypeVarQualifier                 
+            : ConstructorName -> TypeVarQualifier
+            
+    Field : Id -> Expr
+
+    Fresh            : FreshTypeVarSource -> TypeVarQualifer
+    CapturedWildcard : ActualTypeArg -> FreshTypeVarSource
+
+    /**
+     * @todo What if the class or interface type has type arguments?
+     */  
+    TypeVar : TypeVarQualifier * Id * TypeArgs -> TypeVar
+    
+    IntersectionType : List(Type) -> Type
+    
+    DefaultAccess : Modifier
+
+  constructors            
+    ConstructorName : TypeName -> ConstructorName

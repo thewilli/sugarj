@@ -1,0 +1,56 @@
+/**
+ * Support for classes.
+ */
+module dryad/lib-ext/oo/classes
+imports
+  dryad/lib-ext/hash-table
+  
+signature
+  constructors
+    Instance : Class * Id -> Instance
+    Class    : ClassName  -> Class
+
+strategies
+
+  /**
+   * Creates a new class instance
+   */
+  classes_new-instance =
+    !Instance(<?Class(_)>, <new> ())
+
+  classes_instanceof(|name) =
+    ?Instance(Class(name), _)
+
+  /**
+   * Gets the class for a given name.
+   */
+  classes_get-class =
+    !Class(<id>)
+
+  classes_get-fieldtbl =
+    table-hashtable
+    ; hashtable-get(new-hashtable |"fields")
+
+strategies
+
+  classes_get-instance-field(|name) =
+    ?Instance(_, x)
+    ; classes_get-fieldtbl
+    ; hashtable-get(|(x, name))
+
+  classes_get-instance-field(ifnot | name) =
+    ?this@Instance(_, x)
+    ; classes_get-fieldtbl
+    ; hashtable-get(<ifnot> this |(x, name))
+
+  classes_set-instance-field(|name, value) =
+    ?Instance(_, x)
+    ; where(
+        classes_get-fieldtbl
+        ; hashtable-put(|(x, name), value)
+      )
+
+  classes_get-class-field(|name) =
+    ?Instance(_, Class(x))
+    ; classes_get-fieldtbl
+    ; hashtable-get(|x)

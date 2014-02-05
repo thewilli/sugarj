@@ -1,0 +1,40 @@
+/**
+ * 15.20: Relational Operators
+ *
+ * @todo Annotate the promoted type? (int/long or float/double)
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/RelationalOperators
+strategies
+
+  dryad-type-of :
+    |[ e1 < e2 ]| -> <dryad-type-of-num-comp-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 > e2 ]| -> <dryad-type-of-num-comp-op> (e1, e2)
+  
+  dryad-type-of :
+    |[ e1 <= e2 ]| -> <dryad-type-of-num-comp-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 >= e2 ]| -> <dryad-type-of-num-comp-op> (e1, e2)
+
+  dryad-type-of-num-comp-op =
+    ?(e1, e2);
+
+    where(
+      <type-attr> e1 => t1
+    ; <type-attr> e2 => t2
+    ; <is-convertible-to-numeric-type> t1
+    ; <is-convertible-to-numeric-type> t2
+    );
+
+    !Boolean()
+
+  dryad-type-of :
+    |[ e instanceof reft ]| -> Boolean()
+    where
+        <type-attr> e => t
+      ; <is-reference-type + ?Null()> t
+      ; <is-reifiable-type> reft
+

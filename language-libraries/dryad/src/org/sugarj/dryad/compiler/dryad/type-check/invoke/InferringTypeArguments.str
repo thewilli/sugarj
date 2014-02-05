@@ -1,0 +1,137 @@
+/**
+ * 15.12.2.7: Inferring Type Arguments Based on Actual Arguments
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/invoke/InferringTypeArguments
+imports
+  dryad/jls/types/Main
+  dryad/jls/types/Lub  
+  dryad/type-check/invoke/Constraints  
+  dryad/type-check/invoke/ConstraintReduction
+  
+strategies
+
+  /**
+   * Given a list of initial constraints, infers the type arguments for
+   * all formal type parameters of the method.
+   *
+   * @type Method Object -> Hashtable(TypeVar, List(Type))  
+   */
+  infer-type-arguments(|initial-constraints) =
+    ?method
+    ; where(
+        get-formal-type-parameters
+        ; map(type-param-to-type-variable(|method))
+        ; ?tvs
+      )
+    ; <infer-type-arguments-from-constraints(|tvs)> initial-constraints
+
+  /**
+   * @param List(TypeVar)
+   * @type List(Constraint) -> Hashtable(TypeVar, List(Type))
+   */
+  infer-type-arguments-from-constraints(|tvs) =
+    map(reduce-constraint(|tvs))
+    ; concat
+    ; resolve-constraints(|tvs)
+
+  type-param-to-type-variable(|method) :
+    TypeParam(Id(x), _) -> TypeVar(<get-name> method, Id(x))
+
+  /**
+   * Result list can contain duplicates, even with different values for
+   * illegal invocations. These should usually be reported as errors by the
+   * invoker of this strategy.
+   *
+   * @param List(TypeVar)
+   * @type List(Constraint) -> Hashtable(TypeVar, List(Type))
+   */
+  resolve-constraints(|typevars) =
+    where(
+      new-hashtable => results
+    ; <map({t: ?t; <hashtable-put(|t, [])> results})> typevars
+    )
+    ; resolve-implied-equality-constraints(|results)
+    ; resolve-supertype-constaints(|typevars, results)
+    ; !results
+
+/**
+ * 15.12.2.7: Page 463.
+ */
+strategies
+
+  /**
+   * @param Hashtable(TypeVar, List(Type))
+   * @type  List(Constraint) -> List(Constraint)
+   */
+  resolve-implied-equality-constraints(|results) =
+    partition(?Constraint(Equal(), _, _)) => (ceq, csuper)
+    ; let threader(|c) = {cs:
+            ?cs
+            ; <resolve-implied-equality-constraint(|cs, results)> c
+          }
+       in <foldl(threader | ceq)> csuper
+      end
+
+  /**
+   * From Tj = U, where U is not a type variable.
+   *
+   * @todo Should the lhs be rewritten?
+   * @todo Should equality constrains be rewritten?
+   */
+  resolve-implied-equality-constraint(|constraints, results) =
+    ?Constraint(Equal(), t, u)
+    ; where(not(<hashtable-get(|u)> results))
+    ; <map(Constraint(id, id, topdown( (t -> u) )))> constraints
+    ; where(<hashtable-push-existing(|t, u)> results)
+
+  /**
+   * Form Tj = Tj
+   */
+  resolve-implied-equality-constraint(|constraints, results) =
+    ?Constraint(Equal(), t, t)
+    ; !constraints
+    
+  /**
+   * Form Tj = Tk, where k != j.
+   *
+   * @todo I think this equality should be recorded?
+   * @todo Should equality constrains be rewritten?   
+   * @todo Should the lhs of the constraints be rewritten?   
+   */
+  resolve-implied-equality-constraint(|constraints, results) =
+    ?Constraint(Equal(), tj, tk)  
+    ; where(not(<eq> (tj, tk)))
+    ; where(<hashtable-get(|tk)> results)
+    ; <map(Constraint(id, id, topdown( (tj -> tk) )))> constraints
+    
+strategies
+
+  /**
+   * @todo Limit inference to remaining type variables?
+   * @type List(Constraints) -> _
+   */
+  resolve-supertype-constaints(|typevars, results) =
+    ?constraints
+    ; <map(
+         try({tv,type:
+           ?tv
+           ; <resolve-supertype-constaints(|tv)> constraints => type
+           ; <hashtable-push-existing(|tv, type)> results
+         })
+      )> typevars
+
+  /**
+   * @type List(Constraint) -> 
+   */
+  resolve-supertype-constaints(|typevar) =    
+    retain-all(?Constraint(SuperType(), tv, <id>))
+    ; not(?[])
+    ; lub
+
+strategies
+
+  infer-unresolved-type-arguments =
+    fail
+

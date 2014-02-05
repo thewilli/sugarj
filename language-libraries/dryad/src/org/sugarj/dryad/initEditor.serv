@@ -1,4 +1,4 @@
-module org/sugarj/jasmin/initEditor
+module org/sugarj/dryad/initEditor
 
 colorer Default
                                   

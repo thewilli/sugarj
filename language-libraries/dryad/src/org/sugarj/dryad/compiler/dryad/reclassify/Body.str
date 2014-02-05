@@ -1,0 +1,100 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/Body
+imports
+  dryad/reclassify/ContextuallyAmbName
+  dryad/reclassify/MeaningOfPackageOrTypeName
+  dryad/reclassify/MeaningOfExpressionNames
+  
+  dryad/reclassify/declare/ClassMembers
+  dryad/reclassify/declare/FormalParameters
+  dryad/reclassify/declare/FormalTypeParameters
+  dryad/reclassify/declare/Imports
+  dryad/reclassify/declare/LocalVariables    
+  dryad/reclassify/declare/This  
+  
+  dryad/source/Extensions 
+  
+
+strategies
+
+  /**
+   * Reclassification of type declaration bodies
+   */
+  dryad-reclassify-bodies =
+    instanceof-JavaSourceClass  
+    ; declare-type(
+        declare-class-members(
+          apply-to-reference(dryad-reclassify-bodies-helper)
+        )
+      )
+
+  dryad-reclassify-bodies-helper =
+    rec rec(
+       // do not reclassify member classes
+       instanceof-JavaSourceClass
+       
+    <+ ClassDec(id, rec)
+
+    <+ InterfaceDec(id, rec)
+         
+    <+ (instanceof-JavaSourceMethod + instanceof-JavaSourceConstructor)
+       ; declare-formal-parameters(
+           declare-formal-type-parameters(
+             apply-to-reference(rec)
+           )
+         )
+         
+    <+ ?Catch(_, _)
+       ; declare-formal-parameters(all(rec))
+       
+    <+ declare-local-variables(rec)       
+
+    <+ work-around-EBlock(rec)
+
+    <+ ?AmbName(_)
+       ; Reclassify-SimpleAmbName(rec)
+       ; try(QualifySimpleInScopeTypeName)
+
+    <+ ?AmbName(_, _)
+       ; Reclassify-QualifiedAmbName(rec)
+
+    <+ ?ExprName(_)
+       ; Reclassify-SimpleExprName(rec)
+    
+    <+ ?ExprName(_, _)
+       ; Reclassify-QualifiedExprName(rec)
+
+    <+ ?PackageOrTypeName(_)
+       ; Reclassify-SimplePackageOrTypeName(rec)
+       
+    <+ ?PackageOrTypeName(_, _)
+       ; Reclassify-QualifiedPackageOrTypeName(rec)
+
+    <+ ?TypeName(_)
+       ; QualifySimpleInScopeTypeName
+
+    <+ ClassOrInterfaceType(rec, rec)
+       ; dryad-reclassify-type            
+       
+    <+ ClassType(rec, rec)
+       ; dryad-reclassify-type        
+    
+    <+ InterfaceType(rec, rec)
+       ; dryad-reclassify-type    
+       
+       /**
+        * Expand references, apply rec, and set AST of reference.
+        */
+    <+ apply-to-reference(rec)
+
+    <+ all-consnil(rec)
+    )
+    
+rules
+
+  work-around-EBlock(rec) :
+     PreEBlock(a,b) -> PreEBlock(<at-last(?[c];![])>l,c)
+      where <conc ; rec>(a,[b]) => l
+

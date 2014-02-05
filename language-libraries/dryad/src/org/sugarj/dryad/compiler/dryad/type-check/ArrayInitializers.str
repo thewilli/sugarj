@@ -1,0 +1,35 @@
+/**
+ * 10.6: Array Initializers
+ *
+ * @todo Array initializers in variable declarations.
+ * @todo Array initializers with boxing conversions.
+ */
+module dryad/type-check/ArrayInitializers
+strategies
+
+  /**
+   * @todo  It would be nice if we could type ArrayInit with a plain dryad-type-of rule.
+   * @param Type of the array (complete type, not just component type).
+   */
+  check-type-of-array-init(|t) =
+    ?ArrayInit(es);
+
+    where(
+      <?ArrayType(<id>)> t => ct;
+
+      let check-expr-type =
+            type-attr; is-assignment-convertable(|ct)
+
+       in /**
+           * If the component type is itself an array type, then the
+           * expression specifying a component may itself be an array
+           * initializer.
+           */
+          if !ct => ArrayType(ct') then
+            <map(check-expr-type <+ check-type-of-array-init(|ct'))> es
+          else
+            <map(check-expr-type)> es
+          end
+      end
+    )
+

@@ -1,0 +1,323 @@
+/**
+ * Bytecode Class
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/bytecode-class
+imports
+  dryad/lib-ext/oo/classes
+
+  dryad/model/class
+  dryad/model/bytecode-constructor
+  dryad/model/bytecode-field
+  dryad/model/bytecode-method
+
+  dryad/bytecode/Bridge
+  dryad/bytecode/Signature
+  dryad/bytecode/util
+
+  libjava-front
+
+strategies
+
+  /**
+   * Construct a new bytecode class object
+   *
+   * @type  _ -> BytecodeClass Object
+   * @param String
+   */
+  new-bytecode-class(|simple-name) =
+    <classes_get-class> JavaBytecodeClass()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"simple-name", simple-name)
+
+strategies
+
+  set-package(|pkg) = instanceof-JavaBytecodeClass;
+    classes_set-instance-field(|"package", pkg)
+
+  get-package = instanceof-JavaBytecodeClass;
+    classes_get-instance-field(|"package")
+
+strategies
+
+  /**
+   * Returns the super class of this class as a type.
+   * Fails if this class has no superclass (i.e. this class is java.lang.Object)
+   *
+   * @type Class Object -> Source Type
+   */
+  get-superclass-as-type =
+    if-signature(
+      ?ClassSignature(_, SuperClass(<id>), _)
+    , get-reference-ast
+      ; ?ClassFile(_, _, _, _, SuperClass(Some(<id>)), _, _, _, _)
+      ; <bytecode-type-to-source-type> ObjectType(<id>)
+    )
+
+  /**
+   * Returns the interfaces implemented by this class as types.
+   *
+   * @type Class Object -> List(Source Type)
+   */
+  get-superinterfaces-as-type =
+    if-signature(
+      ?ClassSignature(_, _, SuperInterfaces(<id>))
+    , get-reference-ast
+      ; ?ClassFile(_, _, _, _, _, Interfaces(<id>), _, _, _)
+      ; map(<bytecode-type-to-source-type> ObjectType(<id>))
+    )
+    
+strategies
+
+  /**
+   * @type BytecodeClass Object -> List(TypeParam)
+   */
+  get-formal-type-parameters = instanceof-JavaBytecodeClass;
+    if get-signature => sig then
+      !sig => ClassSignature(TypeParams(<id>), _, _)
+    else
+      ![]
+    end
+
+  /**
+   * Returns the generic signature of this class.
+   *
+   * @type BytecodeClass Object - ClassSignature
+   */
+  get-signature = instanceof-JavaBytecodeClass;
+    ?this; (
+       classes_get-instance-field(|GenericSignature())
+       
+    <+ get-attributes
+       ; if fetch(?ClassSignature(_, _, _); ?sig) then
+           !Some(sig)
+         else
+           !None()
+         end
+       ; ?result
+       ; <classes_set-instance-field(|GenericSignature(), result)> this
+       ; reclassify-class-signature
+       ; classes_get-instance-field(|GenericSignature())
+     )
+     ; ?Some(<id>)
+      
+strategies
+
+  /**
+   * Returns the attributes of this bytecode class.
+   *
+   * Note: attributes are a bytecode-level construct and are not
+   * directly related to Java source annotations. This strategy returns
+   * the *bytecode* attributes.
+   *
+   * @type BytecodeClass Object -> List(Attribute)
+   */
+  get-attributes = instanceof-JavaBytecodeClass;
+    get-reference-ast
+    ; ?ClassFile(_, _, _, _, _, _, _, _, Attributes(<id>))
+
+strategies
+
+  /**
+   * Succeeds if this class is an interface.
+   *
+   * @type BytecodeClass Object -> BytecodeClass Object
+   */
+  is-interface = instanceof-JavaBytecodeClass;
+    where(
+      get-access-flags
+      ; fetch(?Interface())
+    )
+
+  /**
+   * @type BytecodeClass Object -> List(AccessFlags)
+   */
+  get-access-flags = instanceof-JavaBytecodeClass;
+    get-reference-ast
+    ; ?ClassFile(_, _, AccessFlags(<id>), _, _, _, _, _, _)
+
+  /**
+   * @todo Is default access necessary for bytecode classes?
+   * @todo Do interfaces have default access set to public in bytecode?
+   * @type BytecodeClass Object -> Access Modifier
+   */
+  get-access = instanceof-JavaBytecodeClass;
+    get-access-flags
+    ; ( fetch-elem(?Public() + ?Private() + ?Protected())
+     <+ !DefaultAccess())
+
+/**
+ * Fields
+ */
+strategies
+
+  /**
+   * Initializes the field table of a bytecode class.
+   *
+   * @type BytecodeClass Object -> List(BytecodeField Object)
+   */
+  init-get-declared-field-list = instanceof-JavaBytecodeClass;
+    get-reference-ast
+    ; ?ClassFile(_, _, _, _, _, _, Fields(<id>), _, _)
+    ; filter(instanceof-JavaField)
+
+/**
+ * Methods
+ */
+strategies
+
+  /**
+   * Initializes the declared method table of a bytecode class.
+   *
+   * @type BytecodeClass Object -> List(BytecodeMethod Object)
+   */
+  init-get-declared-method-list = instanceof-JavaBytecodeClass;
+    get-reference-ast
+    ; ?ClassFile(_, _, _, _, _, _, _, Methods(<id>), _)    
+    ; filter(instanceof-JavaMethod)
+    
+/**
+ * Constructors
+ */
+strategies
+
+  /**
+   * Initializes the declared constructors list of a bytecode class.
+   *
+   * @type BytecodeClass Object -> List(BytecodeConstructor Object)
+   */
+  init-get-declared-constructor-list = instanceof-JavaBytecodeClass;
+    get-reference-ast
+    ; ?ClassFile(_, _, _, _, _, _, _, Methods(<id>), _)
+    ; filter(instanceof-JavaConstructor)
+    
+/**
+ * Member Classes
+ */
+strategies
+
+  init-declared-member-type-table = instanceof-JavaBytecodeClass;
+    ?this; where(
+      new-hashtable => classtbl
+    )
+    ; classes_set-instance-field(|"declared-member-type-table", classtbl)
+
+/**
+ * AST
+ *
+ * @todo Implement get-ast.
+ */
+strategies
+
+  set-ast(|ast) = instanceof-JavaBytecodeClass;
+    ?this; where(
+      <classtree-to-reference-ast(|this)> ast => ref-ast
+    )
+    ; set-reference-ast(|ref-ast)
+
+/**
+ * Reference AST of this bytecode class.
+ */
+strategies
+
+  /**
+   * Returns the Reference AST of this source class.
+   *
+   * @type BytecodeClass Object -> ReferenceAST(ClassTree)
+   */
+  get-reference-ast = instanceof-JavaBytecodeClass;
+    classes_get-instance-field(read-reference-ast-from-location |"reference-ast")
+
+  /**
+   * @param ReferenceAST(ClassTree)
+   * @type  BytecodeClass Object -> BytecodeClass Object
+   */
+  set-reference-ast(|ref-ast) =  instanceof-JavaBytecodeClass;
+    classes_set-instance-field(|"reference-ast", ref-ast)
+    
+  read-reference-ast-from-location = instanceof-JavaBytecodeClass; ?this; (
+    get-location
+    ; report-reading-class
+    ; read-class-file
+    ; classtree-to-reference-ast(|this)
+    <+ get-simple-name
+       ; jdebug(!"error: could not read class ")
+       ; fail
+    )
+
+  classtree-to-reference-ast(|this) =
+      ?tree
+    ; apply-to-methods-of-classtree(
+        new-bytecode-method(|<id>)
+        ; set-declaring-class(|this)
+      )
+    ; apply-to-constructors-of-classtree(
+        new-bytecode-constructor(|<id>)
+        ; set-declaring-class(|this)
+      )
+    ; apply-to-fields-of-classtree(
+        new-bytecode-field(|<id>)
+        ; set-declaring-class(|this)
+      )
+      
+  apply-to-constructors-of-classtree(s) =
+    ClassFile(id, id, id, id, id, id, id
+    , Methods(map(if is-instance-init-method then s end))
+    , id
+    )
+
+  apply-to-methods-of-classtree(s) =
+    ClassFile(id, id, id, id, id, id, id
+    , Methods(map(if not(is-class-init-method + is-instance-init-method) then s end))
+    , id
+    )
+
+  apply-to-fields-of-classtree(s) =
+    ClassFile(id, id, id, id, id, id, Fields(map(s)), id, id)
+
+/**
+ * Location
+ */
+strategies
+  
+  set-location(|loc) = instanceof-JavaBytecodeClass;
+    classes_set-instance-field(|"location", loc)
+
+  get-location = instanceof-JavaBytecodeClass;
+    classes_get-instance-field(|"location")
+
+strategies
+
+  report-reading-class =
+    if-verbose2(
+      where(
+        ?Jar(jarpath, filepath)
+        ; log(|Debug(), ["Reading class ", filepath, " from jar ", jarpath])
+      )
+    )
+    
+/**
+ * Stratego class support for bytecode classes
+ */
+signature
+  constructors
+    /**
+     * Identifier for BytecodeClass Objects.
+     */
+    JavaBytecodeClass : ClassName
+
+strategies
+
+  /**
+   * Succeeds if this is a BytecodeClass Object.
+   */
+  instanceof-JavaBytecodeClass =
+    classes_instanceof(|JavaBytecodeClass())
+
+  /**
+   * A BytecodeClass Object is a Class Object.
+   */
+  instanceof-JavaClass =
+    classes_instanceof(|JavaBytecodeClass())
+    

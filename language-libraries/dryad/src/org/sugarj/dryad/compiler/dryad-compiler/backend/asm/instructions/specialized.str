@@ -1,0 +1,184 @@
+/**
+ * dryad-compiler specialized instruction rewriting and analysis.
+ *
+ * Predicts stack effects and specialize typed instructions for a given stack,
+ * and reports errors.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/instructions/specialized
+
+imports
+  dryad-compiler/backend/asm/instructions/common
+
+strategies
+
+  /**
+   * Specialize typed instructions for a given stack (see JVM spec 3.11.1).
+   * Returns a typed bytecode instruction, and the stack as it would be
+   * after executing the instruction. If there is no specialization
+   * for the given stack, it will call bc-error to report the error,
+   * followed by bc-asm-abort.
+   *
+   * Example: <bc-specialize-instruction> ([Int, Int], ADD) => ([Int], IADD)
+   *
+   * @type (List(Type), RichInstruction) -> (List(Type), Instruction)
+   *
+   */
+  bc-specialize-instruction =
+    jdebug(!"bc-specialize-instruction");
+    (is-list => stack, ?byte);
+    !byte;
+    
+    let // Define operators for types i, l, d, f, a (int, long, ..., object)
+      /**
+       * Return the stack effect and typed versions of an instruction.
+       * All input arguments must be of the same type.
+       *
+       * @param returned  Given the input type, return the output type.
+       * @param inputs    The number of input values expected on the stack.
+       */
+      op(returned |inputs, i, l, d, f, a) =
+        // Zero-ary operators get their operator selected on its return type
+        jdebug(!"op1-1");
+        !inputs => 0;
+        jdebug(!"op1-2");
+        returned;
+        jdebug(!"op1-3");
+        !([<id> | stack], <bc-type-switch(|byte, i, l, d, f, a)>);
+        jdebug(!"op1-4")
+      <+
+        jdebug(!"op2-1");
+        // Normal n-ary operator. Take inputs, confirm input types are equal:
+        <split-at(|inputs)> stack => (<id>, stack');
+        jdebug(!"op2-2");
+        bc-unify-types-list => type; // get equally typed operands
+        jdebug(!"op2-3");
+        !( [<returned> type | stack']
+         , <bc-type-switch(|byte, i, l, d, f, a)> type);
+         jdebug(!"op2-4")
+      <+
+        jdebug(!"bc-input-error call 4"); 
+        bc-input-error(|stack, byte, inputs);
+        bc-asm-abort
+
+      /** More general version of op; accepts arguments of different types. */
+      op'(effect, type |inputs, b, s, c, i, l, d, f, a) =
+        <split-at(|inputs)> stack => (<id>, stack');
+        !( <conc> (<effect>, stack')
+         , <type; bc-type-switch(|byte, b, s, c, i, l, d, f, a)>)
+      <+
+        jdebug(!"bc-input-error call 5");
+        bc-input-error(|stack, byte, inputs);
+        bc-asm-abort
+    in
+    // Instructions with two or more arguments
+      ADD; op(id  |2, IADD, LADD, DADD, FADD, None)
+    + SUB; op(id  |2, ISUB, LSUB, DSUB, FSUB, None)
+    + MUL; op(id  |2, IMUL, LMUL, DMUL, FMUL, None)
+    + DIV; op(id  |2, IDIV, LDIV, DDIV, FDIV, None)
+    + REM; op(id  |2, IREM, LREM, DREM, FREM, None)
+    + SHL; op(id  |2, ISHL, LSHL, None, None, None)
+    + SHR; op(id  |2, ISHR, LSHR, None, None, None)
+    + USHR; op(id |2, IUSHR, LUSHR, None, None, None)
+    + XOR; op(id  |2, IXOR, LXOR, None, None, None)
+    + AND; op(id  |2, IAND, LAND, None, None, None)
+    + OR;  op(id  |2, IOR,  LOR,  None, None, None)
+    
+    + DUP_X1; // Specialization abstracts away from operation on words
+      if !stack => [a, b | tail] then
+        switch <stack-to-words> [a, b]
+          case ?[_, _]:          !([a, b, a | tail], DUP_X1)
+          case ?[wide, wide, _]: !([a, b, a | tail], DUP2_X1)
+          case ?[_, wide, wide]: !([a, b, a | tail], DUP_X2)
+          case ?[_, _, _, _]:    !([a, b, a | tail], DUP2_X2)
+        end 
+      else
+        jdebug("!bc-input-error call 6");
+        bc-input-error(|stack, <id>, 2)
+      end
+        
+    // Array access (MULTIANEWARRAY is considered a 'simple' instruction)
+    + ASTORE;
+      op'(
+        ?[elem, <is-single-integral>, ArrayType(type)];
+        <is-bc-subtype(|type)> elem;
+        ![]
+      , !type
+      | 3, BASTORE, SASTORE, CASTORE, IASTORE, LASTORE, DASTORE, FASTORE, AASTORE
+      )
+    + ALOAD;
+      op'(
+        ?[<is-single-integral>, ArrayType(t)]; ![t]
+      , !t
+      | 2, BALOAD,  SALOAD,  CALOAD,  IALOAD,  LALOAD,  DALOAD,  FALOAD,  AALOAD
+      )
+    + NEWARRAY(?t);
+      op'([Int]; ![ArrayType(t)], !t |1, byte, byte, byte, byte, byte, byte, byte, ANEWARRAY(t))
+    
+    // Comparison: generates multiple instructions
+    + GE; wrap-cmp(?l, op(!Boolean |2, IF_ICMPLT(l), [LCMP,IFLT(l)], [DCMPG,IFLT(l)], [FCMPG,IFLT(l)], None))
+    + GT; wrap-cmp(?l, op(!Boolean |2, IF_ICMPLE(l), [LCMP,IFLE(l)], [DCMPG,IFLE(l)], [FCMPG,IFLE(l)], None))
+    + LE; wrap-cmp(?l, op(!Boolean |2, IF_ICMPGT(l), [LCMP,IFGT(l)], [DCMPG,IFGT(l)], [FCMPG,IFGT(l)], None))
+    + LT; wrap-cmp(?l, op(!Boolean |2, IF_ICMPGE(l), [LCMP,IFGE(l)], [DCMPG,IFGE(l)], [FCMPG,IFGE(l)], None))
+    + NE; wrap-cmp(?l, op(!Boolean |2, IF_ICMPEQ(l), [LCMP,IFEQ(l)], [DCMPG,IFEQ(l)], [FCMPG,IFEQ(l)], IF_ACMPEQ(l)))
+    + EQ; wrap-cmp(?l, op(!Boolean |2, IF_ICMPNE(l), [LCMP,IFNE(l)], [DCMPG,IFNE(l)], [FCMPG,IFNE(l)], IF_ACMPNE(l)))
+    
+    // Instructions with one argument
+    + X2I; op(!Int    |1, [],   L2I,  D2I,  F2I,  None)
+    + X2L; op(!Long   |1, I2L,  [],   D2L,  F2L,  None)
+    + X2D; op(!Double |1, I2D,  L2D,  [],   F2D,  None)
+    + X2F; op(!Float  |1, I2F,  L2F,  D2F,  [],   None)
+    + NEG; op(id      |1, INEG, LNEG, DNEG, FNEG, None)
+    + POP; op(id      |1, POP,  POP2, POP2, POP,  POP); (Tl, id)
+    + DUP; op(id      |1, DUP,  DUP2, DUP2, DUP,  DUP); (![<Hd> | <id>], id)
+    + XOR_M1; op(id   |1, [ICONST_M1,IXOR], [LDC2_W(Long("-1")),LXOR], None, None, None) // TODO2: Remove XOR_M1?
+    + INC; op(id      |1, [ICONST_1,IADD], [LCONST_1,LADD], [DCONST_1,DADD], [FCONST_1,FADD], None)
+    + DEC; op(id      |1, [ICONST_1,ISUB], [LCONST_1,LSUB], [DCONST_1,DSUB], [FCONST_1,FSUB], None)
+    + XRETURN; op(id  |1, IRETURN, LRETURN, DRETURN, FRETURN, ARETURN)
+    + STORE(bc-local-pos => v);
+      op(id           |1, ISTORE(v), LSTORE(v), DSTORE(v), FSTORE(v), ASTORE(v)); (Tl, id)
+    
+    // Instructions with zero arguments
+    + LOAD(?name; bc-local-pos => v);
+      op(<bc-local-type> name |0, ILOAD(v), LLOAD(v), DLOAD(v), FLOAD(v), ALOAD(v))      
+    + LDC(id);
+      <bc-despecialize-ldc> (stack, byte)
+    end
+
+/** @internal */
+strategies
+  /**
+   * Helper for comparison operators, generates extra instructions.
+   * (Doing this simplifies the code generation process.)
+   */
+  wrap-cmp(out-label, binop) =
+    else := <new-label> "compare"; out-label;
+    end  := <new-label> "endcompare";
+    code := [ICONST_1, GOTO(end), Label(else), ICONST_0, Label(end)];
+    binop; // => (stack', byte')
+    (id, <conc> (<as-list>, code))
+
+  /**
+   * Despecialize the type of an LDC instruction.
+   *
+   * Example: <bc-despecialize-ldc> ([],     LDC(Byte("42"))) =>
+   *                                ([Byte], LDC(Int("42")))
+   */
+  bc-despecialize-ldc =
+    \(stack, LDC(Boolean(True))) -> ([Boolean | stack], ICONST_1)\
+  <+
+    \(stack, LDC(Boolean(False))) -> ([Boolean | stack], ICONST_0)\
+  <+
+    \(stack, LDC(Null)) -> ([Null | stack], ACONST_NULL)\
+  <+
+    ?(stack, LDC(<?old>));
+    bc-extract-literal => (<?type>, value);
+    
+    if !value; not(ObjectType(id) + ArrayType(id) + is-string) then
+      bc-error(|"Invalid format of constant value", LDC(old))
+    end;
+    
+    bc-type-switch(|LDC(old), LDC(Int(value)), LDC2_W(old), LDC2_W(old), LDC(old), LDC(old));
+    
+    !([type | stack], <id>)

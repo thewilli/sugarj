@@ -1,0 +1,130 @@
+/**
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/util/jtree-overlays
+imports libstratego-lib
+
+/**
+ * Type names
+ */
+overlays
+
+  /**
+   * @type s String
+   * @type   TypeName
+   */
+  JavaLangTypeName(s) =
+    TypeName(PackageName([Id("java"), Id("lang")]), Id(s))
+
+  /**
+   * @type TypeName
+   */
+  TypeNameString() =
+    JavaLangTypeName("String")
+
+  /**
+   * @type TypeName
+   */
+  TypeNameClass() =
+    JavaLangTypeName("Class")
+
+  TypeNameObject() =
+    JavaLangTypeName("Object")
+
+/**
+ * Types
+ */
+overlays
+
+  TypeObject() =
+    ClassType(TypeNameObject(), None())
+    
+  TypeString() =
+    RefTypeString()
+
+  /**
+   * @type Type
+   */
+  TypeVoid() =
+    ClassType(JavaLangTypeName("Void"), None())
+
+  /**
+   * @type s Type
+   * @type   Type
+   */
+  TypeClass(c) =
+    ClassType(TypeNameClass(), Some(TypeArgs([c])))
+    
+  TypeException() =
+    ClassType(JavaLangTypeName("Exception"), None())
+
+overlays
+
+  /**
+   * @type Type
+   */
+  RefTypeString() =
+    ClassType(TypeNameString(), None())
+
+  RefTypeBoolean() =
+    ClassType(JavaLangTypeName("Boolean"), None())
+
+  RefTypeByte() =
+    ClassType(JavaLangTypeName("Byte"), None())
+
+  RefTypeShort() =
+    ClassType(JavaLangTypeName("Short"), None())
+
+  RefTypeCharacter() =
+    ClassType(JavaLangTypeName("Character"), None())
+
+  RefTypeInteger() =
+    ClassType(JavaLangTypeName("Integer"), None())
+
+  RefTypeLong() =
+    ClassType(JavaLangTypeName("Long"), None())
+
+  RefTypeFloat() =
+    ClassType(JavaLangTypeName("Float"), None())
+
+  RefTypeDouble() =
+    ClassType(JavaLangTypeName("Double"), None())
+    
+  TypeString() =
+    RefTypeString()
+    
+  /**
+   * There are no overlays for the other primitives, since the
+   * reference types of these primitives have the same name as
+   * their primitive counterparts, which is confusing.
+   */
+  
+  TypeCharacter() =
+    RefTypeCharacter()  
+  
+  TypeInteger() =
+    RefTypeInteger()
+
+/**
+ * Common library types
+ */
+overlays
+
+  TypeSerializable() =
+    InterfaceType(
+      TypeName(PackageName([Id("java"), Id("io")]), Id("Serializable"))
+    , None()
+    )
+
+  TypeCloneable() =
+    InterfaceType(
+      TypeName(PackageName([Id("java"), Id("lang")]), Id("Cloneable"))
+    , None()
+    )
+
+  TypeIterable() =
+    InterfaceType(
+      TypeName(PackageName([Id("java"), Id("lang")]), Id("Iterable"))
+    , None()
+    )
+   

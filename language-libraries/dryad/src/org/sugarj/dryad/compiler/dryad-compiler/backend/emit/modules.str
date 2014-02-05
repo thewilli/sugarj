@@ -1,0 +1,196 @@
+/**
+ * dryad-compiler emit classes and interfaces.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/emit/modules
+
+overlays
+  EmitMajorVersion = 49
+  EmitMinorVersion = 0
+
+/** Emit a compilation unit. */
+strategies
+
+  // TODO2: Enums
+  // TODO2: Emit class/interface typeargs    
+
+  emit-java(emit) =
+    ?CompilationUnit(_, _, _);
+    
+    package-name-wrap(
+      class-filename-wrap(      
+        ?CompilationUnit(_, _, <trace(emit)>)
+      ) 
+    )
+  
+  /** @internal */
+  package-name-wrap(s) =
+    {| CurrentPackagePrefix:
+      where(  
+        ?CompilationUnit(Some(PackageDec(_, <id>)), _, _);
+        package := <conc-strings> (<separate-by(|".")>, ".")
+      <+
+        package := ""
+      );
+      rules(CurrentPackagePrefix := package);
+      s
+    |}
+  
+  /** @internal */
+  class-filename-wrap(s) =
+    {| CurrentFilename:    
+      where(
+        get-annos(Attributes(fetch(SourceFile(?filepath))))
+      <+
+        filename := <add-extension> (<main-class-name>, "java");
+        path     := <string-replace(|".", "/")> <CurrentPackagePrefix>;
+        filepath := <conc-strings> (path, filename)
+      );
+       
+      rules(CurrentFilename := filepath);
+      s
+    |}
+
+  /** @internal */
+  main-class-name =
+    let fetch-name(mods) = {
+      try(?CompilationUnit(_, _, <id>));
+      bc-one(
+        ?ClassDec(ClassDecHead(<mods>, Id(name), _, _, _), _)
+      + ?InterfaceDec(InterfaceDecHead(<mods>, Id(name), _, _), _)
+      + ?EnumDec(EnumDecHead(<mods>, Id(name), _), _)
+      );
+      !name
+    }  
+    in
+      fetch-name(one(Public))
+    <+
+      fetch-name(id) // Any non-public class
+    end
+
+/** Emit a java module to a classfile. */
+strategies
+  
+  /**
+   * Emit a Java class.
+   *
+   * @see class-rules-wrap  Defines dynamic rules for this context.
+   */
+  //FIXME: Remove all debug calls below this line
+  emit-java(emit):
+    ClassDec(ClassDecHead(flags, Id(name), typeargs, super, interfaces), ClassBody(body)) ->
+    [ |[ classfile
+           format ~EmitMajorVersion.~EmitMinorVersion
+           ~*[Super | flags] ~name' // TODO2: Static is not actually a legal class flag
+           extends    ~super'
+           implements ~*interfaces'
+           fields     ~*fields
+           methods    ~*methods
+           attributes ~*<get-source-file-attrs>
+                      ~InnerClasses(innerattrs)
+      ]|
+    , innerclasses
+    ] 
+  where interfaces' := <maybe(emit, ![])> interfaces;
+        super'      := <maybe(emit, !"java.lang.Object")> super;
+        class-rules-wrap(
+          inner-classes-support-wrap(
+            name'         := <CurrentClassName>;
+            members       := <emit-java-class-members(emit)> body;
+            fields        := <bc-collect-wrapped(is-Field)> members;
+            innerclasses  := <bc-collect-wrapped(is-ClassFile)> members;
+            innerattrs    := <bigbagof-InnerClasses>;
+            methods       := <bc-collect-wrapped(not(is-Field + Semicolon + is-ClassFile))> members
+            //               ^ any non-methods must be included for errors later
+          | name, flags)
+        | name, super')
+
+  /**
+   * Define and scope dynamic rules providing context for the current class.
+   * @internal
+   */
+  class-rules-wrap(s |simplename, superclass) =
+  {| CurrentClassName, SuperClassName, CurrentClassType, SuperClassType,
+     OuterClassName, OuterClassType, AddedClassMembers:
+    where(
+      rules(
+        OuterClassName := <CurrentClassName>
+        OuterClassType := <CurrentClassType>
+      );
+      class := <conc-strings> (<CurrentClassName>, "$", simplename)
+    <+
+      // In case there was no outer class...
+      class := <conc-strings> (<CurrentPackagePrefix>, simplename)
+    );
+    where(
+      <bytecode-type-to-source-type> class      => ClassType(typename,      _);
+      <bytecode-type-to-source-type> superclass => ClassType(supertypename, _)
+    );
+    rules(
+      CurrentClassName := class
+      CurrentClassType := typename
+      SuperClassName   := superclass
+      SuperClassType   := supertypename
+    );
+    s
+  |}
+
+  emit-java(emit):
+    InterfaceDec(InterfaceDecHead(flags, Id(name), typeargs, supers), body) ->
+    |[ classfile
+       format ~EmitMajorVersion.~EmitMinorVersion
+       ~*[Interface, Abstract | flags] ~name
+       extends    java.lang.Object
+       implements ~*supers'
+       fields     ~*fields
+       methods    ~*methods
+       attributes ~*<get-source-file-attrs>
+    ]|
+  where supers' := <maybe(emit, ![])> supers;        
+        members := <emit> body;
+        fields  := <bc-collect-wrapped(is-Field)> members;
+        methods := <bc-collect-wrapped(not(is-Field + Semicolon))> members
+        //         ^ any non-methods must be included for errors later
+  
+  emit-java(emit):
+    Semicolon -> []
+  
+  /** Emit all class members and combine initializers and constructors. */
+  emit-java-class-members(emit) =
+  {| InstanceInitCode:    
+    // Instance initializers get inlined in constructors
+    rules(InstanceInitCode := <emit-java-instance-inits(emit)>);
+    
+    // Emit non-init members
+    filter(not(InstanceInit(id)));
+    trace(emit);
+
+    <conc> (<id>, <bagof-AddedClassMembers>);
+    join-java-static-inits(emit);
+    
+    if not(bc-one(is-instance-init-method)) then
+      ![<emit-default-constructor(emit)> | <id>]
+    end;
+    
+    if <is-instance-inner-class> <CurrentClassType> then
+      map(if(is-instance-init-method, inner-classes-init-support))
+    end
+  |}
+
+/** Class supertype definitions (extends ... / implements ...). */
+strategies
+
+  emit-java(emit) =
+    ?SuperDec(<emit>);
+    ?ObjectType(<id>)
+
+  emit-java(emit) =
+    (?ExtendsInterfaces(<id>) + ?ImplementsDec(<id>)); 
+    map(emit; ?ObjectType(<id>))
+
+  /** @internal */
+  get-source-file-attrs =
+    ![SourceFile(<CurrentFilename>)]
+  <+
+    ![]

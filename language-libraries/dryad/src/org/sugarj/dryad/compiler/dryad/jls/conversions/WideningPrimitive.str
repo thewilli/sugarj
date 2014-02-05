@@ -1,0 +1,100 @@
+/**
+ * 5.1.2: Widening Primitive Conversion
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/WideningPrimitive
+signature
+  constructors
+    /**
+     * @param From
+     * @param To     
+     */
+    WideningPrimitiveConversion : Type * Type -> WideningPrimitiveConversion
+
+strategies
+
+  /**
+   * Checks if the type (current term) is convertable to type t by a
+   * widening primitive conversion.
+   *
+   * @param t Type
+   * @type    Type -> Type
+   */
+  is-widening-primitive-convertable(|to) =
+    where(widening-primitive-conversion(|to))
+    
+  /**
+   * Fails if there is no widening primitive conversion.
+   *
+   * @type Type -> WideningPrimitiveConversion.
+   */
+  widening-primitive-conversion(|to) =
+    widening-primitive-conversions
+    ; fetch-elem(?WideningPrimitiveConversion(_, to))
+    
+strategies
+    
+  /**
+   * Returns the types involved in this widening primitive conversion.
+   */
+  types-of-conversion :
+    WideningPrimitiveConversion(from, to) -> [from, to]        
+
+  /**
+   * Returns the result type of this conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =
+    ?WideningPrimitiveConversion(_, <id>)
+
+/**
+ * Returns a list of all the widening primitive conversions from this type.
+ *
+ * @todo Fails if there are no widening reference conversions. Do we want that?
+ * @type Type -> List(WideningPrimitiveConversion)
+ */    
+rules
+
+  widening-primitive-conversions :
+    Byte() ->
+      [ WideningPrimitiveConversion(Byte(), Short())
+      , WideningPrimitiveConversion(Byte(), Int())
+      , WideningPrimitiveConversion(Byte(), Long())
+      , WideningPrimitiveConversion(Byte(), Float())
+      , WideningPrimitiveConversion(Byte(), Double())
+      ]
+
+  widening-primitive-conversions :
+    Short() ->
+      [ WideningPrimitiveConversion(Short(), Int())
+      , WideningPrimitiveConversion(Short(), Long())
+      , WideningPrimitiveConversion(Short(), Float())
+      , WideningPrimitiveConversion(Short(), Double())
+      ]
+
+  widening-primitive-conversions :
+    Char() ->
+      [ WideningPrimitiveConversion(Char(), Int())
+      , WideningPrimitiveConversion(Char(), Long())
+      , WideningPrimitiveConversion(Char(), Float())
+      , WideningPrimitiveConversion(Char(), Double())
+      ]
+
+  widening-primitive-conversions :
+    Int() ->
+      [ WideningPrimitiveConversion(Int(), Long())
+      , WideningPrimitiveConversion(Int(), Float())
+      , WideningPrimitiveConversion(Int(), Double())
+      ]
+
+  widening-primitive-conversions :
+    Long() ->
+      [ WideningPrimitiveConversion(Long(), Float())
+      , WideningPrimitiveConversion(Long(), Double())
+      ]
+
+  widening-primitive-conversions:
+    Float() ->
+      [ WideningPrimitiveConversion(Float(), Double()) ]

@@ -1,0 +1,51 @@
+/**
+ * dryad-compiler bytecode unassembly to rich bytecode.
+ *
+ * Translates regular Java bytecode to 'rich bytecode',  
+ * that can be processed by the code generation and verification
+ * processes.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/emit/unasm
+
+imports libstratego-lib
+        dryad
+        dryad-compiler/backend/asm/-
+        dryad-compiler/backend/unasm/-
+        dryad-compiler/lib-ext/-
+
+strategies
+
+  bc-unasm = bc-unasm(dryad-compiler-error)
+  
+  /**
+   * Unassembly to 'rich bytecode'; generalizes instructions and add labels.
+   *
+   * @param onfailure  Strategy that gets an DryadError or DryadWarning term for
+   *                   each error or warning, may fail the entire strategy.
+   *                   Default: dryad-compiler-error
+   */
+  bc-unasm(onfailure) =
+    bc-asm-scope(
+      onfailure
+    ,
+      rec rec(
+        bc-unasm-method(rec)
+      <+
+        bc-unasm-signature;
+        all(rec)
+      <+
+        if is-bc-instructions then
+          bc-unasm-locals;
+          bc-unasm-jumps;
+          bc-unasm-instructions;
+          flatten-bytecode
+        <+
+          bc-error(|"Error occurred during disassembly", <id>);
+          fail
+        else
+          all(rec)
+        end
+      )
+    )

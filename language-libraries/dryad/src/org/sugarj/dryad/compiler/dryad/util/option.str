@@ -1,0 +1,143 @@
+/**
+ * Options for Dryad components.
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/util/option
+imports
+  dryad/model/classpath
+  dryad/model/bytecode-class
+  dryad/model/package
+  dryad/model/repository
+
+/**
+ * The Dryad Compiler does not directly support a specification of a classpath.
+ * Instead, a specification of the observable classes must be provided. The
+ * structured-classpath tool can be used to construct such a
+ * specfication from a classpath.
+ */
+strategies
+  
+  observable-classes-option =
+      MultiArgOption(
+        "-O" + "--observable" + "--jar"
+      , <post-extend-config> (ObservableClasses(), <id>)
+      , !"-O | --observable | --jar <file...>  Use observable classes in <file>"
+      )
+    + MultiArgOption(
+        "--boot-observable"
+      , <post-extend-config> (BootObservableClasses(), <id>)
+      , <concat-strings> [
+            "--boot-observable <file...>  Use bootstrap observable classes in <file> ["
+          , <xtc-find> "rt.classes"
+          , "]"
+        ]
+      )
+
+  get-observable-classes = 
+    (<get-config> ObservableClasses() <+ ![])
+    ; if boot := <get-config> BootObservableClasses() then
+        <conc> (<id>, boot)
+      else
+        //<conc> (<id>, [<xtc-find> "rt.classes"])
+        <conc> (<id>, [<id> "/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/lib/rt.classes"])
+      end
+
+  import-observable-classes =
+    where(
+      jdebug(!"import-observable-classes: ") ;
+      get-observable-classes
+      ; map(import-observable-classes-entry)
+    )
+
+  import-observable-classes-entry =
+    if has-extension(|"classes") then
+      ReadFromFile
+      ; import-repository
+      <+ log(|Error(), "Could not import Dryad repository", <id>)
+    else
+      if has-extension(|"jar") then
+        define-jar-entries
+        <+ log(|Error(), "Could not import classes from jar file", <id>)
+      else
+        if has-extension(|"class") then
+          define-bytecode-class-file
+          <+ log(|Error(), "Could not import class from file", <id>)
+        else
+            log(|Error(), "Unknown observable type.", <id>)
+          ; log(|Error(), "Observable classes must have extension .classes or .jar.")
+        end
+      end
+    end
+
+  pass-observable-classes =
+    pass-observable-classes(![])
+    
+  pass-observable-classes(cont) =
+    cont
+    ; try(!["--observable" | <conc> (<get-config> ObservableClasses(), <id>)])
+
+strategies
+
+  loose-option =
+    Option(
+      "--loose"
+    , <set-config> (Loose(), <id>)
+    , !"--loose        Do not exit when encountering constructs that cannot by reclassified/disambiguated."
+    )
+
+  pass-loose =
+    if <get-config> Loose() then
+      !["--loose"]
+    else
+      ![]
+    end
+
+  maybe-exit =
+    if not(<get-config> Loose()) then
+      <xtc-exit> 1
+    end
+
+  maybe-exit(|msg) =
+    if <get-config> Loose() then
+      log(|Warning(),msg,<id>) 
+    else
+      log(|Error(),msg,<id>)
+    ; <xtc-exit>1
+    end
+
+strategies
+
+  /**
+   * @todo Should the repository be destroyed?
+   * @param a -> b
+   * @type  a -> b
+   */
+  observables-wrap(s) =
+    import-observable-classes
+    ; s
+
+  /**
+   * Register input sources
+   *
+   * @param CompilationUnit Object -> CompilationUnit Object
+   * @type  List(CompilationUnit) -> List(CompilationUnit)
+   */
+  observable-sources-wrap(s) =
+    map(define-compilation-unit)
+    ; map(s)
+    ; map(get-ast)
+
+strategies
+
+  Class-of-ClassEntry =
+    ?(<id>, _)
+
+/**
+ * Keys for Dryad options.
+ */
+signature
+  constructors
+    BootObservableClasses : OptionKey
+    ObservableClasses     : OptionKey
+    Loose                 : OptionKey

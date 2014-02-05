@@ -1,0 +1,90 @@
+/**
+ * dryad-compiler input and output handling.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/util/io
+
+imports
+  dryad-compiler/frontend/-
+
+strategies
+
+  dryad-compiler-input-wrap(s) =
+    dryad-compiler-input-wrap(s|<parse-table-java-bytecode>)
+
+  /**
+   * Parse multiple sources, and execute strategy s.
+   * Alternatively, if the input term is not parseable but is a (partial)
+   * compilation unit, use the current term and apply s.
+   *
+   * @param table  Parse table to use.
+   *
+   * @see partial-option
+   *   If Partial() is configured, partial parsing is enabled: Input is
+   *   wrapped to a CompilationUnit or ClassFile, s executes, and unwrap again.
+   */
+  dryad-compiler-input-wrap(s|table) =
+    let s' =
+      if Stage-gt(|0) then
+        s
+      else
+        not(<get-config> NoDebugInfo)
+      <+
+        strip-trace-tags;
+        strip-position-annos
+      end
+    in
+      if as-list(map(is-parseable-input)) then // input needs parsing
+        if <get-config> Partial then
+          dryad-compiler-parse-partial-wrap(s'|table)
+        else
+          dryad-compiler-parse-wrap(s'|table)
+        end
+      else
+        if requires-as-compilation-unit; <get-config> Partial then
+          as-list(map(try(as-compilation-unit)));
+          s';
+          as-list(map(try(undo-as-compilation-unit)))
+        else
+          s'
+        end
+      end
+    end
+
+  /** @internal */
+  requires-as-compilation-unit =
+    not(bc-all(?CompilationUnit(_, _, _) + is-ClassFile))
+
+  /**
+   * Write dryad-compiler results to stdout.
+   * Prints a list of filenames, or the current term if no files were written.
+   *
+   * @see strip-trace-tags  Remove all trace tags cluttering the output
+   *                        (also implied by switch --no-debug-info).
+   */
+  dryad-compiler-output =
+    if-switch-on(!"pp", !"on", ?pp);
+    
+    if !pp; Stage-lt(|4) then
+      dryad-compiler-output-pp
+    else
+      dryad-compiler-output-filenames
+    <+
+      dryad-compiler-output-term
+    end
+  
+  dryad-compiler-output-pp =
+    topdown(try(trace-annos-to-terms));
+    (dryad-compiler-pp <+ err-msg(|"Pretty printing failed"); fail);
+    puts
+ 
+  dryad-compiler-output-filenames =
+    map(?FILE(<id>));  
+    log(|Info(), <conc-strings> (<as-string(length)>, " file(s) outputted:"));
+    <puts> <concat-strings> <separate-by(|" ")>
+  
+  dryad-compiler-output-term =
+    // can't print filenames; output current term instead:
+    try(?[<id>]);    
+    <single-output-to-file> (stdout(), <id>)

@@ -1,0 +1,98 @@
+/**
+ * dryad-compiler bytecode local variables unassembly to rich bytecode.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/unasm/locals
+
+imports
+  dryad-compiler/backend/asm/transform/-
+  dryad-compiler/backend/asm/matching
+
+strategies
+
+  /**
+   * Rename local variables, ensuring that local variables do not overlap.
+   *
+   * Java compilers normally generate overlapping locals of incompatible types,
+   * for example, {int i = 1;} {long j = 3;} can translate to:
+   * [ICONST_1, ISTORE(1), LDC2_W(Long("3")), LSTORE(1), RETURN]
+   * This strategy ensures that such locals are given a unique name.
+   */
+  bc-unasm-locals =
+  {| Renamed:
+    bc-all(
+      try(bc-unasm-iinc + bc-unasm-rename-local)
+    )
+  |}
+  
+  bc-unasm-method(continue) =
+    is-Method;
+    bc-unasm-signature;
+    
+    {| Renamed, NextLocalPos:
+      ?MethodDec(
+        MethodDecHead(flags, _, _, _, params, _)
+      , body
+      );
+      
+      where(
+        <bc-asm-record-this> flags;
+        <map(bc-unasm-record-param)> params
+      );
+      
+      MethodDec(id, continue)
+    |}
+
+/** @internal */
+strategies
+
+  bc-unasm-iinc:
+    IINC(x, count) -> |[ load ~x'; ldc ~count : short; add; store ~x' ]|
+    where
+      x' := <bc-unasm-rename-var> (x, "i")
+
+  bc-unasm-rename-local =
+    ( ?ISTORE(i); !"i"
+    + ?LSTORE(i); !"l"
+    + ?DSTORE(i); !"d"
+    + ?FSTORE(i); !"f"
+    + ?ASTORE(i); !"a"
+    ) => type;
+    
+    !STORE(<bc-unasm-rename-var> (i, type))
+
+  bc-unasm-rename-local =
+    ( ?ILOAD(i); !"i"
+    + ?LLOAD(i); !"l"
+    + ?DLOAD(i); !"d"
+    + ?FLOAD(i); !"f"
+    + ?ALOAD(i); !"a"
+    ) => type;
+    
+    !LOAD(<bc-unasm-rename-var> (i, type))
+
+  /** Produce a new local variable name name, give a (name, type prefix) tuple. */
+  bc-unasm-rename-var =
+    Renamed
+  <+
+    ?identifier @ (_, type);
+    renamed := <newname> type;
+    rules(Renamed: identifier -> renamed)
+
+  bc-unasm-record-param =
+    ?Param(_, _, Id(name)); // TODO2: Renamed params should take into account their type to prevent conflicts
+    where(index := <bc-next-local-pos>);
+    rules(Renamed: (index, _) -> name)
+
+  /** Rename special local 'this'. */
+  bc-asm-record-this =
+    if fetch(Static) then
+      rules(Renamed :- (0, "a"))
+    else
+      identifier := (0, "a");
+      rules(
+        Renamed: identifier -> "this"
+        NextLocalPos := 1
+      )
+    end

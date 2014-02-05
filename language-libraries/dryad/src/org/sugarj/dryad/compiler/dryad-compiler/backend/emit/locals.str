@@ -1,0 +1,98 @@
+/**
+ * dryad-compiler emit local variable statements/expressions.
+ *
+ * Also gives multiply declared locals a new scope-independent name.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/emit/locals
+
+strategies
+
+  emit-java(emit) =
+    ?LocalVarDecStm(<emit>)
+
+  emit-java(emit):
+    LocalVarDec(mods, _, decs) -> [ finals, <emit> decs ]
+    where // Unique names for locals
+          <map-vardec-ids(rename-local)> decs;
+          
+          finals := <emit-final-tags(|mods)>
+
+  /**
+   * Emit Final() tags to notify verifier of final local variables.
+   *
+   * @type String or List(String) -> List(Instruction)
+   * @internal
+   */
+  emit-final-tags(|mods) =
+    if <elem> (Final, mods) then
+      as-list;
+      map(!Final(<id>))
+    else
+      ![]
+    end
+
+  map-vardec-ids(s) =
+    map(?VarDec(Id(<s>)) + ?VarDec(Id(<s>), _))
+
+  emit-java(emit):
+    VarDec(_) -> [] // No need to keep empty declarations.
+
+  emit-java(emit):
+    VarDec(Id(name), e) -> [ <emit> e, convert, STORE(name') ]
+    where convert := <emit-assign-conversion(emit)>;
+          name'   := <emit-renamed-local(emit)> name
+
+  emit-java(emit):
+    Assign(ExprName(Id(name)), e) -> [ <emit> e, convert, DUP, STORE(name') ]
+    where convert := <emit-assign-conversion(emit)>;
+          name'   := <emit-renamed-local(emit)> name
+
+  emit-java(emit):
+    ExprName(Id(name)) -> LOAD(name')
+    where name' := <NewLocalName> name
+        <+
+          type-attr; // has type annotation; must mean it's declared in bytecode ;)
+          name' := name
+        <+
+          name' := <emit-renamed-local(emit)> name // give error
+
+strategies
+
+  /**
+   * Introduce a new renaming scope; variables declared in it cannot be
+   * used outside this scope.
+   */
+  rename-locals-scope(s) = {| NewLocalName: s |}
+  
+  rename-locals-top-scope(s) = // Rule scope + forget old rules
+    dr-ignore-states(
+      rules(LocalExists: "this");
+      s
+    | ["NewLocalName", "LocalExists"]
+    )
+
+  /** Emit a local variable used in _Java_, using its scope-independent name. */
+  emit-renamed-local(emit) =
+    NewLocalName <+ emit-error(emit|"Local variable does not exist")
+
+  rename-local =
+    ?input;
+    if LocalExists; not("this") then // Needs a new scope-independent name
+      <conc-strings> (<id>, "__");
+      name := <newname> {Id(input)}
+    else
+      name := input
+    end;
+    rules(
+      NewLocalName: input -> name
+      LocalExists:  name
+    )
+  
+  /** @internal */
+  emit-modify-variable(emit|local) =
+    where(ExprName(Id(x)) := local);
+    
+    !|[ <emit> local; <emit>; store <try(NewLocalName)> x ]|
+

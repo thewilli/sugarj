@@ -1,0 +1,71 @@
+module dryad/lib-ext/list
+strategies
+
+  /**
+   * Force Cons/Nil behaviour for list traversals.
+   */
+  all-consnil(s) =
+    if is-list then
+      [s | id]; [id | s] + []
+    else
+      all(s)
+    end
+
+  /**
+   * One that traverses lists as cons/nil.
+   */
+  one-consnil(s) = 
+    if is-list then
+      [s | id] <+ [id | s]
+    else
+      one(s)
+    end
+    
+strategies
+
+  topdown-consnil(s) =
+    rec rec(s; all-consnil(rec))
+
+strategies
+
+  filter-zip(s : t * t -> t | ys) =
+    if ?[x | xtail] then
+      where(!ys => [y | ytail])
+      ; if <s(|y)> x => t then
+          ![t | <filter-zip(s|ytail)> xtail]
+        else
+          <filter-zip(s|ytail)> xtail
+        end
+    else
+      ?[]
+    end
+      
+strategies
+
+  /**
+   * Foldl without tuples. Use term arguments.
+   *
+   * Current term: result for empty list.
+   *
+   * @param s   Takes next element of list as term argument and
+   *             intermediate result as current term.
+   *
+   * @type  as  List(a) 
+   * @param as  List to fold over.
+   *
+   * @type     b -> b
+   */
+  foldl(s : a * b -> b | as) =
+    if !as => [] then
+      id
+    else
+      where(!as => [a | as'])
+      ; s(|a)
+      ; foldl(s | as')
+    end
+
+strategies
+
+  xtc-new-ffd =
+    new-temp-file => (f, fd)
+    ; where(<assert(!TempFiles)> (f, ()))

@@ -1,0 +1,113 @@
+/**
+ * Compilation Unit (Source)
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/compilation-unit
+imports
+  dryad/lib-ext/oo/classes
+  dryad/model/source-class
+  dryad/util/jtree
+  dryad/util/jtree-overlays
+
+signature
+  constructors
+    JavaCompilationUnit : ClassName
+
+/**
+ * Stratego class support for compilation units.
+ */
+strategies
+
+  /**
+   * Constructs a new compilation unit.
+   *
+   * @type  _ -> Compilation Unit
+   */
+  new-compilation-unit =
+    <classes_get-class> JavaCompilationUnit()
+    ; classes_new-instance
+
+  /**
+   * Succeeds if the current term is an instance of Java compilation unit
+   */
+  instanceof-JavaCompilationUnit =
+    classes_instanceof(|JavaCompilationUnit())
+    
+/**
+ * Package
+ */
+strategies
+
+  /**
+   * Returns the package of this compilation unit.
+   *
+   * @todo Use a reference to the package in the reference AST?
+   * @type CompilationUnit Object -> Package Object
+   */
+  get-package = instanceof-JavaCompilationUnit;
+    get-reference-ast
+    ; get-package-of-compilation-unit    
+
+/**
+ * Type Declarations
+ */
+strategies
+
+  /**
+   * @type CompilationUnit Object -> List(Class Object)
+   */
+  get-type-declarations = instanceof-JavaCompilationUnit;
+    get-reference-ast
+    ; ?CompilationUnit(_, _, <retain-all(instanceof-JavaClass)>)
+
+/**
+ * Reference AST
+ */      
+strategies
+
+  /**
+   * Returns the Reference AST from this compilation unit.
+   *
+   * @type CompilationUnit Object -> ReferenceAST(CompilationUnit)
+   */
+  get-reference-ast = instanceof-JavaCompilationUnit;
+    classes_get-instance-field(|"reference-ast")
+    
+  set-reference-ast(|ref-ast) = instanceof-JavaCompilationUnit;
+    classes_set-instance-field(|"reference-ast", ref-ast)
+    
+strategies
+
+  /**
+   * Initializes the Reference AST of this CompilationUnit from the given AST.
+   *
+   * @todo  Use a reference for the package in the package declaration?
+   * @param CompilationUnit
+   * @type  CompilationUnit Object -> CompilationUnit Object
+   */
+  set-ast(|ast) = instanceof-JavaCompilationUnit;
+    ?this; where(
+     <get-package-of-compilation-unit> ast => pkg
+      ; let to-ref = {tast, name, class:
+              ?tast
+              ; get-name-of-typedec => name
+              ; new-source-class(|name) => class
+              ; set-compilation-unit(|this)
+              ; set-ast(|tast)
+              ; <add-toplevel-class(|class)> pkg
+              ; !class
+
+              <+ ?Semicolon()
+            }
+       in <CompilationUnit(id, id, map(to-ref))> ast => ref-ast
+      end
+    )
+    ; classes_set-instance-field(|"reference-ast", ref-ast)
+
+  /**
+   * Returns the AST of this compilation unit.
+   */    
+  get-ast = instanceof-JavaCompilationUnit;
+    get-reference-ast
+    ; CompilationUnit(id, id, map(get-ast <+ ?Semicolon()))

@@ -1,0 +1,39 @@
+/**
+ * 15.21: Equality Operators
+ *
+ * @todo  Annotate promoted type?
+ * @todo  Reference quality: check if the types of the operands are convertible.
+ */
+module dryad/type-check/EqualityOperators
+strategies
+
+  dryad-type-of :
+    |[ e1 == e2 ]| -> <dryad-type-of-num-eq-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 != e2 ]| -> <dryad-type-of-num-eq-op> (e1, e2)
+
+  dryad-type-of-num-eq-op =
+    ?(e1, e2)
+
+    ; <type-attr> e1 => t1
+    ; <type-attr> e2 => t2
+
+    ; let option-num =
+            <is-convertible-to-numeric-type> t1
+          ; <is-convertible-to-numeric-type> t2
+
+          option-bool =
+            <is-convertible-to-boolean-type> t1
+          ; <is-convertible-to-boolean-type> t2
+
+          option-ref =
+            <is-reference-type + ?Null()> t1
+          ; <is-reference-type + ?Null()> t2
+
+       in    option-num
+          <+ option-bool
+          <+ option-ref
+      end
+
+    ; !Boolean()

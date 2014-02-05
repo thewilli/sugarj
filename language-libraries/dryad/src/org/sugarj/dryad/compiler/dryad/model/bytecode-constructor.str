@@ -1,0 +1,102 @@
+/**
+ * Bytecode Constructor
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl> 
+ */
+module dryad/model/bytecode-constructor
+strategies
+    
+  get-ast = instanceof-JavaBytecodeConstructor;
+    get-reference-ast
+    
+  get-reference-ast = instanceof-JavaBytecodeConstructor;
+    classes_get-instance-field(|"reference-ast")  
+    
+  set-reference-ast(|refast) = instanceof-JavaBytecodeConstructor;
+    classes_set-instance-field(|"reference-ast", refast)
+    
+strategies
+
+  get-access =
+    bytecode-constructor-as-method(get-access)
+    
+  /**
+   * Returns a list of exceptions declared to be thrown by this method.
+   *
+   * @type Constructor Object -> List(Source type)
+   */
+  get-declared-exception-types =
+    bytecode-constructor-as-method(get-declared-exception-types)  
+
+  /**
+   * Returns the arity (number of arguments) of this constructor
+   *
+   * @todo A bytecode constructor is just a method, so this works for now
+   */   
+  get-arity =
+    bytecode-constructor-as-method(get-arity)
+
+  /**
+   * Succeeds if this constructor takes a variable number of arguments.
+   */
+  is-variable-arity-constructor =
+    bytecode-constructor-as-method(is-variable-arity-method)
+
+  /**
+   * Returns the formal parameters types of a method as source types.
+   *
+   * @type ConstructorObject -> List(Source Type)
+   */
+  get-formal-parameter-types =
+    bytecode-constructor-as-method(get-formal-parameter-types)
+
+  /**
+   * Returns the list of formal type parameters declared by this constructor.
+   *
+   * @type Constructor Object -> List(TypeParam)
+   */    
+  get-formal-type-parameters =
+    bytecode-constructor-as-method(get-formal-type-parameters)
+    
+strategies
+
+  /**
+   * Hack to reuse bytecode method code.
+   */
+  bytecode-constructor-as-method(s) =
+    \ Instance(Class(JavaBytecodeConstructor()), x) -> Instance(Class(JavaBytecodeMethod()), x) \
+    ; s
+    
+/**
+ * Stratego class support for bytecode constructors
+ */
+signature
+  constructors
+    JavaBytecodeConstructor: ClassName
+ 
+strategies
+
+  /**
+   * Constructs a new bytecode constructor.
+   *
+   * @type  _ -> Bytecode Constructor
+   */
+  new-bytecode-constructor(|bytecode) =
+    <classes_get-class> JavaBytecodeConstructor()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"reference-ast", bytecode)
+
+  /**
+   * Succeeds if the current term is an instance of Java bytecode constructor
+   */
+  instanceof-JavaBytecodeConstructor =
+    classes_instanceof(|JavaBytecodeConstructor())
+
+  /**
+   * Succeeds if the current term is an instance of a Java constructor.
+   *
+   * This alternative declares a JavaBytecodeConstructor to be a JavaConstructor.
+   */
+  instanceof-JavaConstructor =
+    classes_instanceof(|JavaBytecodeConstructor())
+    

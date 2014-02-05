@@ -1,0 +1,29 @@
+/**
+ * dryad-compiler bytecode optimization strategies.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/optimize/dead-code
+
+strategies
+
+  /**
+   * Perform dead code elimination on rich bytecode.
+   *
+   * @note Dead code elimination is an essential part of the compilation
+   *       process, and is therefore also integrated in bc-asm.
+   *
+   * @see bc-optimize  Main optimization strategy.
+   */
+  bc-optimize-dead-code =
+    // Minimal flow-state set-up, where we use the implicit Unreachable state,
+    // and replace any such unreachable ops with the empty list.
+    bc-flow-state(
+      \(a, a) -> a\ <+ !()                   // if reachable, make state ()
+    , ?(Unreachable, _) < !Unreachable + !() // propagate unreachable state
+    , bc-remove-dead-instruction <+ Snd      // modify instruction, or leave alone
+    | ()
+    )        
+
+  bc-remove-dead-instruction:
+    (Unreachable, _) -> []

@@ -1,0 +1,40 @@
+/**
+ * 5.1.3: Narrowing Primitive Conversions
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/NarrowingPrimitive
+strategies
+
+/**
+ * Checks if the type (current term) is convertable to type t by a
+ * narrowing primitive conversion.
+ *
+ * @param t Type
+ * @type    Type -> Type
+ */
+strategies
+
+  is-narrowing-primitive-convertable(|t) =
+    ?Short()
+    ; where(!t; (Byte() + Char()))
+
+  is-narrowing-primitive-convertable(|t) =
+    ?Char()
+    ; where(!t; (Byte() + Short()))
+
+  is-narrowing-primitive-convertable(|t) =
+    ?Int()
+    ; where(!t; (Byte() + Short() + Char()))
+
+  is-narrowing-primitive-convertable(|t) =
+    ?Long()
+    ; where(!t; (Byte() + Short() + Char() + Int()))
+
+  is-narrowing-primitive-convertable(|t) =
+    ?Float()
+    ; where(!t; (Byte() + Short() + Char() + Int() + Long()))
+
+  is-narrowing-primitive-convertable(|t) =
+    ?Double()
+    ; where(!t; (Byte() + Short() + Char() + Int() + Long() + Float))

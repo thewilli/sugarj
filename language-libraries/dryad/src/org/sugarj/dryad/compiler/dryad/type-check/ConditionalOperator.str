@@ -1,0 +1,90 @@
+/**
+ * 15.25: Conditional Operator ?:
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/type-check/ConditionalOperator
+imports
+  dryad/jls/types/Lub
+
+strategies
+
+  dryad-type-of :
+    |[ e1 ? e2 : e3 ]| -> <dryad-type-of-cond> (e2, e3)
+    where
+        <type-attr> e1 => t1
+      ; <is-convertible-to-boolean-type> t1
+
+  dryad-type-of-cond =
+    ?(e1, e2)
+
+    ; <type-attr> e1 => s1
+    ; <type-attr> e2 => s2
+
+    ; !(s1, s2)
+
+    ; let option-eq = 
+            ?(t, t); !t
+
+          vice-versa(s1, s2) =
+            (s1, s2) + (s2, s1)
+
+          option-bool =
+              vice-versa(?Boolean(), RefTypeBoolean())
+            ; !Boolean()
+
+          option-refnull =
+              ?(<is-reference-type>, Null())
+            + ?(Null(), <is-reference-type>)
+            
+          option-num-condition =
+            (is-convertible-to-numeric-type, is-convertible-to-numeric-type)
+            
+          option-num =
+            /**
+             * The numbers (1, 2345, 6) refer to the list of typing
+             * rules for numeric types in the JLS.
+             */
+            let option-num-1 =
+                    vice-versa(
+                      ?Short() + ?RefTypeShort()
+                    , ?Byte()  + ?RefTypeByte()
+                    )
+                  ; !Short()
+
+                option-num-2345 =
+                  let check = {e1, t1, e2, t2, t1':
+                        ?((e1, t1), (e2, t2))
+                      ; <?Int()> t2
+                      ; <try(unboxing-conversion-of-type)> t1 => t1'
+                      ; <?Byte() + ?Short() + ?Char()> t1'
+                      ; <is-constant-expression> e2
+                      ; <is-representable-in(|t1')> e2
+                      ; !t1' 
+                      }
+                   in <check> ((e1, s1), (e2, s2))
+                    + <check> ((e2, s2), (e1, s1))
+                  end
+
+                option-num-6 =
+                  <binary-numeric-promotion-of-types> (s1, s2)
+                  
+
+             in    option-num-1
+                <+ option-num-2345
+                <+ option-num-6
+            end
+
+          option-lub =
+              <try(boxing-conversion-of-type)> s1 => t1
+            ; <try(boxing-conversion-of-type)> s2 => t2
+            ; jdebug(!"Invoking lub")
+            ; <lub> [t1, t2]
+            ; capture-conversion
+
+       in    option-eq
+          <+ option-bool
+          <+ option-refnull
+          <+ (option-num-condition < option-num + option-lub)
+      end
+

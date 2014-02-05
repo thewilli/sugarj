@@ -1,0 +1,20 @@
+/**
+ * 15.16: Cast Expressions
+ */
+module dryad/type-check/CastExpressions
+imports
+  dryad/jls/conversions/CastingConversion
+
+strategies
+
+  dryad-type-of :
+    |[ (primt) e ]| -> primt
+    where
+        <type-attr> e => t
+      ; <is-casting-convertable(|primt)> t
+
+  dryad-type-of :
+    |[ (reft) e ]| -> <capture-conversion> reft
+    where
+        <type-attr> e => t
+      ; <is-casting-convertable(|reft)> t

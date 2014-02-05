@@ -1,0 +1,148 @@
+/**
+ * dryad-compiler pattern optimizations
+ *
+ * Optimization by matching and replacing (rich) bytecode patterns.
+ * These should be safe optimizations and take advantage
+ * of the interpreter-oriented design of Java bytecode.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/optimize/patterns
+
+imports libstratego-lib
+        dryad
+        dryad-compiler/backend/asm
+
+strategies
+
+  bc-optimize-patterns =
+    bc-unique-annos-wrap(
+      repeat(
+        {| OptimizeRemove, OptimizeReplace:        
+          // Match patterns
+          where(bc-optimize-patterns-record);
+          
+          // Apply patterns using rules
+          bc-optimize-patterns-apply
+        |}
+      )
+    )
+  
+  /**
+   * Match patterns, record any changes to be made in dynamic rules.
+   * @internal
+   */
+  bc-optimize-patterns-record =
+    bc-flow-state-stack(
+      not(?(Unreachable, _));
+      \(ops, op) -> [op | ops]\ // add current op to trace
+    ,
+      \(a, a) -> a\ // instructions leading up here form single path
+    <+
+      ![] // no single path leading up here
+    ,
+      if not(?(Unreachable, _)) then
+        // Add current instruction to trace
+        \(trace, op) -> <reverse> <filter(not(Label(id)))> [op | trace]\;
+        
+        rec rec( // apply to sublists
+          where(try(bc-optimize-pattern));
+          if(Tl, rec)
+        )
+      end
+    | []
+    )
+  
+  /**
+   * Apply optimization pattern changes. Fail if no changes made.
+   * @internal
+   */
+  bc-optimize-patterns-apply =
+    ?before;
+    
+    bc-all(try(
+      OptimizeRemove; ![]
+    <+
+      OptimizeReplace;
+      bc-all(give-unique-anno) // restore unique annos
+    ));
+    
+    not(?before)
+  
+  /**
+   * Add annotations to bytecode instructions to allow unique
+   * identification through dynamic rules.
+   * @internal
+   */
+  bc-unique-annos-wrap(s) = 
+    bc-all(give-unique-anno);
+    s;
+    bc-all(undo-unique-anno)
+
+  /** @internal */
+  give-unique-anno =
+    !<id> {Id(<new>)}
+  
+  /** @internal */
+  undo-unique-anno = // TODO2: Should optimization preserve annos?
+    if(?_{Id(_)}, rm-annotations)
+
+/**
+ * General optimization patterns.
+ * @internal
+ */
+strategies
+  
+  bc-optimize-pattern =
+    ?[remove @ CHECKCAST(t1), CHECKCAST(t2)];
+    <is-bc-subtype(|t1)> t2;
+    rules(OptimizeRemove: remove)
+  
+  bc-optimize-pattern =
+    ?[remove @ NOP];
+    rules(OptimizeRemove: remove)
+  
+  bc-optimize-pattern =
+    ?[remove1 @ DUP, <STORE(id) + PUTSTATIC(id)>, remove2 @ POP];
+    rules(
+      OptimizeRemove: remove1
+      OptimizeRemove: remove2
+    )
+  
+  bc-optimize-pattern =
+    ?[remove1 @ DUP_X1, PUTFIELD(_), remove2 @ POP];
+    rules(
+      OptimizeRemove: remove1
+      OptimizeRemove: remove2
+    )
+  
+  bc-optimize-pattern =
+    ?[store @ STORE(x), load @ LOAD(x)];
+    rules(
+      OptimizeReplace: store -> DUP
+      OptimizeReplace: load -> store
+    )
+  
+  bc-optimize-pattern =
+    ?[remove @ RETURN, RETURN];
+    rules(OptimizeRemove: remove)
+
+  bc-optimize-pattern =
+    ?[const @ ICONST_1, IFEQ(label)];
+    rules(
+      OptimizeReplace: const -> GOTO(label)
+    )
+
+  bc-optimize-pattern =
+    ?[const @ ICONST_0, if @ IFEQ(label)];
+    rules(
+      OptimizeRemove: const
+      OptimizeRemove: if
+    )
+  
+  /** Compose serial control flow instructions. */
+  bc-optimize-pattern =
+    ?[source @ GOTO(_), target @ <RETURN + ATHROW + bc-get-jump-target>];
+    rules(
+      OptimizeReplace: source -> target
+    )

@@ -1,0 +1,85 @@
+/**
+ * dryad-compiler main strategies.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler
+
+imports
+  libstratego-lib
+  dryad
+  libjava-front
+  dryad-compiler/backend/-
+  dryad-compiler/backend/asm/-
+  dryad-compiler/backend/asm/optimize/-
+  dryad-compiler/backend/asm/transform/-
+  dryad-compiler/backend/asm/instructions/-
+  dryad-compiler/backend/emit/-
+  dryad-compiler/backend/unasm/-
+  dryad-compiler/frontend/-
+  dryad-compiler/util/-
+  dryad-compiler/util/trace/-
+  dryad-compiler/lib-ext/-
+  Java-Bytecode
+
+strategies
+
+  // default onfailure argument; see below
+  dryad-compiler          = dryad-compiler      (dryad-compiler-error)
+  dryad-compiler-back     = dryad-compiler-back (dryad-compiler-error)
+  
+  /**
+   * Parse and compile a (list of) XTC input(s) or String(s);
+   * mixed Java classes/class files to regular classes.
+   *
+   * @param onfailure  Strategy that gets an DryadError or DryadWarning term for
+   *                   each error or warning, may fail the entire strategy.
+   *                   May also be used to emit constructs from a language
+   *                   extension.
+   *                   Default: dryad-compiler-error
+   *
+   * @see dryad-compiler-options
+   * @see dryad-compiler-output   Writes the compiler results to stdout.
+   */
+  dryad-compiler(onfailure) =
+    dryad-compiler-input-wrap(
+      dryad-compiler-front(onfailure); // add type annotations
+  
+      if not(<get-config> NoVerify) then // (internal option)
+        dryad-compiler-front-errors(onfailure)
+      end;
+    
+      if Stage-gt(|1) then
+        dryad-compiler-back(onfailure)
+      end;
+      
+      if Stage-lt(|3); <get-config> NoDebugInfo then
+        strip-trace-tags;
+        strip-position-annos
+      end
+    )
+    
+  /**
+   * Backend to dryad-compiler-front or similar strategies;
+   * compiles *type-annotated* Java/bytecode inputs.
+   *
+   * @param onfailure  Strategy that gets an DryadError or DryadWarning term for
+   *                   each error or warning, may fail the entire strategy.
+   *                   May also be used to emit constructs from a language
+   *                   extension.
+   *                   Default: dryad-compiler-error
+   *
+   * @see dryad-compiler
+   * @see dryad-compiler-output   Writes the compiler results to stdout.
+   */
+  dryad-compiler-back(onfailure) =
+    as-list; // always output a list, but the input doesn't have to be one
+  
+    // Emit 1 or more classes for each source class
+    log-timed-risky(dryad-emit(onfailure) |"emit code", 1);
+    
+    if Stage-gt(|3) then
+      log-timed-risky(
+        flatten-list(write-class-file)    |"output to binary class format", 1
+      )
+    end

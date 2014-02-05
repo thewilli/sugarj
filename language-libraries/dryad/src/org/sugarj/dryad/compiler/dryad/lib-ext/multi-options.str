@@ -1,0 +1,147 @@
+/**
+ * Support for implementing tools that have multiple inputs and outputs.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/lib-ext/multi-options
+strategies
+
+  /**
+   * Wraps a strategy into a command-line tool that allows a list of
+   * inputs and outputs.
+   *
+   * @param s  List(a) -> List(b)
+   */
+  multi-io-wrap(s) =
+    multi-io-wrap(fail, s)
+
+  multi-io-wrap(extra-opts, s) =
+    multi-io-wrap(extra-opts, system-usage, system-about, s)
+
+  multi-io-wrap(extra-opts, usage, about, s) =
+    option-wrap(extra-opts <+ multi-io-options,  usage, about, id, multi-io(s))
+
+rules
+
+  /**
+   * Handles a command-line option that allows multiple values.
+   *
+   * This strategy is similar to ArgOption, but allows multiple
+   * values. e.g. -i A.java B.java. The values are not allowed to
+   * start with a -, since the - distinguishes values from option 
+   * flags.
+   *
+   * Usage is identical to ArgOption. The handle-value will get
+   * a list of values.
+   *
+   * @type  handle-value  List(String) -> _
+   * @type  is-flag       String ->?
+   */
+  MultiArgOption(is-flag, handle-value, usage) :
+    [flag | options] -> [() | rest]
+    where
+      <is-flag> flag
+
+      ; let splitter =
+              split-fetch-keep(where(explode-string => ['-' | _]))
+              ; \ (args, next-opt, tail) -> (args, [next-opt | tail]) \
+              <+ !(<id>, [])
+
+         in <splitter> options => (args, rest)
+          ; <handle-value> args
+        end
+
+  MultiArgOption(is-flag, label, usage) =
+    "register-usage-info"
+    ; register-usage(usage)
+
+/**
+ * Strategies that support multi-io-wrap
+ */
+strategies
+
+  multi-io(s) =
+    multi-input(multi-output(s))
+
+  multi-output(s) =
+    let
+     in abstract-multi-output(s, single-output-to-file, single-output-to-stream)
+    end
+    
+  single-output-to-file =
+    if <get-config> "-b" then
+      WriteToBinaryFile
+    else
+      WriteToTextFile
+    end
+    
+  single-output-to-stream =
+    if <get-config> "-b" then
+      write-in-baf-to-stream
+    else
+      write-in-text-to-stream; <fputc> ('\n', <id>)
+    end
+
+  /**
+   * @type                  List(a) -> List(b)
+   * @param write-to-file   (String, b) -> ...
+   * @param write-to-stream (Stream, b) -> ...
+   */
+  abstract-multi-output(s, write-to-file, write-to-stream) =
+      s
+    ; ?result
+    ; if not(is-list) then
+        say(!"internal error: result of main strategy is not a list")
+        ; <exit> 1
+      end
+
+    ; let
+          create-output-list =
+            <get-config> "--multi-output"
+            ; if <not(eq)> (<length> result, <length>) then
+                say(!"error: you must specify the same number of outputs as inputs.")
+                ; <exit> 1
+              end
+
+       in if <get-config> "--multi-output" then
+            <zip> (<create-output-list>, <id>)
+            ; map(write-to-file)
+          else
+            where(stdout-stream => stream)
+            ; map(<write-to-stream> (stream, <id>))
+            ; <fclose> stream
+          end
+       end
+
+  multi-input(s) =
+      ( <get-config> "--multi-input" <+ ![stdin()] )
+    ; map(ReadFromFile)
+    ; s
+
+strategies
+
+  multi-io-options =
+      multi-input-option
+    + multi-output-option
+    + general-options
+    + output-format-option
+
+  multi-input-option =
+    MultiArgOption("-i"
+    , <set-config> ("--multi-input", <id>)
+    , ( <get-config> "input-description" < id + !"Read input from files")
+      ; <concat-strings> ["-i <file...>     ", <id>, " <file...> [stdin]"]
+    )
+
+  multi-output-option =
+    MultiArgOption("-o"
+    , <set-config> ("--multi-output", <id>)
+    , ( <get-config> "output-description" < id + !"Write output to files")
+      ; <concat-strings> ["-o <file...>     ", <id>, " <file...> [stdout]"]
+    )
+
+  output-format-option =
+    Option("--binary-output"
+    , where(<set-config> ("-b",()))
+    , !"--binary-output     Write output in binary aterm format (baf)"
+    )

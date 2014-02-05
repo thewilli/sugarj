@@ -1,0 +1,68 @@
+/**
+ * 5.6: Numeric Promotions
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/conversions/NumericPromotions
+imports
+  dryad/jls/conversions/Unboxing
+  dryad/jls/types/Reference
+
+strategies
+
+  /**
+   * 5.6.1: Unary Numeric Promotion
+   * 
+   * @type Type -> Type
+   */
+  unary-numeric-promotion-of-type =
+    let option1 =
+          ( ?ClassType(JavaLangTypeName("Byte"), None())
+          + ?ClassType(JavaLangTypeName("Short"), None())
+          + ?ClassType(JavaLangTypeName("Character"), None())
+          + ?ClassType(JavaLangTypeName("Integer"), None()))
+        ; !Int()
+
+        option2 =
+          ( ?ClassType(JavaLangTypeName("Long"), None())
+          + ?ClassType(JavaLangTypeName("Float"), None())
+          + ?ClassType(JavaLangTypeName("Double"), None())
+          )
+        ; unboxing-conversion-of-type
+
+        option3 =
+          (?Byte() + ?Short() + ?Char())
+        ; !Int()
+
+    in    option1
+       <+ option2
+       <+ option3
+       <+ id
+   end
+   ; is-numeric-type
+
+strategies
+
+  /**
+   * 5.6.2: Binary Numeric Promotion
+   *
+   * @type (Type, Type) -> Type
+   */
+  binary-numeric-promotion-of-types =
+    let conversion =
+          if is-reference-type then
+            unboxing-conversion-of-type
+          end
+
+     in (conversion, conversion)
+    end;
+
+    let option(|t) =
+          (?(t, _) + ?(_, t))
+          ; !t
+
+     in    option(|Double())
+        <+ option(|Float())
+        <+ option(|Long())
+        <+ !Int()
+    end

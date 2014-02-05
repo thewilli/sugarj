@@ -1,0 +1,59 @@
+/**
+ * 5.1.6: Narrowing Reference Conversions
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/NarrowingReference
+imports dryad/util/jtree-overlays
+strategies
+
+/**
+ * Checks if the type (current term) is convertable to type to by a
+ * narrowing reference conversion.
+ *
+ * @param t Type
+ * @type    Type -> Type
+ */
+strategies
+
+  is-narrowing-reference-convertable(|t) =
+    is-reference-type; ?s
+    ; where(
+        <is-reference-type> t
+      ; <is-proper-supertype(|t)> s
+      )
+
+  /**
+   * @todo Implement class type C to non-param interface K
+   */
+  is-narrowing-reference-convertable(|to) =
+    fail
+
+  /**
+   * @todo Implement interface type J to non-param class K
+   */
+  is-narrowing-reference-convertable(|to) =
+    fail
+  
+  is-narrowing-reference-convertable(|to) =
+    ?TypeCloneable()
+    ; where(!to => ArrayType(_))
+
+  is-narrowing-reference-convertable(|to) =
+    ?TypeSerializable()
+    ; where(!to => ArrayType(_))
+
+  /**
+   * @todo Implement interface type J to non-param interface K
+   */
+  is-narrowing-reference-convertable(|to) =
+    fail
+
+  is-narrowing-reference-convertable(|to) =
+    ?ArrayType(sc)
+    ; where(
+        !to => ArrayType(tc)
+      ; <is-reference-type> sc
+      ; <is-reference-type> tc
+      ; <is-narrowing-reference-convertable(|tc)> sc
+      )

@@ -1,0 +1,40 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/declare/FormalParameters
+strategies
+
+  /**
+   * Declares formal parameters of a method declaration
+   */
+  declare-formal-parameters(cont) =
+    instanceof-JavaSourceMethod
+    ; where(get-reference-ast => MethodDec(MethodDecHead(_, _, _, _, params, _), _))
+    
+    ; {| ReclassifySimpleInScopeVar :
+        where(<map(declare-param-helper)> params)
+        ; cont
+      |}
+     
+  /**
+   * Declares formal parameters of a constructor declaration
+   */      
+  declare-formal-parameters(cont) =
+    instanceof-JavaSourceConstructor
+    ; where(get-reference-ast => ConstrDec(ConstrDecHead(_, _, _, params, _), _))
+
+    ; {| ReclassifySimpleInScopeVar :
+        where(<map(declare-param-helper)> params)
+        ; cont
+      |}
+      
+  /**
+   * Declares formal catch parameters.
+   */
+  declare-formal-parameters(cont) =
+    ?Catch(param, _)
+    ; {| ReclassifySimpleInScopeVar :
+        where(<declare-param-helper> param)
+        ; cont
+      |}
+ 

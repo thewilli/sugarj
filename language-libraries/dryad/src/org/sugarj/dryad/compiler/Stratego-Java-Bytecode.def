@@ -1,0 +1,4412 @@
+definition
+module languages/java-15/JavaMix[Ctx0]
+imports languages/java-15/Main
+          [ CompilationUnit       => CompilationUnit[[Ctx0]]
+            TypeDec               => TypeDec[[Ctx0]]
+            ImportDec             => ImportDec[[Ctx0]]
+            PackageDec            => PackageDec[[Ctx0]]
+            ElemVal               => ElemVal[[Ctx0]]
+            ElemValPair           => ElemValPair[[Ctx0]]
+            Anno                  => Anno[[Ctx0]]
+            LHS                   => LHS[[Ctx0]]
+            CondMid               => CondMid[[Ctx0]]
+            ArraySubscript        => ArraySubscript[[Ctx0]]
+            DimExpr               => DimExpr[[Ctx0]]
+            ArrayBaseType         => ArrayBaseType[[Ctx0]]
+            ArrayCreationExpr     => ArrayCreationExpr[[Ctx0]]
+            ClassMemberDec        => ClassMemberDec[[Ctx0]]
+            ClassBodyDec          => ClassBodyDec[[Ctx0]]
+            Interfaces            => Interfaces[[Ctx0]]
+            Super                 => Super[[Ctx0]]
+            ClassMod              => ClassMod[[Ctx0]]
+            ClassDecHead          => ClassDecHead[[Ctx0]]
+            ClassBody             => ClassBody[[Ctx0]]
+            ClassDec              => ClassDec[[Ctx0]]
+            InterfaceMod          => InterfaceMod[[Ctx0]]
+            InterfaceMemberDec    => InterfaceMemberDec[[Ctx0]]
+            ExtendsInterfaces     => ExtendsInterfaces[[Ctx0]]
+            InterfaceDecHead      => InterfaceDecHead[[Ctx0]]
+            InterfaceDec          => InterfaceDec[[Ctx0]]
+            DefaultVal            => DefaultVal[[Ctx0]]
+            AnnoElemDec           => AnnoElemDec[[Ctx0]]
+            AnnoDecHead           => AnnoDecHead[[Ctx0]]
+            AnnoDec               => AnnoDec[[Ctx0]]
+            AbstractMethodMod     => AbstractMethodMod[[Ctx0]]
+            AbstractMethodDec     => AbstractMethodDec[[Ctx0]]
+            ConstantMod           => ConstantMod[[Ctx0]]
+            ConstantDec           => ConstantDec[[Ctx0]]
+            EnumBodyDecs          => EnumBodyDecs[[Ctx0]]
+            EnumConstArgs         => EnumConstArgs[[Ctx0]]
+            EnumConst             => EnumConst[[Ctx0]]
+            EnumBody              => EnumBody[[Ctx0]]
+            EnumDecHead           => EnumDecHead[[Ctx0]]
+            EnumDec               => EnumDec[[Ctx0]]
+            ConstrMod             => ConstrMod[[Ctx0]]
+            ConstrInv             => ConstrInv[[Ctx0]]
+            ConstrBody            => ConstrBody[[Ctx0]]
+            ConstrHead            => ConstrHead[[Ctx0]]
+            ConstrDec             => ConstrDec[[Ctx0]]
+            StaticInit            => StaticInit[[Ctx0]]
+            InstanceInit          => InstanceInit[[Ctx0]]
+            MethodBody            => MethodBody[[Ctx0]]
+            ExceptionType         => ExceptionType[[Ctx0]]
+            Throws                => Throws[[Ctx0]]
+            MethodMod             => MethodMod[[Ctx0]]
+            VarMod                => VarMod[[Ctx0]]
+            FormalParam           => FormalParam[[Ctx0]]
+            ResultType            => ResultType[[Ctx0]]
+            MethodDecHead         => MethodDecHead[[Ctx0]]
+            MethodDec             => MethodDec[[Ctx0]]
+            BlockStm              => BlockStm[[Ctx0]]
+            Block                 => Block[[Ctx0]]
+            CatchClause           => CatchClause[[Ctx0]]
+            SwitchLabel           => SwitchLabel[[Ctx0]]
+            SwitchGroup           => SwitchGroup[[Ctx0]]
+            SwitchBlock           => SwitchBlock[[Ctx0]]
+            Stm                   => Stm[[Ctx0]]
+            LocalVarDec           => LocalVarDec[[Ctx0]]
+            LocalVarDecStm        => LocalVarDecStm[[Ctx0]]
+            FieldMod              => FieldMod[[Ctx0]]
+            VarInit               => VarInit[[Ctx0]]
+            Dim                   => Dim[[Ctx0]]
+            VarDecId              => VarDecId[[Ctx0]]
+            VarDec                => VarDec[[Ctx0]]
+            FieldDec              => FieldDec[[Ctx0]]
+            ArrayInit             => ArrayInit[[Ctx0]]
+            ClassLiteral          => ClassLiteral[[Ctx0]]
+            Literal               => Literal[[Ctx0]]
+            Type                  => Type[[Ctx0]]
+            ArrayType             => ArrayType[[Ctx0]]
+            TypeVar               => TypeVar[[Ctx0]]
+            TypeDecSpec           => TypeDecSpec[[Ctx0]]
+            InterfaceType         => InterfaceType[[Ctx0]]
+            ClassType             => ClassType[[Ctx0]]
+            ClassOrInterfaceType  => ClassOrInterfaceType[[Ctx0]]
+            RefType               => RefType[[Ctx0]]
+            TypeVarId             => TypeVarId[[Ctx0]]
+            TypeParams            => TypeParams[[Ctx0]]
+            TypeBound             => TypeBound[[Ctx0]]
+            TypeParam             => TypeParam[[Ctx0]]
+            WildcardBound         => WildcardBound[[Ctx0]]
+            ActualTypeArg         => ActualTypeArg[[Ctx0]]
+            TypeArgs              => TypeArgs[[Ctx0]]
+            PackageOrTypeName     => PackageOrTypeName[[Ctx0]]
+            MethodName            => MethodName[[Ctx0]]
+            ExprName              => ExprName[[Ctx0]]
+            TypeName              => TypeName[[Ctx0]]
+            AmbName               => AmbName[[Ctx0]]
+            PackageName           => PackageName[[Ctx0]]
+            FloatType             => FloatType[[Ctx0]]
+            IntType               => IntType[[Ctx0]]
+            NumType               => NumType[[Ctx0]]
+            PrimType              => PrimType[[Ctx0]]
+            NullLiteral           => NullLiteral[[Ctx0]]
+            FooStringChars        => FooStringChars[[Ctx0]]
+            StringChars           => StringChars[[Ctx0]]
+            StringPart            => StringPart[[Ctx0]]
+            StringLiteral         => StringLiteral[[Ctx0]]
+            SingleChar            => SingleChar[[Ctx0]]
+            CharContent           => CharContent[[Ctx0]]
+            CharLiteral           => CharLiteral[[Ctx0]]
+            LastOcta              => LastOcta[[Ctx0]]
+            OctaEscape            => OctaEscape[[Ctx0]]
+            NamedEscape           => NamedEscape[[Ctx0]]
+            EscapeSeq             => EscapeSeq[[Ctx0]]
+            Bool                  => Bool[[Ctx0]]
+            BoolLiteral           => BoolLiteral[[Ctx0]]
+            BinaryExponent        => BinaryExponent[[Ctx0]]
+            HexaSignificand       => HexaSignificand[[Ctx0]]
+            HexaFloatNumeral      => HexaFloatNumeral[[Ctx0]]
+            SignedInteger         => SignedInteger[[Ctx0]]
+            DeciFloatExponentPart => DeciFloatExponentPart[[Ctx0]]
+            DeciFloatDigits       => DeciFloatDigits[[Ctx0]]
+            DeciFloatNumeral      => DeciFloatNumeral[[Ctx0]]
+            FloatLiteral          => FloatLiteral[[Ctx0]]
+            HexaFloatLiteral      => HexaFloatLiteral[[Ctx0]]
+            DeciFloatLiteral      => DeciFloatLiteral[[Ctx0]]
+            IntLiteral            => IntLiteral[[Ctx0]]
+            OctaNumeral           => OctaNumeral[[Ctx0]]
+            HexaNumeral           => HexaNumeral[[Ctx0]]
+            DeciNumeral           => DeciNumeral[[Ctx0]]
+            OctaLiteral           => OctaLiteral[[Ctx0]]
+            HexaLiteral           => HexaLiteral[[Ctx0]]
+            DeciLiteral           => DeciLiteral[[Ctx0]]
+            Modifier              => Modifier[[Ctx0]]
+            StrictFP              => StrictFP[[Ctx0]]
+            Synchronized          => Synchronized[[Ctx0]]
+            Volatile              => Volatile[[Ctx0]]
+            Transient             => Transient[[Ctx0]]
+            Native                => Native[[Ctx0]]
+            Static                => Static[[Ctx0]]
+            Final                 => Final[[Ctx0]]
+            Abstract              => Abstract[[Ctx0]]
+            Protected             => Protected[[Ctx0]]
+            Private               => Private[[Ctx0]]
+            Public                => Public[[Ctx0]]
+            Id                    => Id[[Ctx0]]
+            ID                    => ID[[Ctx0]]
+            Keyword               => Keyword[[Ctx0]]
+            ArrayAccess           => ArrayAccess[[Ctx0]]
+            FieldAccess           => FieldAccess[[Ctx0]]
+            MethodSpec            => MethodSpec[[Ctx0]]
+            Expr                  => Expr[[Ctx0]] ]
+
+
+
+
+module languages/java/JavaMix[Ctx]
+imports
+  languages/java-15/JavaMix[Ctx]
+
+
+module Compatible-Bytecode
+
+%% "legacy" bytecode instructions that were excluded
+%% from the basic overloaded bytecode instruction set.
+
+imports Bytecode
+
+exports
+
+  sorts
+    Instruction
+
+  context-free syntax
+    
+    "bipush" Int -> Instruction {cons("BIPUSH")}
+    "sipush" Int -> Instruction {cons("SIPUSH")}
+
+    "iconst_m1" -> Instruction {cons("ICONST_M1")}
+    "iconst_0" -> Instruction {cons("ICONST_0")}
+    "iconst_1" -> Instruction {cons("ICONST_1")}
+    "iconst_2" -> Instruction {cons("ICONST_2")}
+    "iconst_3" -> Instruction {cons("ICONST_3")}
+    "iconst_4" -> Instruction {cons("ICONST_4")}
+    "iconst_5" -> Instruction {cons("ICONST_5")}
+
+    "lconst_0" -> Instruction {cons("LCONST_0")}
+    "lconst_1" -> Instruction {cons("LCONST_1")}
+
+    "dconst_0" -> Instruction {cons("DCONST_0")}
+    "dconst_1" -> Instruction {cons("DCONST_1")}
+
+    "fconst_0" -> Instruction {cons("FCONST_0")}
+    "fconst_1" -> Instruction {cons("FCONST_1")}
+    "fconst_2" -> Instruction {cons("FCONST_2")}
+
+    "aconst_null" -> Instruction {cons("ACONST_NULL")}
+    "ldc_w" Constant -> Instruction {cons("LDC_W")}
+
+    "iload" Id -> Instruction {cons("ILOAD")}
+    "lload" Id -> Instruction {cons("LLOAD")}
+    "fload" Id -> Instruction {cons("FLOAD")}
+    "dload" Id -> Instruction {cons("DLOAD")}
+    "aload" Id -> Instruction {cons("ALOAD")}
+    "iinc" Id Int -> Instruction {cons("IINC")}
+    "istore" Id -> Instruction {cons("ISTORE")}
+    "lstore" Id -> Instruction {cons("LSTORE")}
+    "fstore" Id -> Instruction {cons("FSTORE")}
+    "dstore" Id -> Instruction {cons("DSTORE")}
+    "astore" Id -> Instruction {cons("ASTORE")}
+
+    "dadd" -> Instruction {cons("DADD")}
+    "ddiv" -> Instruction {cons("DDIV")}
+    "dmul" -> Instruction {cons("DMUL")}
+    "dneg" -> Instruction {cons("DNEG")}
+
+    "drem" -> Instruction {cons("DREM")}
+    "dsub" -> Instruction {cons("DSUB")}
+
+    "fadd" -> Instruction {cons("FADD")}
+    "fdiv" -> Instruction {cons("FDIV")}
+    "fmul" -> Instruction {cons("FMUL")}
+    "fneg" -> Instruction {cons("FNEG")}
+    "frem" -> Instruction {cons("FREM")}
+    "fsub" -> Instruction {cons("FSUB")}
+
+    "iadd" -> Instruction {cons("IADD")}
+    "iand" -> Instruction {cons("IAND")}
+    "idiv" -> Instruction {cons("IDIV")}
+    "imul" -> Instruction {cons("IMUL")}
+    "ineg" -> Instruction {cons("INEG")}
+    "ior" -> Instruction {cons("IOR")}
+    "irem" -> Instruction {cons("IREM")}
+    "ishl" -> Instruction {cons("ISHL")}
+    "ishr" -> Instruction {cons("ISHR")}
+    "isub" -> Instruction {cons("ISUB")}
+    "iushr" -> Instruction {cons("IUSHR")}
+    "ixor" -> Instruction {cons("IXOR")}
+
+    "ladd" -> Instruction {cons("LADD")}
+    "land" -> Instruction {cons("LAND")}
+    "ldiv" -> Instruction {cons("LDIV")}
+    "lmul" -> Instruction {cons("LMUL")}
+    "lneg" -> Instruction {cons("LNEG")}
+    "lor" -> Instruction {cons("LOR")}
+    "lrem" -> Instruction {cons("LREM")}
+    "lshl" -> Instruction {cons("LSHL")}
+    "lshr" -> Instruction {cons("LSHR")}
+    "lsub" -> Instruction {cons("LSUB")}
+    "lushr" -> Instruction {cons("LUSHR")}
+    "lxor" -> Instruction {cons("LXOR")}
+
+    "iastore" -> Instruction {cons("IASTORE")}
+    "lastore" -> Instruction {cons("LASTORE")}
+    "bastore" -> Instruction {cons("BASTORE")}
+    "castore" -> Instruction {cons("CASTORE")}
+    "sastore" -> Instruction {cons("SASTORE")}
+    "fastore" -> Instruction {cons("FASTORE")}
+    "dastore" -> Instruction {cons("DASTORE")}
+    "aastore" -> Instruction {cons("AASTORE")}
+
+    "iaload" -> Instruction {cons("IALOAD")}
+    "laload" -> Instruction {cons("LALOAD")}
+    "baload" -> Instruction {cons("BALOAD")}
+    "caload" -> Instruction {cons("CALOAD")}
+    "saload" -> Instruction {cons("SALOAD")}
+    "faload" -> Instruction {cons("FALOAD")}
+    "daload" -> Instruction {cons("DALOAD")}
+    "aaload" -> Instruction {cons("AALOAD")}
+
+module Bytecode-Instructions
+
+imports Bytecode-Types
+        Bytecode-Constants
+        Bytecode-Identifiers
+
+exports
+
+  sorts
+    LabelId
+    Instruction
+    Instructions
+    InstructionList %% (without [ ])
+    ListedInstruction
+    LookupEntry
+    TableEntry
+
+  context-free syntax
+    Instruction ";"    -> ListedInstruction {bracket}
+    Instruction        -> ListedInstruction
+    ListedInstruction* -> InstructionList {bracket}
+    
+    "[" InstructionList "]" -> Instructions {cons("Instructions")}
+
+  context-free syntax
+    %% Constants
+    "ldc" OneWordConstant -> Instruction {cons("LDC")} %% Prefers int
+    "ldc2_w" TwoWordConstant -> Instruction {cons("LDC")} %% Prefers long
+
+    "new" Type -> Instruction {cons("NEW")}
+    
+    %% Note: an additional "push" instruction is defined in the Java-Bytecode syntax
+
+    %% Stack operations (basic)
+    "pop"     -> Instruction {cons("POP")}
+    "dup"     -> Instruction {cons("DUP")}
+    "dup_x1"  -> Instruction {cons("DUP_X1")}
+    
+    %% Stack operations (word-based; effect depends on operand sizes)
+    "pop2"    -> Instruction {cons("POP2")}    
+    "dup_x2"  -> Instruction {cons("DUP_X2")}
+    "dup2"    -> Instruction {cons("DUP2")}
+    "dup2_x1" -> Instruction {cons("DUP2_X1")}
+    "dup2_x2" -> Instruction {cons("DUP2_X2")}
+    "swap"    -> Instruction {cons("SWAP")}
+
+    %% Invoke
+    "invokespecial"   MethodRef          -> Instruction {cons("INVOKESPECIAL")}
+    "invokevirtual"   MethodRef          -> Instruction {cons("INVOKEVIRTUAL")}
+    "invokestatic"    MethodRef          -> Instruction {cons("INVOKESTATIC")}
+    "invokeinterface" InterfaceMethodRef -> Instruction {cons("INVOKEINTERFACE")}
+
+    %% Fields
+    "getstatic" FieldRef -> Instruction {cons("GETSTATIC")}
+    "putstatic" FieldRef -> Instruction {cons("PUTSTATIC")}
+    "getfield"  FieldRef -> Instruction {cons("GETFIELD")}
+    "putfield"  FieldRef -> Instruction {cons("PUTFIELD")}
+
+    %% Locals
+    "load"  Id -> Instruction {cons("LOAD")}
+    "store" Id -> Instruction {cons("STORE")}
+    "final" Id -> Instruction {cons("Final")}
+    
+    %% Arrays    
+    "aload"                        -> Instruction {cons("ALOAD")}
+    "astore"                       -> Instruction {cons("ASTORE")}
+    "arraylength"                  -> Instruction {cons("ARRAYLENGTH")}
+    "newarray"       Type          -> Instruction {cons("NEWARRAY")}
+    "anewarray"      Type          -> Instruction {cons("NEWARRAY")} %% Obsolete
+    "multianewarray" Type Int      -> Instruction {cons("MULTIANEWARRAY")}
+    
+    %% Mathematic operators
+    "add" -> Instruction {cons("ADD")}
+    "div" -> Instruction {cons("DIV")}
+    "mul" -> Instruction {cons("MUL")}
+    "neg" -> Instruction {cons("NEG")}
+    "rem" -> Instruction {cons("REM")}
+    "sub" -> Instruction {cons("SUB")}
+    "shl" -> Instruction {cons("SHL")}
+    "shr" -> Instruction {cons("SHR")}
+    "ushr" -> Instruction {cons("USHR")}
+    "xor"  -> Instruction {cons("XOR")}
+    "xor_m1" -> Instruction {cons("XOR_M1")} %% TODO2: Remove XOR_M1?
+    "and" -> Instruction {cons("AND")}
+    "or" -> Instruction {cons("OR")}
+    
+    "inc" -> Instruction {cons("INC")}
+    "dec" -> Instruction {cons("DEC")}
+    
+    %% Primitive conversions and trunctations
+    "x2i" -> Instruction {cons("X2I")}
+    "x2l" -> Instruction {cons("X2L")}
+    "x2d" -> Instruction {cons("X2D")}
+    "x2f" -> Instruction {cons("X2F")}
+    "i2b" -> Instruction {cons("I2B")}
+    "i2s" -> Instruction {cons("I2S")}
+    "i2c" -> Instruction {cons("I2C")}
+    
+    %% Equality operators (abstract over various ifs)
+    "lt" -> Instruction {cons("LT")}
+    "gt" -> Instruction {cons("GT")}
+    "eq" -> Instruction {cons("EQ")}
+    "le" -> Instruction {cons("LE")}
+    "ge" -> Instruction {cons("GE")}
+    "ne" -> Instruction {cons("NE")}
+    
+    %% Control flow
+    "ifeq" LabelId -> Instruction {cons("IFEQ")} %% 'if'    {...} elseLabel: {...}
+    "ifne" LabelId -> Instruction {cons("IFNE")} %% 'ifnot' {...} elseLabel: {...}
+    
+    "goto" LabelId -> Instruction {cons("GOTO")}
+    
+    "athrow" -> Instruction {cons("ATHROW")}
+    "return" -> Instruction {cons("RETURN")}   %% return void
+    "xreturn" -> Instruction {cons("XRETURN")} %% return a value
+    
+    "tableswitch" Int "to" Int ":" TableEntry* "default:" LabelId
+      -> Instruction {ast("TABLESWITCH(<4>,<1>,<2>,<3>)")}
+      
+    "lookupswitch" LookupEntry* "default:" LabelId 
+      -> Instruction {ast("LOOKUPSWITCH(<2>,<1>)")}
+
+    Int ":" LabelId -> LookupEntry {cons("NPAIR")}
+    LabelId         -> TableEntry {cons("Jump")}
+    
+    %% jsr and ret are considered obsolete and unsupported
+    
+    %% Labels
+    Id          -> LabelId                     %% (sort allows anti-quotation)
+    LabelId ":" -> Instruction {cons("Label")}
+
+    %% Misc
+    "monitorenter" -> Instruction {cons("MONITORENTER")}
+    "monitorexit" -> Instruction {cons("MONITOREXIT")}
+    "checkcast" Type -> Instruction {cons("CHECKCAST")}
+    "instanceof" Type -> Instruction {cons("INSTANCEOF")}
+    "nop" -> Instruction {cons("NOP")}
+    "breakpoint" -> Instruction {cons("BREAKPOINT")}
+
+module Bytecode-Identifiers
+
+imports Bytecode-Types
+        Bytecode-Members
+
+exports
+
+  sorts
+    Id
+    InitId
+    MethodName
+    FieldName
+    ClassTypeId
+    Type  
+    ClassType
+    InterfaceType
+    MethodRef
+    InterfaceMethodRef
+    FieldRef
+    Undefined
+    Param
+  
+  lexical syntax
+    [A-Za-z\_\$][A-Za-z0-9\_\-\$]* -> Id
+    "<init>"                       -> InitId
+    "<clinit>"                     -> InitId
+
+  lexical restrictions
+    Id -/- [a-zA-Z0-9\_\-\$]
+    
+  context-free syntax
+    
+    %% Referenced types
+    ClassTypeId -> InterfaceType {cons("Interface")}
+    ClassTypeId -> ClassType {cons("Class")}
+
+    Id     -> MethodName {cons("Name")}
+    InitId -> MethodName {cons("Name")}
+    Id     -> FieldName  {cons("Name")}
+    
+    %% Parameters follow the dryad AST, unless they have an identifier
+    Type    -> Param
+    Type Id -> Param {cons("Param")}
+
+    %% Referenced members
+    ClassType     "." MethodName "(" MethodDescriptor ")" -> MethodRef {cons("MethodRef")}
+    InterfaceType "." MethodName "(" MethodDescriptor ")" -> InterfaceMethodRef {cons("InterfaceMethodRef")}
+    ClassType     "." FieldName  ":" FieldDescriptor      -> FieldRef {cons("FieldRef")}
+
+module Bytecode-Signatures
+
+imports Bytecode-Constants %% TODO2: Support generic signatures in syntax
+
+exports
+
+  sorts
+    ClassSignature
+    MethodSignature
+    FieldSignature
+
+  context-free syntax
+  
+    SimpleString -> ClassSignature {cons("ClassSignature")}  
+    SimpleString -> MethodSignature {cons("MethodSignature")}  
+    SimpleString -> FieldSignature {cons("FieldSignature")}
+
+module Bytecode-Constants
+
+imports Bytecode-Types
+
+exports
+
+  sorts
+    Constant
+    OneWordConstant
+    TwoWordConstant
+    Int
+    UInt
+    UConsInt
+    Float
+    Boolean
+    SimpleString
+    String
+    StringChars
+    FloatDigits
+    ClassTypeId
+
+  lexical syntax
+    "0"         -> UInt
+    [1-9][0-9]* -> UInt
+    "-"? UInt   -> Int
+    
+    [0-9]+            -> FloatDigits
+    [0-9]* "." [0-9]+ -> FloatDigits
+           "."        -> FloatDigits {reject}
+    "-"? FloatDigits ([eE] UInt)? -> Float
+    
+    %% TODO2: need to allow Java string(escape)s in bytecode
+    ~[\"\n\r]*            -> StringChars
+
+  syntax
+    "\"" <StringChars-CF> "\"" -> <SimpleString-CF> {bracket}
+
+  context-free syntax
+    SimpleString -> String
+
+  lexical restrictions
+    UInt        -/- [0-9]
+    Float       -/- [0-9]
+    StringChars -/- ~[\"\n\13]
+
+  context-free syntax
+    "true"  -> Boolean {cons("True")}
+    "false" -> Boolean {cons("False")}
+
+    %% Constants require a specific type, if not implied by the instruction.
+    %% (Note that boolean, byte, char, short and int are all structurally
+    %% equivalent in bytecode. They are only distinguished for error messages
+    %% or when eliminating truncation instructions such as i2b.)
+    Boolean ":" "boolean" -> Constant {cons("Boolean")}
+    Boolean -> Constant {cons("Boolean")} %% (prefer over class)
+    Int ":" "byte" -> Constant {cons("Byte")}
+    Int ":" "char" -> Constant {cons("Char")}
+    Int ":" "short" -> Constant {cons("Short")}
+    Int ":" "int" -> Constant {cons("Int")}
+    Int ":" "long" -> Constant {cons("Long")}
+    Float ":" "double" -> Constant {cons("Double")}
+    Float ":" "float" -> Constant {cons("Float")}
+
+    %% Constants can be 32 or 64 bytes long (1 or 2 words)
+    Constant -> OneWordConstant
+    Constant -> TwoWordConstant
+    Int -> OneWordConstant {cons("Int")} %% (can be used as byte/short/char/boolean)
+    Int -> TwoWordConstant {cons("Long")}
+    Float -> OneWordConstant {cons("Float"), avoid}
+    Float -> TwoWordConstant {cons("Double"), avoid}
+
+    UInt -> UConsInt {cons("Int")}
+    
+    String ":" "String"     -> Constant {cons("String")}
+    String                  -> Constant {cons("String")}
+    ObjectType ":" "class"  -> Constant {cons("Class"), avoid} %% (prefer boolean literal)
+    ObjectType              -> Constant {cons("Class"), avoid} %% (prefer boolean literal)
+    "null"                  -> Constant {cons("Null")}
+
+module Bytecode-Classes
+
+imports Bytecode-Flags
+        Bytecode-Types
+        Bytecode-Members
+        Bytecode-Constants
+        Bytecode-Signatures
+        Bytecode-Identifiers
+
+exports
+
+  sorts
+    ClassFile
+    Extends
+    SuperClass
+    ThisClass
+    Interfaces
+    ClassAttribute
+    ClassAttributes
+    MajorVersion
+    MinorVersion
+    DefaultMinorVersion
+    OptMajorVersion
+    InnerClass
+    NamedInnerClass
+
+  context-free syntax
+  
+    %% Classfile with complete version number (which appears in reverse order in AST)
+    "classfile" "format" MajorVersion "." MinorVersion
+                AccessFlags ThisClass SuperClass Interfaces
+                Fields Methods ClassAttributes
+    -> ClassFile {ast("ClassFile(<2>,<1>,<3>,<4>,<5>,<6>,<7>,<8>,<9>)")}
+
+    %% Classfile with optional major version only; same AST form
+    "classfile" DefaultMinorVersion OptMajorVersion
+                AccessFlags ThisClass SuperClass Interfaces
+                Fields Methods ClassAttributes
+    -> ClassFile {cons("ClassFile")}
+
+    %% NOTE: In the Dryad RTG this is an actual integer, not an Int-string
+    UInt         -> MinorVersion {cons("MinorVersion")}
+    UInt         -> MajorVersion {cons("MajorVersion")}
+
+                  -> DefaultMinorVersion {ast("MinorVersion(0)")}
+    "format" UInt -> OptMajorVersion     {cons("MajorVersion")}
+                  -> OptMajorVersion     {ast("MajorVersion(49)")}
+
+    Id  -> ThisClass {cons("ThisClass")}
+    
+    Extends -> SuperClass {cons("SuperClass")}
+    "extends" ClassTypeId -> Extends {cons("Some")}
+                          -> Extends {cons("None")} %% (no extends specified)
+    "implements" {ClassTypeId ","}+ -> Interfaces {cons("Interfaces")}
+                 Undefined*         -> Interfaces {cons("Interfaces")} %% (no implements specified)
+    
+    "attributes" ClassAttribute* -> ClassAttributes {cons("Attributes")}
+                 Undefined*      -> ClassAttributes {cons("Attributes"), avoid}  %% (no attrs specified) 
+
+    "sourcefile" SimpleString    -> ClassAttribute {cons("SourceFile")}
+    "signature" ClassSignature   -> ClassAttribute {cons("MethodSignature")}
+    "innerclasses" InnerClass*   -> ClassAttribute {cons("InnerClasses")}
+    "unknown" "attribute" String -> ClassAttribute {cons("UnknownAttribute")}
+    
+    %% anonymous inner class
+    "classfile" Id
+    -> InnerClass {ast("InnerClass(InnerClass(Some(<1>)), OuterClass(None), InnerName(None), AccessFlags([]))")}
+    
+    %% local inner class
+    "classfile" Id "as" Id
+    -> NamedInnerClass {ast("InnerClass(InnerClass(Some(<1>)), OuterClass(None), InnerName(Some(<2>)), AccessFlags([]))")}
+    
+    %% member inner class
+    "classfile" Id "as" AccessFlags Id "." Id
+    -> NamedInnerClass {ast("InnerClass(InnerClass(Some(<1>)), OuterClass(Some(<3>)), InnerName(Some(<4>)), <2>)")}
+    
+    %% Distinguish sort from anonymous inner class (disallow quoting)
+    NamedInnerClass -> InnerClass
+
+
+module Bytecode-Flags
+exports
+
+  sorts %% TODO2: specialize AccessFlags sorts for class/method/field
+    AccessFlag
+    AccessFlags
+
+  context-free syntax
+    AccessFlag* -> AccessFlags {cons("AccessFlags")}
+  
+    "public" -> AccessFlag {cons("Public")}
+    "private" -> AccessFlag {cons("Private")}
+    "protected" -> AccessFlag {cons("Protected")}
+    "static" -> AccessFlag {cons("Static")} 
+    "final" -> AccessFlag {cons("Final")}
+    "synchronized" -> AccessFlag {cons("Synchronized")}
+    "super" -> AccessFlag {cons("Super")}
+    "bridge" -> AccessFlag {cons("Bridge")}
+    "volatile" -> AccessFlag {cons("Volatile")}
+    "varargs" -> AccessFlag {cons("Varargs")}
+    "transient" -> AccessFlag {cons("Transient")}
+    "native" -> AccessFlag {cons("Native")}
+    "interface" -> AccessFlag {cons("Interface")}
+    "abstract" -> AccessFlag {cons("Abstract")}
+    "strict" -> AccessFlag {cons("Strict")}
+    "synthetic" -> AccessFlag {cons("Synthetic")}
+    "annotation" -> AccessFlag {cons("Annotation")}
+    "enum" -> AccessFlag {cons("Enum")}
+    "static" -> AccessFlag {cons("Static")}
+
+module Bytecode-Members
+
+imports Bytecode-Flags
+        Bytecode-Types
+        Bytecode-Constants
+        Bytecode-Signatures
+        Bytecode-Identifiers
+        Bytecode-Instructions 
+
+exports
+
+  sorts
+    Methods
+    Method
+    MethodAttributes
+    MethodAttribute
+    MethodDescriptor
+    CodeAttributes
+    FieldDescriptor
+    FieldAttributes
+    FieldAttribute
+    MaxStack
+    MaxLocals
+    SomeInt
+    None
+    Fields
+    Field
+    ExceptionTable
+
+  context-free syntax %% Methods
+    
+    "methods" Method*    -> Methods {cons("Methods")}
+              Undefined* -> Methods {cons("Methods"), avoid} %% (no methods specified)
+    
+    %% TODO: Method signature in form of void foo (arg*)..?    
+    AccessFlags MethodName "(" MethodDescriptor ")" MethodAttributes -> Method {cons("Method")}
+    Method ";" -> Method {bracket}
+    
+    {Param ","}* ":" ReturnType -> MethodDescriptor {cons("MethodDescriptor")}
+    Undefined*       ReturnType -> MethodDescriptor {cons("MethodDescriptor")}
+    
+    MethodAttribute* -> MethodAttributes {cons("Attributes")}
+    MaxStack MaxLocals Instructions ExceptionTable CodeAttributes -> MethodAttribute {cons("Code")}
+    "throws" {ClassType ","}+    -> MethodAttribute {cons("Exceptions")}
+    "signature" MethodSignature  -> MethodAttribute {cons("MethodSignature")}
+    "synthetic"                  -> MethodAttribute {cons("Synthetic")}
+    "unknown" "attribute" String -> MethodAttribute {cons("UnknownAttribute")}
+
+    %% Exception table (in Dryad RTG; not used here)
+    Undefined* -> ExceptionTable {cons("ExceptionTable")}
+    
+    %% Method maxstack/maxlocal specification
+    %% (optional; bit messy since we need to follow the Dryad RTG)
+    "maxstack"  SomeInt -> MaxStack {cons("MaxStack")}
+    "maxlocals" SomeInt -> MaxLocals {cons("MaxLocals")}
+    None -> MaxStack {cons("MaxStack")}
+    None -> MaxLocals {cons("MaxLocals")}
+    Int -> SomeInt {cons("Some")}
+        -> None {cons("None")}
+    
+    %% Code attributes (in Dryad RTG; not used here)
+    Undefined* -> CodeAttributes {cons("Attributes")}
+
+  context-free syntax %% Fields
+
+    "fields" Field*     -> Fields {cons("Fields")}
+             Undefined* -> Fields {cons("Fields"), avoid} %% (no fields specified)
+    
+    AccessFlags FieldName ":" FieldDescriptor FieldAttributes -> Field {cons("Field")}
+    Field ";" -> Field {bracket}
+    
+    Type                         -> FieldDescriptor {cons("FieldDescriptor")}
+    FieldAttribute*              -> FieldAttributes {cons("Attributes")}
+    "signature" FieldSignature   -> FieldAttribute {cons("FieldSignature")}
+    "=" Constant                 -> FieldAttribute {cons("ConstantValue")}
+    "unknown" "attribute" String -> FieldAttribute {cons("UnknownAttribute")}
+
+module Bytecode-Types
+
+exports
+
+  sorts
+    Type
+    ReturnType
+    ClassTypeId
+    ObjectType
+  
+  lexical syntax
+    %% Legal classtypes are 'Foo' or 'Foo.Bar', but not 'Foo.'
+    [A-Za-z\_\$] ( [A-Za-z0-9\_\$\.]* [A-Za-z\_\$] )? -> ClassTypeId
+
+  lexical restrictions
+    ClassTypeId -/- [a-zA-Z0-9\_\$] %% (not: .)
+    
+  context-free syntax
+    "byte"   -> Type {cons("Byte")}
+    "char"   -> Type {cons("Char")}
+    "double" -> Type {cons("Double")}
+    "float"  -> Type {cons("Float")}
+    "int"    -> Type {cons("Int")}
+    "long"   -> Type {cons("Long")}
+    "short"  -> Type {cons("Short")}
+    "boolean" -> Type {cons("Boolean")}
+    Type "[]" -> Type {cons("ArrayType")}
+    
+    Type     -> ReturnType
+    "void"   -> ReturnType {cons("Void")}
+    "void"   -> Type {reject} %% no type or arraytype
+    
+    ClassTypeId -> Type {cons("ObjectType"), avoid} %% Prefer the primitive types
+    "\"" ClassTypeId "\"" -> Type {cons("ObjectType")} %% Allow classes named 'int' or 'void' or 'extends'
+
+    ClassTypeId     -> ObjectType {cons("ObjectType")}
+    ObjectType "[]" -> ObjectType {cons("ArrayType")}
+
+module Bytecode-Tags
+
+imports Bytecode-Classes
+        Bytecode-Members
+        Bytecode-Identifiers
+        Bytecode-Instructions 
+
+exports
+
+  sorts
+    InstructionTrace
+    MemberTrace
+    ClassTrace
+    QEndTrace
+    CatchHeader
+    AnyType
+    
+    CompilationUnit %% actually part of the Java grammar, not imported here
+
+  context-free syntax
+    "final" Id -> Instruction {cons("Final")} %% final local variabe
+    
+    "catch" CatchHeader+ "[" InstructionList "]" -> Instruction {cons("CatchWrap")}
+    "*" -> AnyType {cons("Any")}
+    LabelId ":" (ClassTypeId | AnyType) -> CatchHeader {cons("Catch")}
+    
+  context-free syntax %% Quotations of original code in intermediate code
+    %% Language-independent string
+    String -> QEndTrace {cons("Quoted")}    
+    QEndTrace -> InstructionTrace {avoid}
+    QEndTrace -> MemberTrace {avoid}
+    QEndTrace -> ClassTrace {avoid}
+    
+    %% To use this in a language extension, *Trace should be redefined
+    %% to include all originating constructs. See Java-Bytecode.sdf.
+    
+    %% TODO: Include syntax for position info
+
+    "trace" "(" InstructionTrace ")" "[" InstructionList "]" -> Instruction {cons("Trace")}
+    "trace" "(" MemberTrace ")" "[" Method "]" -> Method {cons("Trace")}
+    "trace" "(" ClassTrace ")" "[" CompilationUnit "]" -> CompilationUnit {cons("Trace")}
+    
+    "end" "trace" "[" InstructionList "]" -> Instruction {cons("EndTrace")}
+    "end" "trace" "[" Method          "]" -> Method {cons("EndTrace")}
+    "end" "trace" "[" CompilationUnit "]" -> CompilationUnit {cons("EndTrace")}
+
+module  Bytecode
+
+imports Bytecode-Tags
+        Bytecode-Types
+        Bytecode-Members
+        Bytecode-Classes
+        Bytecode-Constants
+        Bytecode-Signatures
+        Bytecode-Identifiers
+        Bytecode-Instructions     
+        Compatible-Bytecode   
+        
+        %% Uses Java-style comments and whitespace
+        languages/java-15/lexical/Comments
+        languages/java-15/lexical/WhiteSpace
+
+hiddens
+
+  context-free start-symbols
+    ClassFile Method InstructionList
+
+module  Java-Bytecode
+
+imports Bytecode
+        languages/java/JavaMix[Java]
+        
+hiddens
+
+  context-free start-symbols
+    CompilationUnit
+    BlockStm[[Java]]
+    Expr[[Java]]
+    Method %% (includes Java methods)
+    InstructionList
+
+exports
+  
+  sorts
+  	CompilationUnit
+    MakeEmpty
+    EmptyJavaLabel
+
+  context-free syntax %% Mixing / embedding   
+  
+    %% Bytecode fragments appear after the ` operator.
+    %% We need the {prefer} to disambiguate from expression statements;
+    %% and we need a semicolon at the end of statements directly in block
+    %% statements (e.g., 'if (b) `goto X;' <- semicolon)
+    "`" "[" InstructionList "]"     -> Expr[[Java]]     {cons("BytecodeExpr")}
+    "`" "[" InstructionList "]"     -> BlockStm[[Java]] {cons("BytecodeStm")}
+    "`" "[" InstructionList "]" ";" -> Stm[[Java]]      {cons("BytecodeStm"), prefer}
+
+    "`" Instruction     -> Expr[[Java]]     {cons("BytecodeExpr")}
+    "`" Instruction     -> BlockStm[[Java]] {cons("BytecodeStm")}
+    "`" Instruction ";" -> Stm[[Java]]      {cons("BytecodeStm"), prefer}
+    
+    %% TODO2: Perhaps support "[" "]" grouping construct in arbitrary places?
+    
+    MethodDec[[Java]]       -> Method
+    FieldDec[[Java]]        -> Field
+    Method                  -> MethodDec[[Java]]
+    Field                   -> FieldDec[[Java]]
+    ClassFile               -> CompilationUnit[[Java]]
+    CompilationUnit[[Java]] -> CompilationUnit %% Use standard topsort for this, for ease of use by tools
+    CompilationUnit         -> CompilationUnit[[Java]]
+
+    %% "`" prefix is optional for class body declarations
+    "`" MethodDec[[Java]]   -> Method
+    "`" FieldDec[[Java]]    -> Field
+    "`" Method              -> MethodDec[[Java]]
+    "`" Field               -> FieldDec[[Java]]
+
+    %% Use different Java quotations, since expressions push something on the stack
+    "push" "`"     Expr[[Java]]          -> Instruction {cons("JavaExpr")}
+           "`"     BlockStm[[Java]]      -> Instruction {cons("JavaStm")}
+           "`" "[" BlockStm[[Java]]* "]" -> Instruction {cons("JavaStm")}
+
+  context-free syntax
+    %% Quotations of original code (i.e., Java) in intermediate code (i.e., Java+Bytecode)
+    %% (see module Bytecode-Tags)
+    TypeDec -> ClassTrace
+    
+    ClassMemberDec[[Java]]     -> MemberTrace {prefer}
+    InterfaceMemberDec[[Java]] -> MemberTrace
+    EnumConst[[Java]]          -> MemberTrace
+    
+    BlockStm[[Java]] -> InstructionTrace {prefer}
+    Expr[[Java]]     -> InstructionTrace
+    
+    "trace" "(" InstructionTrace ")" "[" BlockStm[[Java]]+ "]" -> BlockStm[[Java]] {cons("Trace")}
+    "trace" "(" InstructionTrace ")" "[" Stm[[Java]]+ "]" ";" -> Stm[[Java]] {cons("Trace"), prefer}
+    "trace" "(" InstructionTrace ")" "[" Expr[[Java]] "]" -> Expr[[Java]] {cons("Trace")}
+
+    "end" "trace" "[" BlockStm[[Java]]+ "]" -> BlockStm[[Java]] {cons("EndTrace")}
+    "end" "trace" "[" Stm[[Java]]+ "]" ";" -> Stm[[Java]] {cons("EndTrace"), prefer}
+    "end" "trace" "[" Expr[[Java]] "]" -> Expr[[Java]] {cons("EndTrace")}
+
+  context-free syntax %% Allow Java label at end of block
+                             -> MakeEmpty  {cons("Empty")}
+    Id[[Java]] ":" MakeEmpty -> EmptyJavaLabel {cons("Labeled")}
+    EmptyJavaLabel           -> Stm[[Java]]
+    
+  context-free restrictions %% Disambiguate cases like label: {}
+  	EmptyJavaLabel -/- ~[\}]
+
+module languages/java/eblock/Main
+imports
+  languages/java-15/Main
+   
+exports
+  context-free syntax
+    "{|" BlockStm* "|" Expr "|}" -> Expr {cons("PreEBlock")}
+    "{|" Expr "|" BlockStm* "|}" -> Expr {cons("PostEBlock")}
+    "{|" BlockStm* "|}"          -> BlockStm {cons("InnerBlock")}
+
+    "{|" BlockStm* "|" Expr "|" BlockStm* "|}" -> Expr {cons("PrePostEBlock")}
+
+module languages/java/eblock/JavaEBlockMix[Ctx0]
+imports languages/java/eblock/Main
+          [ CompilationUnit       => CompilationUnit[[Ctx0]]
+            TypeDec               => TypeDec[[Ctx0]]
+            ImportDec             => ImportDec[[Ctx0]]
+            PackageDec            => PackageDec[[Ctx0]]
+            ElemVal               => ElemVal[[Ctx0]]
+            ElemValPair           => ElemValPair[[Ctx0]]
+            Anno                  => Anno[[Ctx0]]
+            LHS                   => LHS[[Ctx0]]
+            CondMid               => CondMid[[Ctx0]]
+            ArraySubscript        => ArraySubscript[[Ctx0]]
+            DimExpr               => DimExpr[[Ctx0]]
+            ArrayBaseType         => ArrayBaseType[[Ctx0]]
+            ArrayCreationExpr     => ArrayCreationExpr[[Ctx0]]
+            ClassMemberDec        => ClassMemberDec[[Ctx0]]
+            ClassBodyDec          => ClassBodyDec[[Ctx0]]
+            Interfaces            => Interfaces[[Ctx0]]
+            Super                 => Super[[Ctx0]]
+            ClassMod              => ClassMod[[Ctx0]]
+            ClassDecHead          => ClassDecHead[[Ctx0]]
+            ClassBody             => ClassBody[[Ctx0]]
+            ClassDec              => ClassDec[[Ctx0]]
+            InterfaceMod          => InterfaceMod[[Ctx0]]
+            InterfaceMemberDec    => InterfaceMemberDec[[Ctx0]]
+            ExtendsInterfaces     => ExtendsInterfaces[[Ctx0]]
+            InterfaceDecHead      => InterfaceDecHead[[Ctx0]]
+            InterfaceDec          => InterfaceDec[[Ctx0]]
+            DefaultVal            => DefaultVal[[Ctx0]]
+            AnnoElemDec           => AnnoElemDec[[Ctx0]]
+            AnnoDecHead           => AnnoDecHead[[Ctx0]]
+            AnnoDec               => AnnoDec[[Ctx0]]
+            AbstractMethodMod     => AbstractMethodMod[[Ctx0]]
+            AbstractMethodDec     => AbstractMethodDec[[Ctx0]]
+            ConstantMod           => ConstantMod[[Ctx0]]
+            ConstantDec           => ConstantDec[[Ctx0]]
+            EnumBodyDecs          => EnumBodyDecs[[Ctx0]]
+            EnumConstArgs         => EnumConstArgs[[Ctx0]]
+            EnumConst             => EnumConst[[Ctx0]]
+            EnumBody              => EnumBody[[Ctx0]]
+            EnumDecHead           => EnumDecHead[[Ctx0]]
+            EnumDec               => EnumDec[[Ctx0]]
+            ConstrMod             => ConstrMod[[Ctx0]]
+            ConstrInv             => ConstrInv[[Ctx0]]
+            ConstrBody            => ConstrBody[[Ctx0]]
+            ConstrHead            => ConstrHead[[Ctx0]]
+            ConstrDec             => ConstrDec[[Ctx0]]
+            StaticInit            => StaticInit[[Ctx0]]
+            InstanceInit          => InstanceInit[[Ctx0]]
+            MethodBody            => MethodBody[[Ctx0]]
+            ExceptionType         => ExceptionType[[Ctx0]]
+            Throws                => Throws[[Ctx0]]
+            MethodMod             => MethodMod[[Ctx0]]
+            VarMod                => VarMod[[Ctx0]]
+            FormalParam           => FormalParam[[Ctx0]]
+            ResultType            => ResultType[[Ctx0]]
+            MethodDecHead         => MethodDecHead[[Ctx0]]
+            MethodDec             => MethodDec[[Ctx0]]
+            BlockStm              => BlockStm[[Ctx0]]
+            Block                 => Block[[Ctx0]]
+            CatchClause           => CatchClause[[Ctx0]]
+            SwitchLabel           => SwitchLabel[[Ctx0]]
+            SwitchGroup           => SwitchGroup[[Ctx0]]
+            SwitchBlock           => SwitchBlock[[Ctx0]]
+            Stm                   => Stm[[Ctx0]]
+            LocalVarDec           => LocalVarDec[[Ctx0]]
+            LocalVarDecStm        => LocalVarDecStm[[Ctx0]]
+            FieldMod              => FieldMod[[Ctx0]]
+            VarInit               => VarInit[[Ctx0]]
+            Dim                   => Dim[[Ctx0]]
+            VarDecId              => VarDecId[[Ctx0]]
+            VarDec                => VarDec[[Ctx0]]
+            FieldDec              => FieldDec[[Ctx0]]
+            ArrayInit             => ArrayInit[[Ctx0]]
+            ClassLiteral          => ClassLiteral[[Ctx0]]
+            Literal               => Literal[[Ctx0]]
+            Type                  => Type[[Ctx0]]
+            ArrayType             => ArrayType[[Ctx0]]
+            TypeVar               => TypeVar[[Ctx0]]
+            TypeDecSpec           => TypeDecSpec[[Ctx0]]
+            InterfaceType         => InterfaceType[[Ctx0]]
+            ClassType             => ClassType[[Ctx0]]
+            ClassOrInterfaceType  => ClassOrInterfaceType[[Ctx0]]
+            RefType               => RefType[[Ctx0]]
+            TypeVarId             => TypeVarId[[Ctx0]]
+            TypeParams            => TypeParams[[Ctx0]]
+            TypeBound             => TypeBound[[Ctx0]]
+            TypeParam             => TypeParam[[Ctx0]]
+            WildcardBound         => WildcardBound[[Ctx0]]
+            ActualTypeArg         => ActualTypeArg[[Ctx0]]
+            TypeArgs              => TypeArgs[[Ctx0]]
+            PackageOrTypeName     => PackageOrTypeName[[Ctx0]]
+            MethodName            => MethodName[[Ctx0]]
+            ExprName              => ExprName[[Ctx0]]
+            TypeName              => TypeName[[Ctx0]]
+            AmbName               => AmbName[[Ctx0]]
+            PackageName           => PackageName[[Ctx0]]
+            FloatType             => FloatType[[Ctx0]]
+            IntType               => IntType[[Ctx0]]
+            NumType               => NumType[[Ctx0]]
+            PrimType              => PrimType[[Ctx0]]
+            NullLiteral           => NullLiteral[[Ctx0]]
+            FooStringChars        => FooStringChars[[Ctx0]]
+            StringChars           => StringChars[[Ctx0]]
+            StringPart            => StringPart[[Ctx0]]
+            StringLiteral         => StringLiteral[[Ctx0]]
+            SingleChar            => SingleChar[[Ctx0]]
+            CharContent           => CharContent[[Ctx0]]
+            CharLiteral           => CharLiteral[[Ctx0]]
+            LastOcta              => LastOcta[[Ctx0]]
+            OctaEscape            => OctaEscape[[Ctx0]]
+            NamedEscape           => NamedEscape[[Ctx0]]
+            EscapeSeq             => EscapeSeq[[Ctx0]]
+            Bool                  => Bool[[Ctx0]]
+            BoolLiteral           => BoolLiteral[[Ctx0]]
+            BinaryExponent        => BinaryExponent[[Ctx0]]
+            HexaSignificand       => HexaSignificand[[Ctx0]]
+            HexaFloatNumeral      => HexaFloatNumeral[[Ctx0]]
+            SignedInteger         => SignedInteger[[Ctx0]]
+            DeciFloatExponentPart => DeciFloatExponentPart[[Ctx0]]
+            DeciFloatDigits       => DeciFloatDigits[[Ctx0]]
+            DeciFloatNumeral      => DeciFloatNumeral[[Ctx0]]
+            FloatLiteral          => FloatLiteral[[Ctx0]]
+            HexaFloatLiteral      => HexaFloatLiteral[[Ctx0]]
+            DeciFloatLiteral      => DeciFloatLiteral[[Ctx0]]
+            IntLiteral            => IntLiteral[[Ctx0]]
+            OctaNumeral           => OctaNumeral[[Ctx0]]
+            HexaNumeral           => HexaNumeral[[Ctx0]]
+            DeciNumeral           => DeciNumeral[[Ctx0]]
+            OctaLiteral           => OctaLiteral[[Ctx0]]
+            HexaLiteral           => HexaLiteral[[Ctx0]]
+            DeciLiteral           => DeciLiteral[[Ctx0]]
+            Modifier              => Modifier[[Ctx0]]
+            StrictFP              => StrictFP[[Ctx0]]
+            Synchronized          => Synchronized[[Ctx0]]
+            Volatile              => Volatile[[Ctx0]]
+            Transient             => Transient[[Ctx0]]
+            Native                => Native[[Ctx0]]
+            Static                => Static[[Ctx0]]
+            Final                 => Final[[Ctx0]]
+            Abstract              => Abstract[[Ctx0]]
+            Protected             => Protected[[Ctx0]]
+            Private               => Private[[Ctx0]]
+            Public                => Public[[Ctx0]]
+            Id                    => Id[[Ctx0]]
+            ID                    => ID[[Ctx0]]
+            Keyword               => Keyword[[Ctx0]]
+            ArrayAccess           => ArrayAccess[[Ctx0]]
+            FieldAccess           => FieldAccess[[Ctx0]]
+            MethodSpec            => MethodSpec[[Ctx0]]
+            Expr                  => Expr[[Ctx0]] ]
+
+
+module languages/java-15/expressions/Priorities
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/expressions/Main
+
+exports
+  context-free priorities
+      Expr "." "new" TypeArgs? Id TypeArgs? "(" {Expr ","}* ")" ClassBody? -> Expr
+    > {right:
+        Expr "++" -> Expr
+        Expr "--" -> Expr
+      } 
+
+  context-free priorities
+      {right:
+        Expr "++" -> Expr
+        Expr "--" -> Expr
+      }
+    > { "(" PrimType ")" Expr -> Expr    
+        "(" RefType  ")" Expr -> Expr
+      }
+
+  context-free priorities
+      "(" PrimType ")" Expr -> Expr
+    > {left:
+        Expr "*" Expr -> Expr
+        Expr "/" Expr -> Expr
+        Expr "%" Expr -> Expr
+      } 
+
+  context-free priorities
+      "(" RefType ")" Expr -> Expr 
+    > {
+        "++" Expr -> Expr
+        "--" Expr -> Expr
+        "+"  Expr -> Expr
+        "-"  Expr -> Expr
+      }
+
+  context-free priorities
+    {
+      Expr ArraySubscript -> ArrayAccess
+      Expr "." Id -> FieldAccess
+      Expr "." TypeArgs? Id -> MethodSpec
+    }
+  > {right:
+      Expr "++" -> Expr
+      Expr "--" -> Expr
+    }
+  > {
+      "++" Expr -> Expr
+      "--" Expr -> Expr
+      "+"  Expr -> Expr
+      "-"  Expr -> Expr
+      "~"  Expr -> Expr
+      "!"  Expr -> Expr
+    }
+  > {left:
+      Expr "*" Expr -> Expr
+      Expr "/" Expr -> Expr
+      Expr "%" Expr -> Expr
+    } 
+  > {left:
+      Expr "+" Expr -> Expr
+      Expr "-" Expr -> Expr
+    }
+  > {left:
+      Expr "<<"  Expr -> Expr
+      Expr ">>"  Expr -> Expr
+      Expr ">>>" Expr -> Expr
+    }
+  > {left:
+      Expr "instanceof" RefType -> Expr
+      Expr "<"   Expr -> Expr
+      Expr ">"   Expr -> Expr
+      Expr "<="  Expr -> Expr
+      Expr ">="  Expr -> Expr
+    }
+  > {left:
+      Expr "=="  Expr -> Expr
+      Expr "!="  Expr -> Expr
+    }
+  >   Expr "&"   Expr -> Expr
+  >   Expr "^"   Expr -> Expr
+  >   Expr "|"   Expr -> Expr
+  >   Expr "&&"  Expr -> Expr
+  >   Expr "||"  Expr -> Expr
+  >   Expr CondMid Expr -> Expr
+  > {right:
+      LHS "="    Expr -> Expr
+      LHS "*="   Expr -> Expr
+      LHS "/="   Expr -> Expr
+      LHS "%="   Expr -> Expr
+      LHS "+="   Expr -> Expr
+      LHS "-="   Expr -> Expr
+      LHS "<<="  Expr -> Expr
+      LHS ">>="  Expr -> Expr
+      LHS ">>>=" Expr -> Expr
+      LHS "&="   Expr -> Expr
+      LHS "^="   Expr -> Expr
+      LHS "|="   Expr -> Expr
+    }
+
+module languages/java-15/expressions/Restrictions
+exports
+  lexical restrictions
+    "+" -/- [\+]
+    "-" -/- [\-]
+    "/" -/- [\/]
+
+module languages/java-15/expressions/AssignmentOperators
+imports
+  languages/java-15/expressions/Main
+
+exports
+  sorts LHS
+  context-free syntax
+    LHS "="    Expr -> Expr {cons("Assign")}
+    LHS "*="   Expr -> Expr {cons("AssignMul")}
+    LHS "/="   Expr -> Expr {cons("AssignDiv")}
+    LHS "%="   Expr -> Expr {cons("AssignRemain")}
+    LHS "+="   Expr -> Expr {cons("AssignPlus")}
+    LHS "-="   Expr -> Expr {cons("AssignMinus")}
+    LHS "<<="  Expr -> Expr {cons("AssignLeftShift")}
+    LHS ">>="  Expr -> Expr {cons("AssignRightShift")}
+    LHS ">>>=" Expr -> Expr {cons("AssignURightShift")}
+    LHS "&="   Expr -> Expr {cons("AssignAnd")}
+    LHS "^="   Expr -> Expr {cons("AssignExcOr")}
+    LHS "|="   Expr -> Expr {cons("AssignOr")}
+
+    ExprName    -> LHS
+    FieldAccess -> LHS
+    ArrayAccess -> LHS
+
+
+
+
+
+
+
+
+module languages/java-15/expressions/BinaryOperators
+imports
+  languages/java-15/expressions/Main
+  languages/java-15/types/Main
+
+exports
+  sorts CondMid
+  context-free syntax
+    Expr "instanceof" RefType -> Expr {cons("InstanceOf")}
+
+    Expr "*"   Expr -> Expr  {left, cons("Mul")}
+    Expr "/"   Expr -> Expr  {left, cons("Div")}
+    Expr "%"   Expr -> Expr  {left, cons("Remain")}
+
+    Expr "+"   Expr -> Expr  {left, cons("Plus")}
+    Expr "-"   Expr -> Expr  {left, cons("Minus")}
+
+    Expr "<<"  Expr -> Expr  {left, cons("LeftShift")}
+    Expr ">>"  Expr -> Expr  {left, cons("RightShift")}
+    Expr ">>>" Expr -> Expr  {left, cons("URightShift")}
+
+    Expr "<"   Expr -> Expr  {left, cons("Lt")}
+    Expr ">"   Expr -> Expr  {left, cons("Gt")}
+    Expr "<="  Expr -> Expr  {left, cons("LtEq")}
+    Expr ">="  Expr -> Expr  {left, cons("GtEq")}
+    Expr "=="  Expr -> Expr  {left, cons("Eq")}
+    Expr "!="  Expr -> Expr  {left, cons("NotEq")}
+
+    Expr "&&"  Expr -> Expr  {left, cons("LazyAnd")}
+    Expr "||"  Expr -> Expr  {left, cons("LazyOr")}
+
+    Expr "&" Expr -> Expr {left, cons("And")}
+    Expr "^" Expr -> Expr {left, cons("ExcOr")}
+    Expr "|" Expr -> Expr {left, cons("Or")}
+
+    %% todo JFR-30
+    Expr CondMid Expr -> Expr {right, cons("Cond")}
+    "?" Expr ":" -> CondMid {bracket}
+
+module languages/java-15/expressions/UnaryOperators
+imports 
+  languages/java-15/expressions/Main
+exports
+  context-free syntax
+    "+" Expr -> Expr {cons("Plus")}
+    "-" Expr -> Expr {cons("Minus")}
+
+    "++" Expr -> Expr {cons("PreIncr")}
+    "--" Expr -> Expr {cons("PreDecr")}
+
+    "~" Expr -> Expr {cons("Complement")}
+    "!" Expr -> Expr {cons("Not")}
+
+    "(" PrimType ")" Expr -> Expr {cons("CastPrim")}
+    "(" RefType  ")" Expr -> Expr {cons("CastRef")}
+
+module languages/java-15/expressions/Postfix
+imports 
+  languages/java-15/expressions/Main
+
+exports
+  context-free syntax
+    ExprName  -> Expr
+    Expr "++" -> Expr {cons("PostIncr")}
+    Expr "--" -> Expr {cons("PostDecr")}
+
+module languages/java-15/expressions/MethodInvocation
+imports
+  languages/java-15/expressions/Main
+
+exports
+  sorts MethodSpec
+  context-free syntax
+    MethodSpec "(" {Expr ","}* ")" -> Expr {cons("Invoke")}
+
+                               MethodName -> MethodSpec {cons("Method")}
+                    Expr "." TypeArgs? Id -> MethodSpec {cons("Method")}
+                 "super" "." TypeArgs? Id -> MethodSpec {cons("SuperMethod")}
+    TypeName "." "super" "." TypeArgs? Id -> MethodSpec {cons("QSuperMethod")}
+                 AmbName "." TypeArgs  Id -> MethodSpec {cons("GenericMethod")}
+
+  %% This priority forbids a Expr "." MethodSpec if the expression is a plain ExprName.
+  %% This solves an ambiguity with the MethodName and AmbName . TypeArgs MethodSpecs.
+  %% foo.bar.fred() results in a MethodName MethodSpec.
+  %% (foo.bar).fred() results in the Expr. MethodSpec
+  %% foo.bar.<T>fred() results in a GenericMethod
+  context-free priorities
+      Expr "." TypeArgs? Id -> MethodSpec
+    > ExprName  -> Expr
+
+
+
+
+
+
+
+
+module languages/java-15/expressions/ArrayAccess
+imports
+  languages/java-15/expressions/Main
+exports
+  sorts
+    ArrayAccess
+    ArraySubscript
+
+  context-free syntax
+    ArrayAccess -> Expr
+
+    %% todo: JFR-29
+    Expr ArraySubscript -> ArrayAccess {cons("ArrayAccess")}
+    "[" Expr "]" -> ArraySubscript {bracket}
+
+    ArrayCreationExpr ArraySubscript -> ArrayAccess {reject}
+
+module languages/java-15/expressions/FieldAccess
+imports
+  languages/java-15/expressions/Main
+
+exports
+  sorts FieldAccess
+  context-free syntax
+    FieldAccess -> Expr
+
+  context-free syntax
+
+                    Expr "." Id -> FieldAccess {cons("Field")}
+                ExprName "." Id -> FieldAccess {reject}
+                 "super" "." Id -> FieldAccess {cons("SuperField")}
+    TypeName "." "super" "." Id -> FieldAccess {cons("QSuperField")}
+
+module languages/java-15/expressions/ArrayCreation
+imports
+  languages/java-15/expressions/Main
+
+exports
+  sorts
+    ArrayCreationExpr
+    ArrayBaseType
+    Dim
+    DimExpr
+
+  context-free syntax
+    ArrayCreationExpr     -> Expr
+
+    "new" ArrayBaseType DimExpr+ Dim*  -> ArrayCreationExpr {cons("NewArray")}
+    "new" ArrayBaseType Dim+ ArrayInit -> ArrayCreationExpr {cons("NewArray")}
+
+    PrimType -> ArrayBaseType
+    TypeName -> ArrayBaseType
+    TypeName "<" "?" ">" -> ArrayBaseType {cons("UnboundWld")}
+
+    "[" Expr "]" -> DimExpr {cons("Dim")}
+    "[" "]"      -> Dim     {cons("Dim")}
+
+module languages/java-15/expressions/ClassInstanceCreation
+imports
+  languages/java-15/expressions/Main
+  languages/java-15/classes/ClassDeclarations
+
+exports
+  context-free syntax
+
+             "new" TypeArgs? ClassOrInterfaceType "(" {Expr ","}* ")" ClassBody? -> Expr {cons("NewInstance")}
+    Expr "." "new" TypeArgs? Id         TypeArgs? "(" {Expr ","}* ")" ClassBody? -> Expr {cons("QNewInstance")}
+
+module languages/java-15/expressions/Primary
+imports
+  languages/java-15/lexical/literals/Main
+  languages/java-15/names/Main
+  languages/java-15/expressions/Main
+
+exports
+  %%%
+   %% Section 15.8.1: Lexical Literals
+   %%%
+  sorts Literal
+  context-free syntax
+    Literal -> Expr {cons("Lit")}
+
+    IntLiteral    -> Literal
+    FloatLiteral  -> Literal
+    BoolLiteral   -> Literal 
+    CharLiteral   -> Literal
+    StringLiteral -> Literal
+    NullLiteral   -> Literal
+
+  %%%
+   %% Section 15.8.2: Class Literals
+   %%%
+  sorts ClassLiteral
+  context-free syntax
+    ClassLiteral -> Literal
+    Type   "." "class" -> ClassLiteral {cons("Class")}
+    "void" "." "class" -> ClassLiteral {cons("VoidClass")}
+
+  %%%
+   %% Section 15.8.3/4: (Qualified this)
+   %%%
+  context-free syntax
+                 "this" -> Expr {cons("This")}
+    TypeName "." "this" -> Expr {cons("QThis")}
+
+  %%%
+   %% Section 15.8.5: Parenthesized Expression
+   %%%
+  context-free syntax
+    "(" Expr ")"          -> Expr {bracket}
+
+module languages/java-15/expressions/Main
+imports
+  languages/java-15/expressions/Primary
+  languages/java-15/expressions/ClassInstanceCreation
+  languages/java-15/expressions/ArrayCreation
+  languages/java-15/expressions/FieldAccess
+  languages/java-15/expressions/ArrayAccess
+  languages/java-15/expressions/MethodInvocation
+  languages/java-15/expressions/Postfix
+  languages/java-15/expressions/UnaryOperators
+  languages/java-15/expressions/BinaryOperators
+  languages/java-15/expressions/AssignmentOperators
+  languages/java-15/expressions/Restrictions
+  languages/java-15/expressions/Priorities
+
+exports
+  sorts
+    Expr
+
+module languages/java-15/statements/Main
+imports
+  languages/java-15/statements/Blocks
+  languages/java-15/statements/LocalVariableDeclarations
+  languages/java-15/statements/Statements
+
+
+
+
+
+
+
+
+module languages/java-15/arrays/Main
+imports
+  languages/java-15/arrays/ArrayInitializers
+
+
+
+
+
+
+
+
+module languages/java-15/interfaces/Main
+imports
+  languages/java-15/interfaces/InterfaceDeclarations
+  languages/java-15/interfaces/AbstractMethodDeclarations
+  languages/java-15/interfaces/AnnotationTypes
+  languages/java-15/interfaces/Annotations
+
+
+
+
+
+
+
+
+module languages/java-15/classes/Main
+imports
+  languages/java-15/classes/ClassDeclarations
+  languages/java-15/classes/EnumDeclarations
+
+
+
+
+
+
+
+
+module languages/java-15/packages/PackageDeclarations
+imports
+  languages/java-15/names/Main
+  languages/java-15/interfaces/Annotations
+
+exports
+  sorts
+    PackageDec
+
+  context-free syntax
+    Anno* "package" PackageName ";" -> PackageDec {cons("PackageDec")}
+
+module languages/java-15/packages/ImportDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/names/Main
+
+exports
+  sorts
+    ImportDec
+
+  context-free syntax
+    "import" TypeName                  ";"  -> ImportDec {cons("TypeImportDec")}
+    "import" PackageName       "." "*" ";"  -> ImportDec {cons("TypeImportOnDemandDec")}
+    "import" "static" TypeName "." Id  ";"  -> ImportDec {cons("StaticImportDec")}
+    "import" "static" TypeName "." "*" ";"  -> ImportDec {cons("StaticImportOnDemandDec")}
+
+module languages/java-15/interfaces/AnnotationTypes
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/classes/ClassDeclarations
+  languages/java-15/classes/EnumDeclarations
+  languages/java-15/interfaces/InterfaceDeclarations
+  languages/java-15/interfaces/AbstractMethodDeclarations
+  languages/java-15/interfaces/ConstantDeclarations
+  languages/java-15/interfaces/Annotations
+
+exports
+  sorts
+    AnnoDec
+    AnnoDecHead
+
+  context-free syntax
+    AnnoDecHead "{" AnnoElemDec* "}" -> AnnoDec {cons("AnnoDec")}
+    (Anno | InterfaceMod)* "@" "interface" Id -> AnnoDecHead {cons("AnnoDecHead")}
+
+  sorts
+    AnnoElemDec
+    DefaultVal
+
+  context-free syntax
+    AbstractMethodMod* Type Id "(" ")" DefaultVal? ";" -> AnnoElemDec {cons("AnnoMethodDec")}
+
+    ConstantDec  -> AnnoElemDec
+    ClassDec     -> AnnoElemDec
+    InterfaceDec -> AnnoElemDec
+    EnumDec      -> AnnoElemDec
+    AnnoDec      -> AnnoElemDec
+    ";"          -> AnnoElemDec {cons("Semicolon")}
+
+    "default" ElemVal -> DefaultVal {cons("DefaultVal")}
+
+module languages/java-15/interfaces/AbstractMethodDeclarations
+imports
+  languages/java-15/lexical/Modifiers
+  languages/java-15/names/Main
+  languages/java-15/types/Main
+  languages/java-15/classes/MethodDeclarations
+
+exports
+  sorts
+    AbstractMethodDec
+    AbstractMethodMod
+
+  context-free syntax
+    (Anno | AbstractMethodMod)* TypeParams? ResultType
+      Id "(" {FormalParam ","}* ")" Throws? ";" -> AbstractMethodDec {cons("AbstractMethodDec")}
+
+    (Anno | AbstractMethodMod)* TypeParams? ResultType
+      Id "(" {FormalParam ","}* ")" Dim+ Throws? ";" -> AbstractMethodDec {cons("DeprAbstractMethodDec")}
+
+    Public   -> AbstractMethodMod
+    Abstract -> AbstractMethodMod
+
+
+
+
+
+
+
+
+
+module languages/java-15/interfaces/ConstantDeclarations
+imports
+  languages/java-15/lexical/Modifiers
+  languages/java-15/types/Main
+  languages/java-15/classes/MethodDeclarations
+  languages/java-15/interfaces/Annotations
+
+exports
+  sorts
+    ConstantDec
+    ConstantMod
+
+  context-free syntax
+    (Anno | ConstantMod)* Type {VarDec ","}+ ";" -> ConstantDec {cons("ConstantDec")}
+
+    Public -> ConstantMod
+    Static -> ConstantMod
+    Final  -> ConstantMod
+
+
+
+
+
+
+
+
+module languages/java-15/interfaces/InterfaceDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/lexical/Modifiers
+  languages/java-15/names/Main
+  languages/java-15/types/Main
+  languages/java-15/classes/ClassDeclarations
+  languages/java-15/classes/MethodDeclarations
+  languages/java-15/interfaces/ConstantDeclarations
+  languages/java-15/interfaces/AbstractMethodDeclarations
+  languages/java-15/interfaces/AnnotationTypes
+  languages/java-15/interfaces/Annotations
+
+exports
+  sorts
+    InterfaceDec
+    InterfaceDecHead
+    ExtendsInterfaces
+    InterfaceMemberDec
+    InterfaceMod
+
+  context-free syntax
+    AnnoDec -> InterfaceDec
+
+    InterfaceDecHead "{" InterfaceMemberDec* "}" -> InterfaceDec {cons("InterfaceDec")}
+
+    (Anno | InterfaceMod)* "interface" Id TypeParams? ExtendsInterfaces? -> InterfaceDecHead {cons("InterfaceDecHead")}
+    "extends" {InterfaceType ","}+ -> ExtendsInterfaces {cons("ExtendsInterfaces")}
+
+  context-free syntax
+    ConstantDec       -> InterfaceMemberDec
+    AbstractMethodDec -> InterfaceMemberDec
+    ClassDec          -> InterfaceMemberDec
+    InterfaceDec      -> InterfaceMemberDec
+    ";"               -> InterfaceMemberDec {cons("Semicolon")}
+
+  context-free syntax
+    Public         -> InterfaceMod
+    Protected      -> InterfaceMod
+    Private        -> InterfaceMod
+    Abstract       -> InterfaceMod
+    Static         -> InterfaceMod
+    StrictFP       -> InterfaceMod
+
+
+
+
+
+
+
+
+module languages/java-15/classes/EnumDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/classes/ClassDeclarations
+
+exports
+  sorts
+    EnumDec
+    EnumDecHead
+    EnumBody
+    EnumConst
+    EnumConstArgs
+    EnumBodyDecs
+
+  context-free syntax
+    EnumDecHead EnumBody -> EnumDec {cons("EnumDec")}
+
+    (Anno | ClassMod)* "enum" Id Interfaces? -> EnumDecHead {cons("EnumDecHead")}
+
+    "{" {EnumConst ","}*     EnumBodyDecs? "}" -> EnumBody {cons("EnumBody")}
+    "{" {EnumConst ","}* "," EnumBodyDecs? "}" -> EnumBody {cons("EnumBody")}
+
+    Id EnumConstArgs? ClassBody?  -> EnumConst {cons("EnumConst")}
+    "(" {Expr ","}* ")"  -> EnumConstArgs {bracket}
+
+    ";" ClassBodyDec* -> EnumBodyDecs {cons("EnumBodyDecs")}
+
+module languages/java-15/classes/ConstructorDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/lexical/Modifiers
+  languages/java-15/interfaces/Annotations
+  languages/java-15/statements/Main
+  languages/java-15/expressions/Main
+
+exports
+  sorts
+    ConstrDec
+    ConstrBody
+    ConstrHead
+    ConstrInv
+
+  context-free syntax
+    ConstrHead ConstrBody ->  ConstrDec {cons("ConstrDec")}
+    (Anno | ConstrMod)* TypeParams? Id "(" {FormalParam ","}* ")" Throws? -> ConstrHead {cons("ConstrDecHead")}
+
+
+    "{" ConstrInv? BlockStm* "}" -> ConstrBody {cons("ConstrBody")}
+
+             TypeArgs? "this"  "(" {Expr ","}* ")" ";" -> ConstrInv {cons("AltConstrInv")}
+             TypeArgs? "super" "(" {Expr ","}* ")" ";" -> ConstrInv {cons("SuperConstrInv")}
+    Expr "." TypeArgs? "super" "(" {Expr ","}* ")" ";" -> ConstrInv {cons("QSuperConstrInv")}
+
+  sorts ConstrMod
+  context-free syntax  
+    Public    -> ConstrMod
+    Protected -> ConstrMod
+    Private   -> ConstrMod
+
+
+
+
+
+
+
+
+module languages/java-15/classes/StaticInitializers
+imports
+  languages/java-15/statements/Blocks
+
+exports
+  sorts
+    StaticInit
+
+  context-free syntax
+    "static" Block -> StaticInit   {cons("StaticInit")}
+
+module languages/java-15/classes/InstanceInitializers
+imports
+  languages/java-15/statements/Blocks
+
+exports
+  sorts
+    InstanceInit
+
+  context-free syntax
+    Block -> InstanceInit {cons("InstanceInit")}
+
+module languages/java-15/statements/Statements
+imports
+  languages/java-15/statements/LocalVariableDeclarations
+  languages/java-15/statements/Blocks
+  languages/java-15/expressions/Main
+
+exports
+  sorts
+    Stm
+
+  context-free syntax
+    Block      -> Stm
+
+  %%%
+   %% Section 14.6: The Empty Statement
+   %%%
+  context-free syntax
+    ";"        -> Stm {cons("Empty")}
+
+  %%%
+   %% Section 14.7: Labeled Statements
+   %%%
+  context-free syntax
+    Id ":" Stm -> Stm {cons("Labeled")}
+
+  %%%
+   %% Section 14.8: Expressions Statements
+   %%%
+  context-free syntax
+    Expr ";"   -> Stm {cons("ExprStm")}
+
+  %%%
+   %% Section 14.9: The If Statement
+   %%%
+  context-free syntax
+    "if" "(" Expr ")" Stm             -> Stm {prefer, cons("If")}
+    "if" "(" Expr ")" Stm  "else" Stm -> Stm {cons("If")}
+
+  %%%
+   %% Section 14.10: The Assert Statement
+   %%%
+  context-free syntax
+    "assert" Expr          ";" -> Stm  {cons("AssertStm")}
+    "assert" Expr ":" Expr ";" -> Stm  {cons("AssertStm")}
+
+
+  %%%
+   %% Section 14.11: The Switch Statement
+   %%%
+  sorts SwitchBlock SwitchGroup SwitchLabel
+  context-free syntax
+    "switch" "(" Expr ")" SwitchBlock -> Stm {cons("Switch")}
+    "{" SwitchGroup* SwitchLabel* "}" -> SwitchBlock {cons("SwitchBlock")}
+    SwitchLabel+ BlockStm+ -> SwitchGroup  {cons("SwitchGroup")}
+
+    "case" Expr ":" -> SwitchLabel {cons("Case")}
+    "default"   ":" -> SwitchLabel {cons("Default")}
+
+  %%%
+   %% Section 14.12: The While Statement
+   %%%
+  context-free syntax
+    "while" "(" Expr ")" Stm -> Stm {cons("While")}
+
+  %%%
+   %% Section 14.13: The Do Statement
+   %%%
+  context-free syntax
+  "do" Stm "while" "(" Expr ")" ";" -> Stm {cons("DoWhile")}
+
+
+  %%%
+   %% Section 14.14: The For Statement
+   %%%
+  context-free syntax
+    "for" "(" LocalVarDec ";" Expr? ";" {Expr ","}* ")" Stm -> Stm {cons("For")}
+    "for" "(" {Expr ","}* ";" Expr? ";" {Expr ","}* ")" Stm -> Stm {cons("For")}
+
+    "for" "(" FormalParam ":" Expr ")" Stm -> Stm {cons("ForEach")}
+
+  %%%
+   %% Section 14.15: The Break Statement
+   %%%
+  context-free syntax
+    "break"    Id? ";"   -> Stm {cons("Break")}
+
+  %%%
+   %% Section 14.16: The Continue Statement
+   %%%
+  context-free syntax
+    "continue" Id? ";"   -> Stm {cons("Continue")}
+
+  %%%
+   %% Section 14.17: The Return Statement
+   %%%
+  context-free syntax
+    "return"   Expr? ";" -> Stm {cons("Return")}
+
+  %%%
+   %% Section 14.18: The Throw Statement
+   %%%
+  context-free syntax
+    "throw"    Expr  ";" -> Stm {cons("Throw")}
+
+  %%%
+   %% Section 14.19: The Synchronized Statement
+   %%%
+  context-free syntax
+    "synchronized" "(" Expr ")" Block -> Stm {cons("Synchronized")}
+
+  %%%
+   %% Section 14.20: The Try Statement
+   %%%
+  sorts CatchClause
+  context-free syntax
+    "try" Block CatchClause+ -> Stm {cons("Try")}
+    "try" Block CatchClause* "finally" Block -> Stm {cons("Try")}
+    "catch" "(" FormalParam ")" Block -> CatchClause {cons("Catch")}
+
+module languages/java-15/statements/LocalVariableDeclarations
+imports
+  languages/java-15/classes/MethodDeclarations
+  languages/java-15/classes/FieldDeclarations
+
+exports
+  sorts
+    LocalVarDecStm
+    LocalVarDec
+
+  context-free syntax
+    LocalVarDec ";" -> LocalVarDecStm {prefer, cons("LocalVarDecStm")}
+    (Anno | VarMod)* Type {VarDec ","}+ -> LocalVarDec {prefer, cons("LocalVarDec")}
+
+module languages/java-15/statements/Blocks
+imports
+  languages/java-15/classes/ClassDeclarations
+  languages/java-15/statements/LocalVariableDeclarations
+  languages/java-15/statements/Statements
+
+exports
+  sorts
+    BlockStm
+    Block
+
+  context-free syntax
+    "{" BlockStm* "}" -> Block {cons("Block")}
+
+    LocalVarDecStm  -> BlockStm 
+    ClassDec        -> BlockStm {cons("ClassDecStm")}
+    Stm             -> BlockStm
+
+
+
+
+
+
+
+
+module languages/java-15/classes/MethodDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/lexical/Modifiers
+  languages/java-15/types/Main
+  languages/java-15/classes/FieldDeclarations
+  languages/java-15/interfaces/Annotations
+  languages/java-15/statements/Blocks
+
+exports
+  sorts
+    MethodDec
+    MethodDecHead
+    ResultType
+
+  context-free syntax
+    MethodDecHead MethodBody -> MethodDec {cons("MethodDec")}
+
+    (Anno | MethodMod)* TypeParams? ResultType Id "(" {FormalParam ","}* ")" Throws?      -> MethodDecHead {cons("MethodDecHead")}
+    (Anno | MethodMod)* TypeParams? ResultType Id "(" {FormalParam ","}* ")" Dim+ Throws? -> MethodDecHead {cons("DeprMethodDecHead")}
+
+    Type   -> ResultType
+    "void" -> ResultType {cons("Void")}
+
+  sorts FormalParam
+  context-free syntax
+    (Anno | VarMod)* Type       VarDecId -> FormalParam {cons("Param")}
+    (Anno | VarMod)* Type "..." VarDecId -> FormalParam {cons("VarArityParam")}
+
+  sorts VarMod
+  context-free syntax
+    Final -> VarMod
+
+  sorts MethodMod
+  context-free syntax
+    Public         -> MethodMod
+    Protected      -> MethodMod
+    Private        -> MethodMod
+
+    Abstract       -> MethodMod
+    Static         -> MethodMod
+    Final          -> MethodMod
+    Synchronized   -> MethodMod
+    Native         -> MethodMod
+    StrictFP       -> MethodMod
+
+  %%%
+   %% Section 8.4.6: Method Throws
+   %%%
+  sorts
+    Throws
+    ExceptionType
+
+  context-free syntax
+    "throws" {ExceptionType ","}+ -> Throws {cons("ThrowsDec")}
+    ClassType -> ExceptionType
+    %% TypeVar -> ExceptionType
+
+  %%%
+   %% Section 8.4.7: Method Body
+   %%% 
+  sorts MethodBody
+  context-free syntax
+    Block -> MethodBody
+    ";"   -> MethodBody {cons("NoMethodBody")}
+
+module languages/java-15/arrays/ArrayInitializers
+imports
+  languages/java-15/classes/FieldDeclarations
+
+exports
+  sorts ArrayInit
+  context-free syntax
+    "{" {VarInit ","}*     "}" -> ArrayInit {cons("ArrayInit")}
+    "{" {VarInit ","}* "," "}" -> ArrayInit {cons("ArrayInit")}
+
+module languages/java-15/interfaces/Annotations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/names/Main
+  languages/java-15/expressions/Main
+
+exports
+  sorts
+    Anno
+    ElemVal
+    ElemValPair
+
+  context-free syntax
+    "@" TypeName "(" {ElemValPair ","}* ")" -> Anno {cons("Anno")}
+    "@" TypeName "(" ElemVal ")"            -> Anno {cons("SingleElemAnno")}
+    "@" TypeName                            -> Anno {cons("MarkerAnno")}
+
+  context-free syntax  
+    Id "=" ElemVal -> ElemValPair {cons("ElemValPair")}
+
+    Expr -> ElemVal
+    Anno -> ElemVal
+
+    "{" {ElemVal ","}*     "}" -> ElemVal {cons("ElemValArrayInit")}
+    "{" {ElemVal ","}* "," "}" -> ElemVal {cons("ElemValArrayInit")}
+
+    %% Assignments are not allowed as element values.
+    LHS "=" Expr -> ElemVal {reject}
+
+module languages/java-15/classes/FieldDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/lexical/Modifiers
+  languages/java-15/types/Main
+  languages/java-15/interfaces/Annotations
+  languages/java-15/arrays/ArrayInitializers
+  languages/java-15/expressions/Main
+
+exports
+  sorts
+    FieldDec
+    VarDec
+    VarDecId
+    Dim
+    VarInit
+
+  context-free syntax
+    (Anno | FieldMod)* Type { VarDec ","}+ ";" -> FieldDec {cons("FieldDec")}
+
+    VarDecId             -> VarDec {cons("VarDec")}
+    VarDecId "=" VarInit -> VarDec {cons("VarDec")}
+
+    Id      -> VarDecId
+    Id Dim+ -> VarDecId {cons("ArrayVarDecId")}
+
+    "[" "]" -> Dim {cons("Dim")}
+
+    Expr      -> VarInit
+    ArrayInit -> VarInit
+
+  sorts FieldMod
+  context-free syntax
+    Public    -> FieldMod
+    Protected -> FieldMod
+    Private   -> FieldMod
+
+    Static    -> FieldMod
+    Final     -> FieldMod
+    Transient -> FieldMod
+    Volatile  -> FieldMod
+
+
+
+
+
+
+
+
+module languages/java-15/classes/ClassDeclarations
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/lexical/Modifiers
+  languages/java-15/types/ReferenceTypes
+  languages/java-15/types/TypeVariables
+  languages/java-15/classes/FieldDeclarations
+  languages/java-15/classes/MethodDeclarations
+  languages/java-15/classes/InstanceInitializers
+  languages/java-15/classes/StaticInitializers
+  languages/java-15/classes/ConstructorDeclarations
+  languages/java-15/classes/EnumDeclarations
+  languages/java-15/interfaces/InterfaceDeclarations
+
+exports
+  sorts
+    ClassDec
+    ClassBody
+    ClassDecHead
+
+  context-free syntax
+    EnumDec -> ClassDec
+
+    ClassDecHead ClassBody -> ClassDec {cons("ClassDec")}
+    "{" ClassBodyDec* "}" -> ClassBody {cons("ClassBody")}
+
+    (Anno | ClassMod)* "class" Id  TypeParams? Super? Interfaces? -> ClassDecHead {cons("ClassDecHead")}
+
+  %% 8.1.1: Class Modifiers
+  sorts ClassMod
+  context-free syntax
+    Abstract  -> ClassMod
+    Public    -> ClassMod
+    Protected -> ClassMod
+    Private   -> ClassMod
+    Static    -> ClassMod
+    Final     -> ClassMod
+    StrictFP  -> ClassMod
+
+  %% 8.1.4: Superclasses and Subclasses
+  sorts Super
+  context-free syntax
+
+    "extends" ClassType -> Super {cons("SuperDec")}
+
+  %% 8.1.5: Superinterfaces
+  sorts Interfaces
+  context-free syntax
+    "implements" {InterfaceType ","}+ -> Interfaces {cons("ImplementsDec")}
+
+
+  %% 8.1.6: Class Body and Member Declarations
+  sorts
+    ClassBodyDec
+    ClassMemberDec
+
+  context-free syntax
+    ClassMemberDec -> ClassBodyDec
+    InstanceInit   -> ClassBodyDec
+    StaticInit     -> ClassBodyDec
+    ConstrDec      -> ClassBodyDec
+
+  context-free syntax
+    FieldDec     -> ClassMemberDec
+    MethodDec    -> ClassMemberDec
+    ClassDec     -> ClassMemberDec
+    InterfaceDec -> ClassMemberDec
+    ";"          -> ClassMemberDec {cons("Semicolon")}
+
+module languages/java-15/packages/TypeDeclarations
+imports
+  languages/java-15/classes/ClassDeclarations
+  languages/java-15/interfaces/InterfaceDeclarations
+
+exports
+  sorts
+    TypeDec
+
+  context-free syntax
+    ClassDec      -> TypeDec
+    InterfaceDec  -> TypeDec
+    ";"           -> TypeDec {cons("Semicolon")}
+
+module languages/java-15/packages/CompilationUnits
+imports
+  languages/java-15/packages/PackageDeclarations
+  languages/java-15/packages/ImportDeclarations
+  languages/java-15/packages/TypeDeclarations
+
+exports
+  sorts
+    CompilationUnit
+
+  context-free syntax
+    PackageDec? ImportDec* TypeDec+ -> CompilationUnit   {cons("CompilationUnit")}
+
+module languages/java-15/packages/Main
+imports
+  languages/java-15/packages/CompilationUnits
+  languages/java-15/packages/ImportDeclarations
+  languages/java-15/packages/PackageDeclarations
+
+
+
+
+
+
+
+
+module languages/java-15/names/Main
+imports
+  languages/java-15/lexical/Identifiers
+exports
+  sorts PackageName
+  context-free syntax
+    {Id "."}+ -> PackageName {cons("PackageName")}
+
+  sorts
+    TypeName
+    ExprName
+    MethodName
+    PackageOrTypeName
+    AmbName
+
+  context-free syntax
+    Id             -> AmbName {cons("AmbName")}
+    AmbName "." Id -> AmbName {cons("AmbName")}
+
+    Id                       -> TypeName {cons("TypeName")}
+    PackageOrTypeName "." Id -> TypeName {cons("TypeName")}
+
+    Id             -> ExprName {cons("ExprName")}
+    AmbName "." Id -> ExprName {cons("ExprName")}
+
+    Id             -> MethodName  {cons("MethodName")}
+    AmbName "." Id -> MethodName  {cons("MethodName")}
+
+    Id                       -> PackageOrTypeName {cons("PackageOrTypeName")}
+    PackageOrTypeName "." Id -> PackageOrTypeName {cons("PackageOrTypeName")}
+
+module languages/java-15/types/ParameterizedTypes
+imports
+  languages/java-15/types/ReferenceTypes
+
+exports
+  sorts
+    TypeArgs
+    ActualTypeArg
+    WildcardBound
+    
+  context-free syntax
+    "<" {ActualTypeArg ","}+ ">" -> TypeArgs {cons("TypeArgs")}
+
+    Type               -> ActualTypeArg
+    "?" WildcardBound? -> ActualTypeArg {cons("Wildcard")}
+
+    "extends" RefType -> WildcardBound {cons("WildcardUpperBound")}
+    "super"   RefType -> WildcardBound {cons("WildcardLowerBound")}
+
+module languages/java-15/types/TypeVariables
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/types/ReferenceTypes
+
+exports
+  sorts
+    TypeParams
+    TypeParam
+    TypeBound
+    TypeVarId
+  
+  context-free syntax
+    TypeVarId TypeBound? -> TypeParam {cons("TypeParam")}
+    
+    "extends" {ClassOrInterfaceType "&"}+ -> TypeBound {cons("TypeBound")}
+    "<" {TypeParam ","}+ ">" -> TypeParams {cons("TypeParams")}
+
+    Id -> TypeVarId
+    
+
+
+
+
+
+
+
+module languages/java-15/types/ReferenceTypes
+imports
+  languages/java-15/lexical/Identifiers
+  languages/java-15/names/Main
+  languages/java-15/types/Main  
+  languages/java-15/types/ParameterizedTypes
+  languages/java-15/types/TypeVariables
+
+
+exports
+  sorts
+    RefType
+    ClassOrInterfaceType
+    ClassType
+    InterfaceType
+    TypeDecSpec
+    ArrayType
+    TypeVar
+
+  context-free syntax
+    ClassOrInterfaceType -> RefType
+    ArrayType            -> RefType
+    
+    %% This production rule is highly ambiguous, since every
+    %% TypeVar can be a ClassOrInterfaceType. A later disambiguation
+    %% phase has to find out if a ClassOrInterfaceType is in fact
+    %% a TypeVar.
+    
+    %% TypeVar -> RefType {avoid}
+
+  context-free syntax
+  
+    %% ClassType and InterfaceType are ambiguous. We modify the
+    %% production of ClassOrInterfaceType to make this ambiguity explicit.
+    
+    TypeDecSpec TypeArgs? -> ClassOrInterfaceType {cons("ClassOrInterfaceType")}
+    TypeDecSpec TypeArgs? -> ClassType {cons("ClassType")}
+    TypeDecSpec TypeArgs? -> InterfaceType {cons("InterfaceType")}
+
+    TypeName -> TypeDecSpec
+    TypeDecSpec TypeArgs "." Id -> TypeDecSpec {cons("Member")}
+    
+  context-free syntax    
+    TypeVarId -> TypeVar {cons("TypeVar")}
+
+  context-free syntax
+    Type "[" "]" -> ArrayType  {cons("ArrayType")}
+
+module languages/java-15/types/PrimitiveTypes
+exports
+  sorts
+    PrimType
+    NumType
+    IntType  
+    FloatType
+
+  context-free syntax
+    NumType   -> PrimType
+    "boolean" -> PrimType {cons("Boolean")}
+
+    IntType   -> NumType
+    FloatType -> NumType
+
+    "byte"   -> IntType   {cons("Byte")}
+    "short"  -> IntType   {cons("Short")}
+    "int"    -> IntType   {cons("Int")}
+    "long"   -> IntType   {cons("Long")}
+    "char"   -> IntType   {cons("Char")}
+    "float"  -> FloatType {cons("Float")}
+    "double" -> FloatType {cons("Double")}
+
+module languages/java-15/types/Main
+imports
+  languages/java-15/types/PrimitiveTypes
+  languages/java-15/types/ReferenceTypes
+  languages/java-15/types/TypeVariables
+  languages/java-15/types/ParameterizedTypes
+
+exports
+  sorts
+    Type
+
+  context-free syntax
+    PrimType -> Type
+    RefType  -> Type
+
+
+
+
+
+
+
+
+module languages/java-15/lexical/literals/NullLiteral
+exports
+  sorts NullLiteral
+  context-free syntax
+    "null"  -> NullLiteral {cons("Null")}
+
+module languages/java-15/lexical/literals/StringLiterals
+imports
+  languages/java-15/lexical/literals/EscapeSequences
+  languages/java-15/lexical/UnicodeEscapes
+
+exports
+  sorts
+    StringLiteral
+    StringPart
+    StringChars
+    FooStringChars
+
+  syntax
+    StringLiteral -> <StringLiteral-CF>
+    
+    "\"" StringPart* "\"" -> StringLiteral {cons("String")}
+    StringChars    -> StringPart {cons("Chars")}
+    UnicodeEscape  -> StringPart
+    EscapeSeq      -> StringPart
+
+    <FooStringChars-LEX> -> StringChars
+    ~[\"\\\n\13]+  -> <FooStringChars-LEX>
+
+  restrictions
+    StringChars -/- ~[\"\\\n\13]
+
+module languages/java-15/lexical/literals/EscapeSequences
+imports
+
+exports
+  sorts
+    EscapeSeq
+    NamedEscape
+    OctaEscape
+    LastOcta
+
+  syntax
+    OctaEscape  -> EscapeSeq
+    NamedEscape -> EscapeSeq
+
+    "\\" [btnfr\"\'\\]     -> NamedEscape {cons("NamedEscape")}
+    "\\" LastOcta          -> OctaEscape  {cons("OctaEscape1")}
+    "\\" [0-3] LastOcta    -> OctaEscape  {cons("OctaEscape2")}
+    "\\" [4-7] [0-7]       -> OctaEscape  {cons("OctaEscape2")}
+    "\\" [0-3] [0-7] [0-7] -> OctaEscape  {cons("OctaEscape3")}
+
+    [0-7] -> LastOcta
+
+  restrictions
+    LastOcta -/- [0-7]
+
+module languages/java-15/lexical/literals/CharacterLiterals
+imports
+  languages/java-15/lexical/literals/EscapeSequences
+  languages/java-15/lexical/UnicodeEscapes
+
+exports
+  sorts
+    CharLiteral
+    CharContent
+    SingleChar
+
+  syntax
+    CharLiteral   -> <CharLiteral-CF>
+
+    "'" CharContent "'" -> CharLiteral {cons("Char")}
+    SingleChar    -> CharContent {cons("Single")}
+    UnicodeEscape -> CharContent
+    EscapeSeq     -> CharContent
+
+    ~[\r\n\'\\] -> SingleChar
+
+
+
+
+
+
+
+
+module languages/java-15/lexical/literals/BooleanLiterals
+exports
+  sorts
+    Bool
+    BoolLiteral
+
+  context-free syntax
+    Bool -> BoolLiteral {cons("Bool")}
+    "true"  -> Bool {cons("True")}
+    "false" -> Bool {cons("False")}
+
+module languages/java-15/lexical/literals/FloatingPointLiterals
+exports
+  sorts
+    FloatLiteral
+    DeciFloatLiteral
+    HexaFloatLiteral      
+  
+  context-free syntax
+    DeciFloatLiteral -> FloatLiteral {cons("Float")}
+    HexaFloatLiteral -> FloatLiteral {cons("Float")}
+
+  lexical syntax
+    DeciFloatNumeral [fFdD]? -> DeciFloatLiteral
+    HexaFloatNumeral [fFdD]? -> HexaFloatLiteral
+    
+    %% Reject plain integer literals as decimal float literals.
+    %% A similar rejection for hexadecimal float literals is not
+    %% required, since these always contain an exponent part.
+    [0-9]+ -> DeciFloatLiteral {reject}
+
+  lexical restrictions
+    DeciFloatLiteral -/- [fFdD]
+    HexaFloatLiteral -/- [fFdD]
+
+  %%%
+   %% Decimal Floating Point Numerals
+   %%%
+  sorts
+    DeciFloatNumeral
+    DeciFloatDigits
+    DeciFloatExponentPart
+
+  lexical syntax
+    DeciFloatDigits DeciFloatExponentPart? -> DeciFloatNumeral
+
+    [0-9]* "." [0-9]* -> DeciFloatDigits
+           "."        -> DeciFloatDigits {reject}
+    [0-9]+            -> DeciFloatDigits
+
+    [eE] SignedInteger -> DeciFloatExponentPart
+    
+    [\+\-]? [0-9]+ -> SignedInteger    
+
+  lexical restrictions
+    DeciFloatDigits  -/- [0-9]
+    DeciFloatExponentPart -/- [0-9]
+
+  %%%
+   %% Hexadecimal Floating Point Literals
+   %%%
+  sorts
+    HexaFloatNumeral
+    HexaSignificand
+    BinaryExponent
+    SignedInteger
+    
+  lexical syntax
+    HexaSignificand BinaryExponent -> HexaFloatNumeral
+
+    [0][xX] [0-9a-fA-F]+                  -> HexaSignificand
+    [0][xX] [0-9a-fA-F]* "." [0-9a-fA-F]* -> HexaSignificand
+    [0][xX]              "."              -> HexaSignificand {reject}
+
+    [pP] SignedInteger -> BinaryExponent
+  lexical restrictions
+    HexaSignificand -/- [0-9a-fA-F]
+    SignedInteger   -/- [0-9]
+
+module languages/java-15/lexical/literals/IntegerLiterals
+exports
+  sorts
+    IntLiteral
+    DeciLiteral
+    HexaLiteral
+    OctaLiteral
+    DeciNumeral
+    HexaNumeral
+    OctaNumeral
+
+  context-free syntax
+    DeciLiteral -> IntLiteral {cons("Deci")}
+    HexaLiteral -> IntLiteral {cons("Hexa")}
+    OctaLiteral -> IntLiteral {cons("Octa")}
+
+  lexical syntax
+    DeciNumeral [lL]? -> DeciLiteral
+    HexaNumeral [lL]? -> HexaLiteral
+    OctaNumeral [lL]? -> OctaLiteral
+
+    "0" -> DeciNumeral
+    [1-9][0-9]*  -> DeciNumeral
+    [0][xX] [0-9a-fA-F]+ -> HexaNumeral
+    [0]     [0-7]+       -> OctaNumeral
+
+  lexical restrictions
+    DeciNumeral -/- [0-9\.fFdD]
+    HexaNumeral -/- [0-9a-fA-F]
+    OctaNumeral -/- [0-7]
+
+    DeciLiteral -/- [lL]
+    HexaLiteral -/- [lL]
+    OctaLiteral -/- [lL]
+
+module languages/java-15/lexical/literals/Main
+imports
+  languages/java-15/lexical/literals/IntegerLiterals
+  languages/java-15/lexical/literals/FloatingPointLiterals
+  languages/java-15/lexical/literals/BooleanLiterals  
+  languages/java-15/lexical/literals/CharacterLiterals  
+  languages/java-15/lexical/literals/StringLiterals
+  languages/java-15/lexical/literals/NullLiteral
+
+
+
+
+
+
+
+
+module languages/java-15/lexical/Modifiers
+exports
+  sorts
+    Public
+    Private
+    Protected
+    Abstract
+    Final
+    Static
+    Native
+    Transient
+    Volatile
+    Synchronized
+    StrictFP
+    Modifier
+
+  context-free syntax
+    "public"       -> Public       {cons("Public")}
+    "private"      -> Private      {cons("Private")}
+    "protected"    -> Protected    {cons("Protected")}
+
+    "abstract"     -> Abstract     {cons("Abstract")}
+    "final"        -> Final        {cons("Final")}
+    "static"       -> Static       {cons("Static")}
+    "native"       -> Native       {cons("Native")}
+    "transient"    -> Transient    {cons("Transient")}
+    "volatile"     -> Volatile     {cons("Volatile")}
+    "synchronized" -> Synchronized {cons("Synchronized")}
+    "strictfp"     -> StrictFP     {cons("StrictFP")}
+
+    Public       -> Modifier
+    Private      -> Modifier
+    Protected    -> Modifier
+    Abstract     -> Modifier
+    Final        -> Modifier
+    Static       -> Modifier
+    Native       -> Modifier
+    Transient    -> Modifier
+    Volatile     -> Modifier
+    Synchronized -> Modifier
+    StrictFP     -> Modifier
+
+
+
+
+
+
+
+
+module languages/java-15/lexical/Keywords
+exports
+  sorts Keyword
+  lexical syntax
+    "abstract"      -> Keyword
+    "assert"        -> Keyword
+    "boolean"       -> Keyword
+    "break"         -> Keyword
+    "byte"          -> Keyword
+    "case"          -> Keyword
+    "catch"         -> Keyword
+    "char"          -> Keyword
+    "class"         -> Keyword
+    "const"         -> Keyword
+    "continue"      -> Keyword
+    "default"       -> Keyword
+    "do"            -> Keyword
+    "double"        -> Keyword
+    "else"          -> Keyword
+    "enum"          -> Keyword
+    "extends"       -> Keyword
+    "final"         -> Keyword
+    "finally"       -> Keyword
+    "float"         -> Keyword
+    "for"           -> Keyword
+    "goto"          -> Keyword
+    "if"            -> Keyword
+    "implements"    -> Keyword
+    "import"        -> Keyword
+    "instanceof"    -> Keyword
+    "int"           -> Keyword
+    "interface"     -> Keyword
+    "long"          -> Keyword
+    "native"        -> Keyword
+    "new"           -> Keyword
+    "package"       -> Keyword
+    "private"       -> Keyword
+    "protected"     -> Keyword
+    "public"        -> Keyword
+    "return"        -> Keyword
+    "short"         -> Keyword
+    "static"        -> Keyword
+    "strictfp"      -> Keyword
+    "super"         -> Keyword
+    "switch"        -> Keyword
+    "synchronized"  -> Keyword
+    "this"          -> Keyword
+    "throw"         -> Keyword
+    "throws"        -> Keyword
+    "transient"     -> Keyword
+    "try"           -> Keyword
+    "void"          -> Keyword
+    "volatile"      -> Keyword
+    "while"         -> Keyword
+
+  lexical restrictions
+
+    "abstract"
+    "assert"
+    "boolean" 
+    "break"   
+    "byte"    
+    "case"    
+    "catch"   
+    "char"     
+    "class"
+    "const"    
+    "continue" 
+    "default"  
+    "do"       
+    "double"   
+    "else"     
+    "enum"
+    "extends"  
+    "final"     
+    "finally"   
+    "float"     
+    "for"       
+    "goto"       
+    "if"         
+    "implements" 
+    "import"     
+    "instanceof" 
+    "int"        
+    "interface"  
+    "long"       
+    "native"     
+    "new"        
+    "package"    
+    "private"    
+    "protected"   
+    "public"       
+    "return"       
+    "short"        
+    "static"     
+    "strictfp"
+    "super"        
+    "switch"       
+    "synchronized" 
+    "this"         
+    "throw"        
+    "throws"       
+    "transient"    
+    "try"          
+    "void"         
+    "volatile"     
+    "while"       -/- [A-Za-z0-9\_\$]
+
+module languages/java-15/lexical/Identifiers
+imports
+  languages/java-15/lexical/Keywords
+exports
+  sorts
+    Id
+    ID
+
+  context-free syntax
+    ID -> Id {cons("Id")}
+
+  lexical syntax
+    [A-Za-z\_\$][A-Za-z0-9\_\$]* -> ID
+    
+    Keyword -> ID {reject}
+    "true"  -> ID {reject}
+    "false" -> ID {reject}
+    "null"  -> ID {reject}
+
+  lexical restrictions
+    ID -/- [a-zA-Z0-9\_\$]
+
+module languages/java-15/lexical/Comments
+imports
+  languages/java-15/lexical/LineTerminators
+exports
+  sorts
+    Comment
+    EOLCommentChars
+    CommentPart
+    UnicodeEscape
+    BlockCommentChars
+    Asterisk
+    EscEscChar
+    EscChar
+
+  lexical syntax
+    Comment -> LAYOUT
+
+    "//" EOLCommentChars LineTerminator -> Comment
+    ~[\n\r]* -> EOLCommentChars
+
+    "/*"  CommentPart* "*/" -> Comment
+    "/**" CommentPart* "*/" -> Comment
+    "/**/"                  -> Comment %% Strange javadoc comment
+
+    BlockCommentChars -> CommentPart
+    EscChar           -> CommentPart
+    EscEscChar        -> CommentPart
+    Asterisk          -> CommentPart
+    UnicodeEscape     -> CommentPart
+
+    ~[\*\\]+ -> BlockCommentChars
+
+    "*"    -> Asterisk
+    "\\\\" -> EscEscChar
+    "\\"   -> EscChar
+
+    "\\" [u]+ [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] -> UnicodeEscape
+
+  lexical restrictions
+    "/**"    -/- [\/]
+    "/*"     -/- [\*]
+    Asterisk -/- [\/]
+    EscChar  -/- [\\u]
+
+    BlockCommentChars -/- ~[\*\\]
+    EOLCommentChars   -/- ~[\n\13]
+
+  context-free restrictions
+    LAYOUT?  -/- [\/].[\*]
+    LAYOUT?  -/- [\/].[\/]
+
+module languages/java-15/lexical/WhiteSpace
+exports
+  lexical syntax
+    [\ \t\12\r\n] -> LAYOUT
+
+  context-free restrictions
+    LAYOUT? -/- [\ \t\12\n\r]
+
+module languages/java-15/lexical/LineTerminators
+exports
+  sorts
+    LineTerminator CarriageReturn EndOfFile
+
+  lexical syntax
+    [\n]           -> LineTerminator
+    [\r][\n]       -> LineTerminator
+    CarriageReturn -> LineTerminator
+    EndOfFile      -> LineTerminator
+
+    [\r] -> CarriageReturn
+
+  lexical restrictions
+    CarriageReturn -/- [\n]
+
+  %% End of file is empty.
+  lexical syntax    
+    -> EndOfFile
+
+  lexical restrictions
+    EndOfFile -/- ~[]
+
+module languages/java-15/lexical/UnicodeEscapes
+exports
+  sorts
+    UnicodeEscape
+
+  syntax
+    "\\" [u]+ [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] -> UnicodeEscape {cons("UnicodeEscape")}
+
+module languages/java-15/lexical/Main
+imports
+  languages/java-15/lexical/UnicodeEscapes
+  languages/java-15/lexical/LineTerminators
+  languages/java-15/lexical/WhiteSpace
+  languages/java-15/lexical/Comments
+  languages/java-15/lexical/Identifiers
+  languages/java-15/lexical/Keywords
+  languages/java-15/lexical/Modifiers
+  languages/java-15/lexical/literals/Main
+
+
+
+
+
+
+
+module languages/java-15/Main
+imports
+  languages/java-15/lexical/Main
+  languages/java-15/types/Main
+  languages/java-15/names/Main
+  languages/java-15/packages/Main
+  languages/java-15/classes/Main
+  languages/java-15/interfaces/Main
+  languages/java-15/arrays/Main
+  languages/java-15/statements/Main
+  languages/java-15/expressions/Main
+
+
+
+
+
+
+
+
+module languages/java/EmbeddedJava[E]
+imports
+  languages/java-15/Main
+
+exports
+  variables
+    [ij]  [0-9\']*            -> DeciLiteral {prefer}
+    [ij]  [\_] [a-zA-Z0-9\']* -> DeciLiteral {prefer}
+    [xyz] [0-9\']*            -> ID          {prefer}
+    [xyz] [\_] [a-zA-Z0-9\']* -> ID          {prefer}
+
+  context-free restrictions
+    ID -/- [\_a-zA-Z0-9\']
+
+%%%
+ %% Expressions
+ %%%
+exports
+
+  %%%
+   %% Variables for Expressions
+   %%%
+  variables
+    "e"    [0-9\']*         -> Expr           {prefer}
+    "e_" [a-zA-Z0-9\']*     -> Expr           {prefer}
+    "e"    [0-9\']* "*"     -> {VarInit ","}* {prefer}
+    "e_" [a-zA-Z0-9\']* "*" -> {VarInit ","}* {prefer}
+    "e"    [0-9\']* "*"     -> {Expr ","}*    {prefer}
+    "e_" [a-zA-Z0-9\']* "*" -> {Expr ","}*    {prefer}
+
+  lexical syntax
+    "e" [0-9\']*            -> ID {reject}
+    "e_" [a-zA-Z0-9\']*     -> ID {reject}
+
+  %%%
+   %% Quotations for Expressions
+   %%%
+  context-free syntax
+            "e" "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+    "java:expr" "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+         "expr" "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+    "java"      "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+                "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+
+    "var-init" "|[" VarInit "]|" -> E {cons("ToMetaExpr")}
+
+%%%
+ %% Statements
+ %%%
+exports
+
+  %%%
+   %% Variables for Statements
+   %%%
+  variables
+    "stm"  [0-9\']*             -> Stm         {prefer}
+    "stm_" [a-zA-Z0-9\']*       -> Stm         {prefer}
+    "bstm" [0-9\']*             -> BlockStm    {prefer}
+    "bstm_" [a-zA-Z0-9\']*      -> BlockStm    {prefer}
+    "bstm" [0-9\']* "*"         -> BlockStm*   {prefer}    
+    "bstm_" [a-zA-Z0-9\']* "*"  -> BlockStm*   {prefer}
+
+  %%%
+   %% Quotations for Statements
+   %%%
+  context-free syntax
+    "java:bstm"  "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+         "bstm"  "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+    "java"       "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+                 "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+
+    "java:bstm*" "|[" BlockStm* "]|" -> E {cons("ToMetaListExpr")}
+         "bstm*" "|[" BlockStm* "]|" -> E {cons("ToMetaListExpr")}
+
+    "java:block-stm"  "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+         "block-stm"  "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+    "java"            "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+                      "|[" BlockStm "]|" -> E {cons("ToMetaExpr")}
+
+    "java:block-stm*" "|[" BlockStm* "]|" -> E {cons("ToMetaListExpr")}
+         "block-stm*" "|[" BlockStm* "]|" -> E {cons("ToMetaListExpr")}
+
+
+    "java:stm"  "|[" Stm "]|" -> E {cons("ToMetaExpr")}
+         "stm"  "|[" Stm "]|" -> E {cons("ToMetaExpr")}
+         
+         "switch-group" "|[" SwitchGroup "]|" -> E {cons("ToMetaListExpr")}         
+    "java:switch-group" "|[" SwitchGroup "]|" -> E {cons("ToMetaListExpr")}
+    
+  %%%
+   %% Anti Quotations for Statements
+   %%%
+  context-free syntax
+    "~"       E  -> BlockStm  {cons("FromMetaExpr")}
+    "~bstm:"  E  -> BlockStm  {cons("FromMetaExpr")}
+    "~*"      E  -> BlockStm* {cons("FromMetaExpr")}
+    "~bstm*:" E  -> BlockStm* {cons("FromMetaExpr")}
+
+    "~stm:"   E  -> Stm {cons("FromMetaExpr"), prefer}
+    "~"       E  -> Stm {cons("FromMetaExpr")}
+
+    "~*"              E -> SwitchGroup* {cons("FromMetaExpr")}    
+    "~switch-group*:" E -> SwitchGroup* {cons("FromMetaExpr")}    
+
+    "~"               E -> SwitchGroup {cons("FromMetaExpr")}
+    "~switch-group:"  E -> SwitchGroup {cons("FromMetaExpr")}
+
+%%%
+ %% Variable Declarations
+ %%%
+
+  %%%
+   %% Variables for Variable Declarations
+   %%%
+  variables
+    "lvdec" [0-9]*            -> LocalVarDec    {prefer}
+    "lvdec_" [a-zA-Z0-9]*     -> LocalVarDec    {prefer}
+     "vdec" [0-9]*            -> VarDec         {prefer}
+     "vdec_" [a-zA-Z0-9]*     -> VarDec         {prefer}
+     "vdec"  [0-9]* "*"       -> {VarDec ","}+  {prefer}
+     "vdec_" [a-zA-Z0-9]* "*" -> {VarDec ","}+  {prefer}
+
+  lexical syntax
+    "lvdec"               -> ID {reject}
+    "lvdec_" [a-zA-Z0-9]* -> ID {reject}
+     "vdec"               -> ID {reject}
+     "vdec_" [a-zA-Z0-9]* -> ID {reject}
+
+  %%%
+   %% Quotations for Local Variable Declarations
+   %%%
+  context-free syntax
+    "java:lvdec"  "|[" LocalVarDec "]|" -> E {cons("ToMetaExpr")}
+         "lvdec"  "|[" LocalVarDec "]|" -> E {cons("ToMetaExpr")}
+
+    "java:vdec" "|[" VarDec "]|" -> E {cons("ToMetaExpr")}
+         "vdec" "|[" VarDec "]|" -> E {cons("ToMetaExpr")}
+
+  %%%
+   %% Anti Quotations for Local Variable Declarations
+   %%%
+  context-free syntax
+
+%%%
+ %% LeftHandSide of Assignment
+ %%%
+exports
+
+  %%%
+   %% Variables for LeftHandSide of Assignment
+   %%%
+  variables
+    "lhs" [0-9\']* -> LHS {prefer}
+    "e"   [0-9\']* -> LHS {prefer}
+
+  lexical syntax
+    "lhs" [0-9\']* -> ID {reject}
+
+%%%
+ %% Types
+ %%%
+exports
+
+  %%%
+   %% Variables for Types
+   %%%
+  variables
+    MetaTypeVar     -> Type     {prefer}
+    MetaPrimTypeVar -> PrimType {prefer}
+    MetaRefTypeVar  -> RefType  {prefer}
+
+  lexical syntax
+    "t"  [0-9\']*        -> MetaTypeVar
+    "t_" [a-zA-Z0-9\']*  -> MetaTypeVar
+    "ty" [0-9]*          -> MetaTypeVar
+    "ty_" [a-zA-Z0-9\']* -> MetaTypeVar
+
+    "primt"  [0-9]*        -> MetaPrimTypeVar
+    "primt_" [a-zA-Z0-9]*  -> MetaPrimTypeVar
+    "primty" [0-9]*        -> MetaPrimTypeVar
+    "primty_" [a-zA-Z0-9]* -> MetaPrimTypeVar
+    "reft"   [0-9]*        -> MetaRefTypeVar
+    "reft_" [a-zA-Z0-9]*   -> MetaRefTypeVar
+    "refty"  [0-9]*        -> MetaRefTypeVar
+    "refty_" [a-zA-Z0-9]*  -> MetaRefTypeVar
+
+    "t"  [0-9\']*          -> ID {reject}
+    "t_" [a-zA-Z0-9]*      -> ID {reject}
+    "ty" [0-9]*            -> ID {reject}
+    "ty_" [a-zA-Z0-9]*     -> ID {reject}
+    "primt"  [0-9]*        -> ID {reject}
+    "primt_" [a-zA-Z0-9]*  -> ID  {reject}
+    "primty" [0-9]*        -> ID {reject}
+    "primty_" [a-zA-Z0-9]* -> ID {reject}
+    "reft"   [0-9]*        -> ID {reject}
+    "reft_" [a-zA-Z0-9]*   -> ID {reject}    
+    "refty"  [0-9]*        -> ID {reject}
+    "refty_" [a-zA-Z0-9]*  -> ID {reject}
+
+  lexical restrictions
+    MetaTypeVar -/- [a-zA-Z0-9\_\$\']
+
+  %%%
+   %% Quotation for Types
+   %%%
+  context-free syntax
+            "t" "|[" Type "]|"   -> E {cons("ToMetaExpr")}
+           "ty" "|[" Type "]|"   -> E {cons("ToMetaExpr")}
+
+    "java:type" "|[" Type "]|"   -> E {cons("ToMetaExpr")}
+         "type" "|[" Type "]|"   -> E {cons("ToMetaExpr")}
+    "java"      "|[" Type "]|"   -> E {cons("ToMetaExpr")}
+                "|[" Type "]|"   -> E {cons("ToMetaExpr")}
+
+  %%%
+   %% Anti-Quotation for Types
+   %%%
+  context-free syntax
+    "~"       E -> Type {cons("FromMetaExpr")}
+    "~type:"  E -> Type {cons("FromMetaExpr")}
+
+%%%
+ %% Names
+ %%%
+exports
+
+  %%%
+   %% Variables for Names
+   %%%
+  variables
+    "ambname"  [0-9]*        -> AmbName    {prefer}
+    "ambname_" [a-zA-Z0-9]*  -> AmbName    {prefer}
+    "ename"    [0-9]*        -> ExprName   {prefer}
+    "ename_" [a-zA-Z0-9]*    -> ExprName   {prefer}
+    "fname"    [0-9]*        -> MethodName {prefer}
+    "fname_" [a-zA-Z0-9]*    -> MethodName {prefer}
+    "tname"    [0-9]*        -> TypeName   {prefer}
+    "tname_" [a-zA-Z0-9]*    -> TypeName   {prefer}
+    "pkgtname" [0-9]*        -> PackageOrTypeName  {prefer}
+    "pkgtname_" [a-zA-Z0-9]* -> PackageOrTypeName  {prefer}
+    "pkgname" [0-9]*         -> PackageName  {prefer}
+    "pkgname_" [a-zA-Z0-9]*  -> PackageName  {prefer}
+
+  %%%
+   %% Quotations for Names
+   %%%
+  context-free syntax
+    "ambname"  "|[" AmbName    "]|" -> E {cons("ToMetaExpr")}
+    "ename"    "|[" ExprName   "]|" -> E {cons("ToMetaExpr")}
+    "fname"    "|[" MethodName "]|" -> E {cons("ToMetaExpr")}
+    "tname"    "|[" TypeName   "]|" -> E {cons("ToMetaExpr")}
+    "pkgtname" "|[" PackageOrTypeName "]|" -> E {cons("ToMetaExpr")}
+
+%%%
+ %% Modifiers
+ %%%
+exports
+
+  %%%
+   %% Variables for Modifiers
+   %%%
+  variables
+     "mod" [0-9]*            -> MethodMod  {prefer}
+     "mod_" [a-zA-Z0-9]*     -> MethodMod  {prefer}
+     "mod" [0-9]* "*"        -> (Anno | MethodMod)* {prefer}
+     "mod_" [a-zA-Z0-9]* "*" -> (Anno | MethodMod)* {prefer}
+     
+     "mod" [0-9]*            -> ClassMod  {prefer}
+     "mod_" [a-zA-Z0-9]*     -> ClassMod  {prefer}
+     "mod" [0-9]* "*"        -> (Anno | ClassMod)* {prefer}
+     "mod_" [a-zA-Z0-9]* "*" -> (Anno | ClassMod)* {prefer}
+     
+     "mod" [0-9]*            -> ConstrMod  {prefer}
+     "mod_" [a-zA-Z0-9]*     -> ConstrMod  {prefer}
+     "mod" [0-9]* "*"        -> (Anno | ConstrMod)* {prefer}
+     "mod_" [a-zA-Z0-9]* "*" -> (Anno | ConstrMod)* {prefer}
+     
+     "mod" [0-9]*            -> VarMod  {prefer}
+     "mod_" [a-zA-Z0-9]*     -> VarMod  {prefer}
+     "mod" [0-9]* "*"        -> (Anno | VarMod)* {prefer}
+     "mod_" [a-zA-Z0-9]* "*" -> (Anno | VarMod)* {prefer}
+
+     "mod" [0-9]*            -> FieldMod  {prefer}
+     "mod_" [a-zA-Z0-9]*     -> FieldMod  {prefer}
+     "mod" [0-9]* "*"        -> (Anno | FieldMod)* {prefer}
+     "mod_" [a-zA-Z0-9]* "*" -> (Anno | FieldMod)* {prefer}
+
+  %%%
+   %% Quotations for Modifiers
+   %%%
+  context-free syntax
+           "|[" Modifier "]|" -> E {cons("ToMetaExpr")}
+    "mod"  "|[" Modifier "]|" -> E {cons("ToMetaExpr")}
+
+    "anno" "|[" Anno "]|" -> E {cons("ToMetaExpr")}
+
+
+%%%
+ %% Formal Parameters
+ %%%
+exports
+
+  %%%
+   %% Variables for Formal Parameters
+   %%%
+  variables
+     "param" [0-9]*            -> FormalParam  {prefer}
+     "param_" [a-zA-Z0-9]*     -> FormalParam  {prefer}
+     "param" [0-9]* "*"        -> {FormalParam ","}*  {prefer}
+     "param_" [a-zA-Z0-9]* "*" -> {FormalParam ","}* {prefer}
+
+  %%%
+   %% Quotations for Formal Parameters
+   %%%
+  context-free syntax
+
+         "param"  "|[" FormalParam "]|" -> E {cons("ToMetaExpr")}
+    "java:param"  "|[" FormalParam "]|" -> E {cons("ToMetaExpr")}
+
+         "param*" "|[" {FormalParam ","}* "]|" -> E {cons("ToMetaExpr")}
+    "java:param*" "|[" {FormalParam ","}* "]|" -> E {cons("ToMetaExpr")}
+
+    "java:formal-param" "|[" FormalParam "]|" -> E {cons("ToMetaExpr")}
+         "formal-param" "|[" FormalParam "]|" -> E {cons("ToMetaExpr")}
+    "java"              "|[" FormalParam "]|" -> E {cons("ToMetaExpr")}
+                        "|[" FormalParam "]|" -> E {cons("ToMetaExpr")}
+
+    "java:formal-param*" "|[" {FormalParam ","}* "]|" -> E {cons("ToMetaExpr")}
+         "formal-param*" "|[" {FormalParam ","}* "]|" -> E {cons("ToMetaExpr")}
+    "java"               "|[" {FormalParam ","}* "]|" -> E {cons("ToMetaExpr")}
+                         "|[" {FormalParam ","}* "]|" -> E {cons("ToMetaExpr")}
+
+  %%%
+   %% Anti Quotations for Formal Parameters
+   %%%
+  context-free syntax
+    "~"  E  ->  FormalParam       {cons("FromMetaExpr")}
+    "~*" E  -> {FormalParam ","}* {cons("FromMetaExpr")}
+
+%%%
+ %% Package Declarations
+ %%%
+exports
+
+  %%%
+   %% Quotations
+   %%%
+  context-free syntax
+    "java:package-dec" "|[" PackageDec  "]|" -> E {cons("ToMetaExpr")}
+         "package-dec" "|[" PackageDec  "]|" -> E {cons("ToMetaExpr")}
+                       "|[" PackageDec  "]|" -> E {cons("ToMetaExpr")}
+
+    "java:package-dec?" "|[" PackageDec? "]|" -> E {cons("ToMetaExpr")}
+         "package-dec?" "|[" PackageDec? "]|" -> E {cons("ToMetaExpr")}
+
+  %%%
+   %% Anti Quotations
+   %%%
+  context-free syntax
+    "~package-dec:"  E -> PackageDec {cons("FromMetaExpr")}
+    "~package-dec?:" E -> PackageDec? {cons("FromMetaExpr")}
+
+%%%
+ %% Import Declarations
+ %%%
+exports
+
+  %%%
+   %% Quotations for Import Declarations
+   %%%
+  context-free syntax
+
+    "java:import-dec"  "|[" ImportDec  "]|" -> E {cons("ToMetaExpr")}
+         "import-dec"  "|[" ImportDec  "]|" -> E {cons("ToMetaExpr")}
+                       "|[" ImportDec  "]|" -> E {cons("ToMetaExpr")}
+
+    "java:import-dec*" "|[" ImportDec* "]|" -> E {cons("ToMetaListExpr")}
+         "import-dec*" "|[" ImportDec* "]|" -> E {cons("ToMetaListExpr")}
+
+  %%%
+   %% Anti Quotations for Import Declarations
+   %%%
+  context-free syntax
+
+    "~import-dec:"  E  -> ImportDec  {cons("FromMetaExpr")}
+    "~import-dec*:" E  -> ImportDec* {cons("FromMetaExpr")}
+
+%%%
+ %% Must be cleaned up
+ %%%
+exports
+  context-free syntax
+            "e" "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+    "java:expr" "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+         "expr" "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+    "java"      "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+                "|[" Expr "]|"   -> E {cons("ToMetaExpr")}
+
+    "java:compilation-unit" "|[" CompilationUnit "]|"  -> E {cons("ToMetaExpr")}
+         "compilation-unit" "|[" CompilationUnit "]|"  -> E {cons("ToMetaExpr")}
+    "java"                  "|[" CompilationUnit "]|"  -> E {cons("ToMetaExpr")}
+                            "|[" CompilationUnit "]|"  -> E {cons("ToMetaExpr")}
+
+    "java:importdecl" "|[" ImportDec "]|"  -> E {cons("ToMetaExpr")}
+         "importdecl" "|[" ImportDec "]|"  -> E {cons("ToMetaExpr")}
+    "java"            "|[" ImportDec "]|"  -> E {cons("ToMetaExpr")}
+
+    "java:type-dec" "|[" TypeDec "]|" -> E {cons("ToMetaExpr")}
+         "type-dec" "|[" TypeDec "]|" -> E {cons("ToMetaExpr")}
+    "java"          "|[" TypeDec "]|" -> E {cons("ToMetaExpr")}
+                    "|[" TypeDec "]|" -> E {cons("ToMetaExpr")}
+
+    "java:class-body-dec" "|["  ClassBodyDec  "]|" -> E {cons("ToMetaExpr")}
+         "class-body-dec" "|["  ClassBodyDec  "]|" -> E {cons("ToMetaExpr")}
+    "java"                "|["  ClassBodyDec  "]|" -> E {cons("ToMetaExpr")}
+                          "|["  ClassBodyDec  "]|" -> E {cons("ToMetaExpr")}
+
+    "java:interface-member-dec" "|[" InterfaceMemberDec  "]|" -> E {cons("ToMetaExpr")}
+         "interface-member-dec" "|[" InterfaceMemberDec  "]|" -> E {cons("ToMetaExpr")}
+
+    "java:constant-dec" "|[" ConstantDec  "]|" -> E {cons("ToMetaExpr")}
+         "constant-dec" "|[" ConstantDec  "]|" -> E {cons("ToMetaExpr")}
+
+    "java:class-body-dec*" "|[" ClassBodyDec* "]|" -> E {cons("ToMetaExpr")}
+         "class-body-dec*" "|[" ClassBodyDec* "]|" -> E {cons("ToMetaExpr")}
+    "java"                 "|[" ClassBodyDec* "]|" -> E {cons("ToMetaExpr")}
+                           "|[" ClassBodyDec* "]|" -> E {cons("ToMetaListExpr")}
+
+    "java:stm" "|["  Stm "]|" -> E {cons("ToMetaExpr")}
+         "stm" "|["  Stm "]|" -> E {cons("ToMetaExpr")}
+
+    "java:imember-dec" "|["  AbstractMethodDec  "]|" -> E {cons("ToMetaExpr")}
+         "imember-dec" "|["  AbstractMethodDec  "]|" -> E {cons("ToMetaExpr")}
+    "java"             "|["  AbstractMethodDec  "]|" -> E {cons("ToMetaExpr")}
+                       "|["  AbstractMethodDec  "]|" -> E {cons("ToMetaExpr")}
+
+    "java:imember-dec*" "|["  AbstractMethodDec*  "]|" -> E {cons("ToMetaExpr")}
+         "imember-dec*" "|["  AbstractMethodDec*  "]|" -> E {cons("ToMetaExpr")}
+    "java"              "|["  AbstractMethodDec*  "]|" -> E {cons("ToMetaExpr")}
+                        "|["  AbstractMethodDec*  "]|" -> E {cons("ToMetaExpr")}
+
+  %% Anti-quotation
+  context-free syntax
+
+    "~"      E -> Name {cons("FromMetaExpr")}
+    "~name:" E -> Name {cons("FromMetaExpr")}
+    "~*:"    E -> Name {cons("FromMetaExpr")}
+
+    "~"     E     -> Id   {cons("FromMetaExpr")}
+    "~id:"  E     -> Id   {cons("FromMetaExpr")}
+    "~idd:" E ":" -> Id   {cons("FromMetaExpr")}
+
+    "~x:" E -> ID {cons("FromMetaExpr")}
+
+    "~"  E -> TypeParam        {cons("FromMetaExpr")}
+    "~*" E -> {TypeParam ","}+ {cons("FromMetaExpr")}
+
+    "~*" E -> {ExceptionType ","}* {cons("FromMetaExpr")}
+
+    "~"      E  ->  Expr {cons("FromMetaExpr")}
+    "~e:"    E  ->  Expr {prefer, cons("FromMetaExpr")}
+    "~expr:" E  ->  Expr {prefer, cons("FromMetaExpr")}
+
+    "~*" E      -> {Expr ","}*    {cons("FromMetaExpr")}
+    "~*" E      -> {VarInit ","}* {cons("FromMetaExpr")}
+
+    "~"  E  -> TypeDec  {cons("FromMetaExpr")}
+    "~*" E  -> TypeDec* {cons("FromMetaExpr")}
+
+    "~"  E  -> ClassBodyDec  {cons("FromMetaExpr")}
+    "~*" E  -> ClassBodyDec* {cons("FromMetaExpr")}
+
+    "~"  E  -> InterfaceMemberDec  {cons("FromMetaExpr")}
+    "~*" E  -> InterfaceMemberDec* {cons("FromMetaExpr")}
+
+    "~i:"      E -> DeciLiteral   {cons("FromMetaExpr")}
+    "~deci:"   E -> DeciLiteral   {cons("FromMetaExpr")}
+    "~hexa:"   E -> HexaLiteral   {cons("FromMetaExpr")}
+    "~octa:"   E -> OctaLiteral   {cons("FromMetaExpr")}
+    "~float:"  E -> FloatLiteral  {cons("FromMetaExpr")}
+    "~string:" E -> StringLiteral {cons("FromMetaExpr")}
+    "~char:"   E -> CharLiteral   {cons("FromMetaExpr")}
+
+  syntax
+    "~" <E-CF> -> StringChars {cons("FromMetaExpr"), prefer}
+    "~" <E-CF> <LAYOUT?-CF> -> SingleChar  {cons("FromMetaExpr"), prefer}
+
+module languages/java/EmbeddedJavaMix[Ctx0 E]
+imports languages/java/EmbeddedJava[E]
+          [ Name                  => Name[[Ctx0]]
+            MetaRefTypeVar        => MetaRefTypeVar[[Ctx0]]
+            MetaPrimTypeVar       => MetaPrimTypeVar[[Ctx0]]
+            MetaTypeVar           => MetaTypeVar[[Ctx0]]
+            CompilationUnit       => CompilationUnit[[Ctx0]]
+            TypeDec               => TypeDec[[Ctx0]]
+            ImportDec             => ImportDec[[Ctx0]]
+            PackageDec            => PackageDec[[Ctx0]]
+            ElemVal               => ElemVal[[Ctx0]]
+            ElemValPair           => ElemValPair[[Ctx0]]
+            Anno                  => Anno[[Ctx0]]
+            LHS                   => LHS[[Ctx0]]
+            CondMid               => CondMid[[Ctx0]]
+            ArraySubscript        => ArraySubscript[[Ctx0]]
+            DimExpr               => DimExpr[[Ctx0]]
+            ArrayBaseType         => ArrayBaseType[[Ctx0]]
+            ArrayCreationExpr     => ArrayCreationExpr[[Ctx0]]
+            ClassMemberDec        => ClassMemberDec[[Ctx0]]
+            ClassBodyDec          => ClassBodyDec[[Ctx0]]
+            Interfaces            => Interfaces[[Ctx0]]
+            Super                 => Super[[Ctx0]]
+            ClassMod              => ClassMod[[Ctx0]]
+            ClassDecHead          => ClassDecHead[[Ctx0]]
+            ClassBody             => ClassBody[[Ctx0]]
+            ClassDec              => ClassDec[[Ctx0]]
+            InterfaceMod          => InterfaceMod[[Ctx0]]
+            InterfaceMemberDec    => InterfaceMemberDec[[Ctx0]]
+            ExtendsInterfaces     => ExtendsInterfaces[[Ctx0]]
+            InterfaceDecHead      => InterfaceDecHead[[Ctx0]]
+            InterfaceDec          => InterfaceDec[[Ctx0]]
+            DefaultVal            => DefaultVal[[Ctx0]]
+            AnnoElemDec           => AnnoElemDec[[Ctx0]]
+            AnnoDecHead           => AnnoDecHead[[Ctx0]]
+            AnnoDec               => AnnoDec[[Ctx0]]
+            AbstractMethodMod     => AbstractMethodMod[[Ctx0]]
+            AbstractMethodDec     => AbstractMethodDec[[Ctx0]]
+            ConstantMod           => ConstantMod[[Ctx0]]
+            ConstantDec           => ConstantDec[[Ctx0]]
+            EnumBodyDecs          => EnumBodyDecs[[Ctx0]]
+            EnumConstArgs         => EnumConstArgs[[Ctx0]]
+            EnumConst             => EnumConst[[Ctx0]]
+            EnumBody              => EnumBody[[Ctx0]]
+            EnumDecHead           => EnumDecHead[[Ctx0]]
+            EnumDec               => EnumDec[[Ctx0]]
+            ConstrMod             => ConstrMod[[Ctx0]]
+            ConstrInv             => ConstrInv[[Ctx0]]
+            ConstrBody            => ConstrBody[[Ctx0]]
+            ConstrHead            => ConstrHead[[Ctx0]]
+            ConstrDec             => ConstrDec[[Ctx0]]
+            StaticInit            => StaticInit[[Ctx0]]
+            InstanceInit          => InstanceInit[[Ctx0]]
+            MethodBody            => MethodBody[[Ctx0]]
+            ExceptionType         => ExceptionType[[Ctx0]]
+            Throws                => Throws[[Ctx0]]
+            MethodMod             => MethodMod[[Ctx0]]
+            VarMod                => VarMod[[Ctx0]]
+            FormalParam           => FormalParam[[Ctx0]]
+            ResultType            => ResultType[[Ctx0]]
+            MethodDecHead         => MethodDecHead[[Ctx0]]
+            MethodDec             => MethodDec[[Ctx0]]
+            BlockStm              => BlockStm[[Ctx0]]
+            Block                 => Block[[Ctx0]]
+            CatchClause           => CatchClause[[Ctx0]]
+            SwitchLabel           => SwitchLabel[[Ctx0]]
+            SwitchGroup           => SwitchGroup[[Ctx0]]
+            SwitchBlock           => SwitchBlock[[Ctx0]]
+            Stm                   => Stm[[Ctx0]]
+            LocalVarDec           => LocalVarDec[[Ctx0]]
+            LocalVarDecStm        => LocalVarDecStm[[Ctx0]]
+            FieldMod              => FieldMod[[Ctx0]]
+            VarInit               => VarInit[[Ctx0]]
+            Dim                   => Dim[[Ctx0]]
+            VarDecId              => VarDecId[[Ctx0]]
+            VarDec                => VarDec[[Ctx0]]
+            FieldDec              => FieldDec[[Ctx0]]
+            ArrayInit             => ArrayInit[[Ctx0]]
+            ClassLiteral          => ClassLiteral[[Ctx0]]
+            Literal               => Literal[[Ctx0]]
+            Type                  => Type[[Ctx0]]
+            ArrayType             => ArrayType[[Ctx0]]
+            TypeVar               => TypeVar[[Ctx0]]
+            TypeDecSpec           => TypeDecSpec[[Ctx0]]
+            InterfaceType         => InterfaceType[[Ctx0]]
+            ClassType             => ClassType[[Ctx0]]
+            ClassOrInterfaceType  => ClassOrInterfaceType[[Ctx0]]
+            RefType               => RefType[[Ctx0]]
+            TypeVarId             => TypeVarId[[Ctx0]]
+            TypeParams            => TypeParams[[Ctx0]]
+            TypeBound             => TypeBound[[Ctx0]]
+            TypeParam             => TypeParam[[Ctx0]]
+            WildcardBound         => WildcardBound[[Ctx0]]
+            ActualTypeArg         => ActualTypeArg[[Ctx0]]
+            TypeArgs              => TypeArgs[[Ctx0]]
+            PackageOrTypeName     => PackageOrTypeName[[Ctx0]]
+            MethodName            => MethodName[[Ctx0]]
+            ExprName              => ExprName[[Ctx0]]
+            TypeName              => TypeName[[Ctx0]]
+            AmbName               => AmbName[[Ctx0]]
+            PackageName           => PackageName[[Ctx0]]
+            FloatType             => FloatType[[Ctx0]]
+            IntType               => IntType[[Ctx0]]
+            NumType               => NumType[[Ctx0]]
+            PrimType              => PrimType[[Ctx0]]
+            NullLiteral           => NullLiteral[[Ctx0]]
+            FooStringChars        => FooStringChars[[Ctx0]]
+            StringChars           => StringChars[[Ctx0]]
+            StringPart            => StringPart[[Ctx0]]
+            StringLiteral         => StringLiteral[[Ctx0]]
+            SingleChar            => SingleChar[[Ctx0]]
+            CharContent           => CharContent[[Ctx0]]
+            CharLiteral           => CharLiteral[[Ctx0]]
+            LastOcta              => LastOcta[[Ctx0]]
+            OctaEscape            => OctaEscape[[Ctx0]]
+            NamedEscape           => NamedEscape[[Ctx0]]
+            EscapeSeq             => EscapeSeq[[Ctx0]]
+            Bool                  => Bool[[Ctx0]]
+            BoolLiteral           => BoolLiteral[[Ctx0]]
+            BinaryExponent        => BinaryExponent[[Ctx0]]
+            HexaSignificand       => HexaSignificand[[Ctx0]]
+            HexaFloatNumeral      => HexaFloatNumeral[[Ctx0]]
+            SignedInteger         => SignedInteger[[Ctx0]]
+            DeciFloatExponentPart => DeciFloatExponentPart[[Ctx0]]
+            DeciFloatDigits       => DeciFloatDigits[[Ctx0]]
+            DeciFloatNumeral      => DeciFloatNumeral[[Ctx0]]
+            FloatLiteral          => FloatLiteral[[Ctx0]]
+            HexaFloatLiteral      => HexaFloatLiteral[[Ctx0]]
+            DeciFloatLiteral      => DeciFloatLiteral[[Ctx0]]
+            IntLiteral            => IntLiteral[[Ctx0]]
+            OctaNumeral           => OctaNumeral[[Ctx0]]
+            HexaNumeral           => HexaNumeral[[Ctx0]]
+            DeciNumeral           => DeciNumeral[[Ctx0]]
+            OctaLiteral           => OctaLiteral[[Ctx0]]
+            HexaLiteral           => HexaLiteral[[Ctx0]]
+            DeciLiteral           => DeciLiteral[[Ctx0]]
+            Modifier              => Modifier[[Ctx0]]
+            StrictFP              => StrictFP[[Ctx0]]
+            Synchronized          => Synchronized[[Ctx0]]
+            Volatile              => Volatile[[Ctx0]]
+            Transient             => Transient[[Ctx0]]
+            Native                => Native[[Ctx0]]
+            Static                => Static[[Ctx0]]
+            Final                 => Final[[Ctx0]]
+            Abstract              => Abstract[[Ctx0]]
+            Protected             => Protected[[Ctx0]]
+            Private               => Private[[Ctx0]]
+            Public                => Public[[Ctx0]]
+            Id                    => Id[[Ctx0]]
+            ID                    => ID[[Ctx0]]
+            Keyword               => Keyword[[Ctx0]]
+            ArrayAccess           => ArrayAccess[[Ctx0]]
+            FieldAccess           => FieldAccess[[Ctx0]]
+            MethodSpec            => MethodSpec[[Ctx0]]
+            Expr                  => Expr[[Ctx0]] ]
+
+
+module Stratego-Sugar-Overlays
+imports
+  Stratego-Core-Identifiers
+  Stratego-Sugar-Terms
+
+exports
+  sorts Overlay
+  context-free syntax
+    Id 			 "=" Term 	-> Overlay {cons("OverlayNoArgs")}
+    Id "(" {Id ","}* ")" "=" Term 	-> Overlay {cons("Overlay")}
+
+module Stratego-Sugar-DynamicRules
+imports
+  Stratego-Core-Identifiers
+  Stratego-Sugar-Strategies
+  Stratego-Sugar-Rules
+
+exports
+ 
+  sorts ScopeLabels
+  context-free syntax
+
+    "{|" ScopeLabels ":" Strategy "|}" -> Strategy {cons("DynRuleScope")}
+
+    {DynRuleScopeId ","}*   -> ScopeLabels
+    "~" Term		    -> ScopeLabels {cons("ScopeLabels")}
+
+  sorts DynRuleDef DynRuleId DynRuleScopeId RuleDec
+  context-free syntax
+
+    "rules" "(" DynRuleDef* ")" -> Strategy {cons("GenDynRules")}
+
+    Id "+" Term                 -> DynRuleDef {cons("AddScopeLabel")} 
+    DynRuleId ":-"  Term        -> DynRuleDef {cons("UndefineDynRule")}
+    DynRuleId ":"   Rule        -> DynRuleDef {cons("SetDynRule")}
+    DynRuleId ":+"  Rule        -> DynRuleDef {cons("AddDynRule")}
+    DynRuleId ":"   Term        -> DynRuleDef {cons("SetDynRuleMatch")}
+
+    DynRuleId ":="  Term        -> DynRuleDef {cons("DynRuleAssign")}
+    DynRuleId ":+="  Term       -> DynRuleDef {cons("DynRuleAssignAdd")}
+
+    DynRuleId ":"   Rule "depends" "on" Term -> DynRuleDef {cons("SetDynRuleDepends")}
+
+    RuleDec "." Term            -> DynRuleId {cons("LabeledDynRuleId")}
+    RuleDec "+" Term            -> DynRuleId {cons("AddLabelDynRuleId")}
+    RuleDec                     -> DynRuleId {cons("DynRuleId")}
+
+    Id "." Term                 -> DynRuleScopeId {cons("LabeledDynRuleScopeId")}
+    Id                          -> DynRuleScopeId {cons("DynRuleScopeId")}
+
+  context-free syntax
+
+    Id                          -> RuleDec {cons("RDecNoArgs")}
+    Id "(" {Typedid ","}* ")"   -> RuleDec {cons("RDec")}
+    Id "(" {Typedid ","}* 
+       "|" {Typedid ","}* ")"   -> RuleDec {cons("RDecT")}
+
+  sorts RuleNames
+  context-free syntax
+    {Id ","}*				  -> RuleNames
+    "~" Term				  -> RuleNames {cons("RuleNames")}
+
+    "/" RuleNames "\\*" Strategy          -> Strategy {cons("DynRuleIntersectFix")}
+
+  syntax
+    %% no space after RuleNames
+    "\\" <LAYOUT?-CF> <RuleNames-CF> "/*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleUnionFix")}
+
+    %% 1 space after RuleNames
+    "\\" <LAYOUT?-CF> <RuleNames-CF> " /*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleUnionFix")}
+
+    %% no space after RuleNames
+    "/"  <LAYOUT?-CF> <RuleNames-CF> <LAYOUT?-CF> "\\"
+        <LAYOUT?-CF> <RuleNames-CF> "/*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleIntersectUnionFix")}
+
+    %% 1 space after RuleNames
+    "/"  <LAYOUT?-CF> <RuleNames-CF> <LAYOUT?-CF> "\\"
+        <LAYOUT?-CF> <RuleNames-CF> " /*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleIntersectUnionFix")}
+
+
+  context-free syntax
+    Strategy "/" RuleNames"\\" Strategy  -> Strategy {cons("DynRuleIntersect"),right}
+    Strategy "\\" RuleNames "/" Strategy  -> Strategy {cons("DynRuleUnion"),right}
+
+    Strategy "/" RuleNames "\\" 
+                 RuleNames "/"  Strategy  -> Strategy {cons("DynRuleIntersectUnion"),right}
+
+  priorities
+    <StrategyAngle-CF> <LAYOUT?-CF> <Term-CF> -> <Strategy-CF> {cons("BA")}
+  > {
+
+    %% no space after RuleNames
+    "\\" <LAYOUT?-CF> <RuleNames-CF> "/*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleUnionFix")}
+
+    %% 1 space after RuleNames
+    "\\" <LAYOUT?-CF> <RuleNames-CF> " /*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleUnionFix")}
+
+    %% no space after RuleNames
+    "/"  <LAYOUT?-CF> <RuleNames-CF> <LAYOUT?-CF> "\\"
+        <LAYOUT?-CF> <RuleNames-CF> "/*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleIntersectUnionFix")}
+
+    %% 1 space after RuleNames
+    "/"  <LAYOUT?-CF> <RuleNames-CF> <LAYOUT?-CF> "\\"
+        <LAYOUT?-CF> <RuleNames-CF> " /*" <LAYOUT?-CF> <Strategy-CF>
+      -> <Strategy-CF> {cons("DynRuleIntersectUnionFix")}
+
+    }
+  > <Strategy-CF> <LAYOUT?-CF> "=>" <LAYOUT?-CF> <Term-CF> -> <Strategy-CF> {cons("AM")}
+
+  context-free priorities
+    StrategyAngle Term 		          -> Strategy {cons("BA")}
+  > "/" RuleNames "\\*" Strategy          -> Strategy {cons("DynRuleIntersectFix")}
+  > Strategy "=>" Term 		  	  -> Strategy {cons("AM")}
+  > Strategy "/" RuleNames "\\" Strategy  -> Strategy {cons("DynRuleIntersect"),right}
+  > Strategy "\\" RuleNames "/" Strategy  -> Strategy {cons("DynRuleUnion"),right}
+  > Strategy "/" RuleNames "\\" 
+                 RuleNames "/"  Strategy  -> Strategy {cons("DynRuleIntersectUnion"),right}
+  > Strategy ";" Strategy 		  -> Strategy {cons("Seq"),right}
+
+module Stratego-Sugar-Rules
+imports Stratego-Sugar-Strategies
+exports
+
+  sorts RuleDef
+  context-free syntax
+    Id ":" Rule 				-> RuleDef {cons("RDefNoArgs")}
+
+    Id "(" {Typedid ","}* ")" ":" Rule 		-> RuleDef {cons("RDef")}
+
+    Id "(" {Typedid ","}* 
+       "|" {Typedid ","}* ")" ":" Rule 		-> RuleDef {cons("RDefT")}
+
+  sorts Rule RuleCond
+  context-free syntax
+    Term "->" Term           	    -> Rule {cons("RuleNoCond")} %% backward comp.
+    Term "->" Term "where" Strategy -> Rule {cons("Rule")}       %% backward comp.
+    Term "->" Term RuleCond+	    -> Rule {cons("Rule"), avoid}
+
+    "where" Strategy -> RuleCond {cons("WhereClause")}
+    "with"  Strategy -> RuleCond {cons("WithClause")}
+
+module Stratego-Sugar-Strategies
+imports
+  Stratego-Core-Strategies
+  Stratego-Sugar-Terms
+  Stratego-Sugar-Constants
+  Stratego-Sugar-Signatures
+
+exports
+  context-free syntax
+    Id  		      "=" Strategy -> StrategyDef {cons("SDefNoArgs")}
+    Id "(" {Typedid ","}* ")" "=" Strategy -> StrategyDef {cons("SDef")}
+
+  context-free syntax
+    ID 				  	  -> Typedid {cons("DefaultVarDec")}
+
+  sorts Rule
+
+  sorts StrategyParen StrategyCurly StrategyAngle
+  context-free syntax
+
+    %% Abstraction
+
+    SVar "(" {Strategy ","}* ")" 	  -> Strategy {cons("Call")}
+
+    %% Match and build
+
+    "{" Strategy "}" 			  -> Strategy {cons("ScopeDefault")}
+
+     %%"<" Strategy ">" Term 		  -> Strategy {cons("BA")}
+     StrategyAngle Term 		  -> Strategy {cons("BA")}
+     "<" Strategy ">"			  -> StrategyAngle {bracket} %% {cons("AngleStrat")}
+
+    %% Combinators
+
+    Strategy "<+" Strategy 		  -> Strategy {cons("LChoice"),right}
+
+    "rec" Id "(" Strategy ")" 		  -> Strategy {cons("Rec")}
+
+    "not"   "(" Strategy ")" 		  -> Strategy {cons("Not")}
+    "where" "(" Strategy ")" 		  -> Strategy {cons("Where")}
+    "with"  "(" Strategy ")" 		  -> Strategy {cons("With"), prefer}
+    "test"  "(" Strategy ")" 		  -> Strategy {cons("Test")}
+
+    %% Primitives
+
+    "prim" "(" String ")" 		  -> Strategy {cons("PrimNoArgs")}
+    "prim" "(" String "," {Term ","}* ")" -> Strategy {cons("Prim")}
+
+    %% Congruence operators
+
+    String 				  -> Strategy {cons("StrCong")}
+    Int 				  -> Strategy {cons("IntCong")}
+    Real 				  -> Strategy {cons("RealCong")}
+    Char 			 	  -> Strategy {cons("CharCong")}
+
+    String "(" {Strategy ","}* ")" 	  -> Strategy {cons("CongQ")}
+
+    %%"(" {Strategy ","}* ")" 		  -> Strategy {cons("TupleCong"),avoid}
+
+    Strategy StrategyCurly		  -> Strategy {cons("AnnoCong")}
+    "{" Strategy "}"		  	  -> StrategyCurly {cons("StrategyCurly")}
+
+    "("  ")" 		  		  -> Strategy {cons("EmptyTupleCong")}
+   "(" Strategy  ")" 		          -> Strategy {bracket}
+    "(" Strategy "," {Strategy ","}+ ")"  -> Strategy {cons("TupleCong")}
+
+%%    Mod 	  			  -> Strategy {cons("ModCongNoArgs")}
+%%    Mod "(" {Strategy ","}* ")"	  	  -> Strategy {cons("ModCong")}
+%%    Id "^" Id				  -> Mod {cons("Mod")}
+    "[" {Strategy ","}* "]" 		  -> Strategy {cons("ListCongNoTail")}
+    "[" {Strategy ","}* "|" Strategy "]"  -> Strategy {cons("ListCong")}
+
+%%    Strategy "#" "(" StrategyInj ")" 	  -> Strategy {cons("ExplodeCong")}
+%%    Strategy "#" "(" Strategy ")" 	  -> Strategy {cons("ExplodeCong")}
+    Strategy "#" StrategyParen	  	  -> Strategy {cons("ExplodeCong")}
+
+  %% Syntactic sugar sugar
+
+  sorts SwitchCase
+  context-free syntax
+
+    SVar  		  		  -> Strategy {cons("CallNoArgs")}
+    "\\" Rule "\\" 			  -> Strategy {cons("LRule")}
+    "(" Rule ")" 			  -> Strategy {cons("SRule")}
+    Strategy "+" Strategy 		  -> Strategy {cons("Choice"),right} 
+    Strategy "+>" Strategy 		  -> Strategy {cons("RChoice"),right}
+
+    "if" Strategy "then" Strategy 
+                  "else" Strategy "end"   -> Strategy {cons("CondChoice")}
+    "if" Strategy "then" Strategy "end"   -> Strategy {cons("IfThen")}
+
+    "switch" Strategy SwitchCase* "end"   -> Strategy {cons("SwitchChoiceNoOtherwise")}
+    "switch" Strategy SwitchCase*
+         "otherwise" ":" Strategy "end"   -> Strategy {cons("SwitchChoice")}
+
+    "case" Strategy ":" Strategy          -> SwitchCase {cons("SwitchCase")}
+
+    Strategy "=>" Term 		  	  -> Strategy {cons("AM")}
+
+    Term ":=" Term			  -> Strategy {cons("Assign")}
+
+  %% Priorities
+
+  context-free priorities
+    { Strategy StrategyCurly		  -> Strategy
+      Strategy "#" StrategyParen          -> Strategy
+    }
+  > { "!" Term 				  -> Strategy
+      "?" Term 				  -> Strategy
+    }
+  > StrategyAngle Term 		          -> Strategy
+  > Strategy "=>" Term 		  	  -> Strategy
+  > Strategy ";" Strategy 		  -> Strategy
+  > {right: 
+     Strategy "+" Strategy 		  -> Strategy
+     Strategy "<+" Strategy 		  -> Strategy
+     Strategy "+>" Strategy 		  -> Strategy
+     
+     Strategy "<" StrategyMid 
+              "+" Strategy 		  -> Strategy
+    }
+
+  context-free priorities
+    Strategy 				  -> StrategyMid
+  > Strategy "+" Strategy 		  -> Strategy
+
+  context-free priorities
+    { Strategy StrategyCurly      -> Strategy
+      Strategy "#" StrategyParen  -> Strategy
+    }
+    .> Term ":=" Term -> Strategy
+
+
+module Stratego-Sugar-Terms
+imports
+  Stratego-Core-Terms
+  Stratego-Sugar-Strategies
+
+exports
+  sorts LID
+  context-free syntax
+    LId 			-> LID  {cons("ListVar")}
+    LID				-> Var  {cons("Var")}
+    LID				-> ID
+
+  context-free syntax
+    "_" PreTerm 		 -> PreTerm {cons("BuildDefaultPT")}
+    "_" Term 			 -> Term {cons("BuildDefault"),prefer}
+
+    Char 			 -> PreTerm {cons("Char")}
+
+    PreTerm "{" {Term ","}* "}"	 -> Term {cons("AnnoList")}
+    PreTerm                      -> Term {cons("NoAnnoList")}
+
+    "<" Strategy ">" Term 	 -> PreTerm {cons("App")}
+    "<" Strategy ">" Term 	 -> Term {cons("App"),prefer}
+
+    StrategyAngle		 -> PreTerm {cons("RootApp")}
+    StrategyAngle		 -> Term {cons("RootApp"),prefer}
+
+    "(" {Term ","}* ")" 	 -> PreTerm {cons("Tuple")}
+    "[" {Term ","}* "]" 	 -> PreTerm {cons("List")}
+    "[" {Term ","}* "|" Term "]" -> PreTerm {cons("ListTail")}
+
+  context-free priorities
+    Term "#" "(" Term ")" 	 -> PreTerm {cons("Explode")}
+  > PreTerm "{" {Term ","}* "}"	 -> Term {cons("AnnoList")}
+  > Var "@" Term 		 -> Term {cons("As")}
+
+module Stratego-Sugar-Signatures
+imports
+  Stratego-Core-Signatures
+  Stratego-Sugar-Constants
+
+exports
+
+  sorts Sort
+  context-free syntax
+    "[" {Sort ","}* "]"		 -> Sort {cons("SortList")}
+    "[" {Sort ","}* "|" Sort "]" -> Sort {cons("SortListTl")}
+    "(" {Sort ","}* ")"		 -> Sort {cons("SortTuple")}
+
+  sorts Kind
+  context-free syntax
+    "*" 			-> Kind {cons("Star")}
+    "**" 			-> Kind {cons("StarStar")}
+
+module Stratego-Core-Signatures
+imports
+  Stratego-Core-Identifiers
+  Stratego-Core-Constants
+exports
+  sorts Sdecl
+  context-free syntax
+    "sorts" Sort* 		-> Sdecl {cons("Sorts")}
+    "constructors" Opdecl* 	-> Sdecl {cons("Constructors")}
+
+  sorts Sort
+  context-free syntax
+    LCID 			 -> Sort {cons("SortVar")}
+    UCID 			 -> Sort {cons("SortNoArgs")}
+    Id "(" {Sort ","}* ")" 	 -> Sort {cons("Sort")}
+
+  sorts Opdecl
+  context-free syntax
+    Id     ":" Type 		-> Opdecl {cons("OpDecl")}
+    String ":" Type 		-> Opdecl {cons("OpDeclQ")}
+           ":" Type 		-> Opdecl {cons("OpDeclInj")}
+
+  context-free syntax
+    "external" Id     ":" Type 	-> Opdecl {cons("ExtOpDecl")}
+    "external" String ":" Type 	-> Opdecl {cons("ExtOpDeclQ")}
+    "external"        ":" Type 	-> Opdecl {cons("ExtOpDeclInj")}
+
+  sorts Type ArgType ConstType FunType RetType
+  context-free syntax
+    Sort	                -> ConstType {cons("ConstType")}
+    {ArgType "*"}+ "->" RetType -> FunType {cons("FunType")}
+    "(" Type ")"                -> ArgType {bracket}
+    ConstType			-> ArgType
+    Type	                -> RetType
+    FunType			-> RetType {reject}
+
+    FunType			-> Type
+    ConstType			-> Type
+
+  %%%
+   %% Restriction is required for the Sort* in Sdecl: List(a) is
+   %% ambiguous.
+   %%%
+  context-free restrictions
+    Sort -/- [\(]
+
+module Stratego-Core-Terms
+imports
+  Stratego-Core-Identifiers
+  Stratego-Core-Constants
+
+exports
+  sorts ID Var Wld
+  context-free syntax
+    Id 				-> Var  {cons("Var")}
+    Id				-> ID
+    %% ":" Var                  -> Var  {cons("SeqVar")}
+
+  sorts Term PreTerm
+  context-free syntax
+    Var 			 -> PreTerm 
+    Var 			 -> Term {prefer}
+
+    "_" 			 -> Wld {cons("Wld")}
+    Wld 			 -> PreTerm
+    Wld 			 -> Term {prefer}
+
+    Int 			 -> PreTerm {cons("Int")}
+    Real 			 -> PreTerm {cons("Real")}
+    String 			 -> PreTerm {cons("Str")}
+
+    Id "(" {Term ","}* ")" 	 -> PreTerm {cons("Op")}
+    String "(" {Term ","}* ")" 	 -> PreTerm {cons("OpQ")}
+    Term "#" "(" Term ")" 	 -> PreTerm {cons("Explode")}
+
+    PreTerm "{^" PreTerm "}"	 -> Term {cons("Anno")}
+
+    Var "@" Term 		 -> Term {cons("As"),prefer}
+    Var "@" PreTerm 		 -> PreTerm {cons("As")}
+
+  context-free priorities
+    Term "#" "(" Term ")" 	 -> PreTerm {cons("Explode")}
+  > Var "@" Term 		 -> Term {cons("As")}
+
+module Stratego-Core-Strategies
+imports
+  Stratego-Core-Terms
+  Stratego-Core-Constants
+  Stratego-Core-Signatures
+
+exports
+  sorts Def
+  context-free syntax
+    StrategyDef					 -> Def 
+    Id						 -> SVar {cons("SVar")}
+    "let" Def* "in" Strategy "end"		 -> Strategy {cons("Let")}
+    SVar "(" {Strategy ","}* "|" {Term ","}* ")" -> Strategy {cons("CallT")}
+
+    "call" "(" Term "|" {Strategy ","}* "|" {Term ","}* ")" -> Strategy {cons("CallDynamic")}
+
+
+  sorts StrategyDef
+  context-free syntax
+    Id "(" {Typedid ","}* 
+       "|" {Typedid ","}* ")" "=" Strategy -> StrategyDef {cons("SDefT")}
+
+    "external"
+    Id "(" {Typedid ","}* 
+       "|" {Typedid ","}* ")" "=" Strategy -> StrategyDef {cons("ExtSDefInl")}
+
+    "external"
+    Id "(" {Typedid ","}* 
+       "|" {Typedid ","}* ")"		   -> StrategyDef {cons("ExtSDef")}
+
+
+  sorts Typedid
+  context-free syntax
+    ID ":" Type 			  -> Typedid {cons("VarDec")}
+
+
+  sorts Strategy SVar StrategyParen StrategyMid 
+  context-free syntax
+    "(" Strategy ")"			  -> StrategyParen {cons("ParenStrat")}
+
+    "fail" 				  -> Strategy {cons("Fail")}
+    "id" 				  -> Strategy {cons("Id")}
+
+    %% Match and build
+
+    "?" Term 				  -> Strategy {cons("Match")}
+    "!" Term 				  -> Strategy {cons("Build")}
+    "{" {ID ","}* ":" Strategy "}" 	  -> Strategy {cons("Scope")}
+
+    %% Combinators
+
+    Strategy ";" Strategy 		  -> Strategy {cons("Seq"),right}
+    Strategy "<" StrategyMid 
+             "+" Strategy 		  -> Strategy {cons("GuardedLChoice"),right}
+    Strategy 				  -> StrategyMid
+
+    %% Primitives
+
+    "prim" "(" String "," {Strategy ","}* "|" {Term ","}*")"  -> Strategy {cons("PrimT")}
+
+    %% Traversal
+
+    "some" "(" Strategy ")" 		  -> Strategy {cons("Some")}
+    "one" "(" Strategy ")" 		  -> Strategy {cons("One")}
+    "all" "(" Strategy ")" 		  -> Strategy {cons("All")}
+
+  %% Priorities
+
+  context-free priorities
+    { "!" Term 				  -> Strategy {cons("Build")}
+      "?" Term 				  -> Strategy {cons("Match")}
+    }
+  > Strategy ";" Strategy 		  -> Strategy {cons("Seq"),right}
+  > {right: 
+     Strategy "<" StrategyMid 
+              "+" Strategy 		  -> Strategy {cons("GuardedLChoice"),right}
+    }
+
+  context-free syntax
+    "import-term" "(" ModName ")" -> Strategy {cons("ImportTerm")}
+
+module Stratego-Core-Modules
+imports
+  Stratego-Core-Identifiers
+  Stratego-Core-Strategies
+  Stratego-Core-Signatures
+
+exports 
+  sorts Module
+  context-free syntax
+    "module" ModName Decl* 	 -> Module {cons("Module")}
+    "specification" Decl*	 -> Module {cons("Specification")}
+
+  sorts Decl 
+  context-free syntax
+    "imports" ImportModName* 	-> Decl {cons("Imports")}
+    "strategies" Def* 		-> Decl {cons("Strategies")}
+    "signature" Sdecl*  	-> Decl {cons("Signature")}
+
+  sorts ImportModName
+  context-free syntax
+    ModName              -> ImportModName {cons("Import")}
+  syntax
+    <ModName-CF> "/" "-" -> <ImportModName-CF> {cons("ImportWildcard")}
+
+module Stratego-Sugar-Modules
+imports
+  Stratego-Core-Modules
+  Stratego-Sugar-Strategies
+  Stratego-Sugar-Signatures
+  Stratego-Sugar-Overlays
+  Stratego-Sugar-Rules
+
+exports 
+
+  sorts Decl Def
+  context-free syntax
+    "rules" Def* 		-> Decl {cons("Rules")}
+    "overlays" Overlay* 	-> Decl {cons("Overlays")}
+
+    RuleDef 			-> Def 
+
+
+module Stratego-Core-Constants
+exports
+  sorts Int Real String StrChar
+  lexical syntax
+    [\-]? [0-9]+ 		-> Int
+    [\-]? [0-9]+ [\.] [0-9]+ 	-> Real
+    "\"" StrChar* "\"" 		-> String
+    ~[\"\\] 			-> StrChar
+    [\\] [\"tnr\\] 		-> StrChar
+
+
+module Stratego-Sugar-Constants
+imports Stratego-Core-Identifiers Stratego-Core-Constants
+exports
+  sorts Char CharChar
+  lexical syntax
+    "'" CharChar "'"		-> Char
+    ~[\']			-> CharChar
+    [\\] [\'ntr\ ]		-> CharChar
+    Char		 	-> Id {reject}
+
+module Stratego-Core-Identifiers
+exports
+  sorts ModName ModNamePart
+  lexical syntax
+    {ModNamePart "/"}+ -> ModName
+    [a-zA-Z\.\_] [a-zA-Z0-9\'\.\-\_]* -> ModNamePart
+  lexical restrictions
+    ModName -/- [a-zA-Z0-9\'\.\-\_]
+  lexical syntax
+    "imports" 		-> ModName {reject}
+    "overlays" 		-> ModName {reject}
+    "rules" 		-> ModName {reject}
+    "signature" 	-> ModName {reject}
+    "strategies" 	-> ModName {reject}
+
+  sorts Id LId LCID UCID Wld
+  lexical syntax
+    [a-zA-Z\_] [a-zA-Z0-9\'\-\_]*     -> Id
+    [a-zA-Z\_] [a-zA-Z0-9\'\-\_]* "*" -> LId
+    [\'] [a-z]+                       -> Id
+
+    [a-z] [a-zA-Z0-9\'\-\_]*  -> LCID
+    [A-Z] [a-zA-Z0-9\'\-\_]*  -> UCID
+
+  lexical restrictions
+    Id   -/- [a-zA-Z0-9\'\-\_\*]
+    LId  -/- [a-zA-Z0-9\'\-\_]
+    LCID -/- [a-zA-Z0-9\'\-\_]
+    UCID -/- [a-zA-Z0-9\'\-\_]
+
+  lexical syntax
+    "_"     -> Id {reject}
+    "'"     -> Id {reject}
+
+    Keyword -> Id   {reject}
+    Keyword -> LId  {reject}
+    Keyword -> LCID {reject}
+    Keyword -> UCID {reject}
+
+  lexical restrictions
+    "all"
+    "case" %% not reserved kw
+    "constructors"
+    "else" %% not reserved kw
+    "end" %% not reserved kw
+    "external" %% not reserved kw
+    "fail"
+    "id"
+    "if" %% not reserved kw
+    "in"
+    "imports" %% not reserved kw
+    "let"
+    "module"
+    "not"
+    "one"
+    "overlays"
+    "otherwise" %% not reserved kw
+    "prim"
+    "rec" %% not reserved kw
+    "rules"
+    "script"
+    "signature"
+    "some"
+    "sorts"
+    "strategies"
+    "stratego"
+    "switch" %% not reserved kw
+    "test"
+    "then" %% not reserved kw
+    "where"
+    "import-term"
+      -/- [a-zA-Z0-9\'\-\_]
+  
+  context-free restrictions
+    Wld -/- [a-zA-Z0-9\'\-\_]
+
+  sorts Keyword
+  lexical syntax
+    "all"               -> Keyword
+    "constructors" 	-> Keyword
+    "fail" 		-> Keyword
+    "id" 		-> Keyword
+    "in" 		-> Keyword
+    "let" 		-> Keyword
+    "module" 		-> Keyword
+    "not" 		-> Keyword
+    "one" 		-> Keyword
+    "overlays" 		-> Keyword
+    "prim" 		-> Keyword
+    "rules" 		-> Keyword
+    "script" 		-> Keyword
+    "signature" 	-> Keyword
+    "some" 		-> Keyword
+    "sorts" 		-> Keyword
+    "strategies" 	-> Keyword
+    "stratego" 		-> Keyword
+    "test" 		-> Keyword
+    "where" 		-> Keyword
+    "import-term"	-> Keyword
+
+
+module Stratego-Core-Layout
+exports
+  sorts Ws ShortCom LongCom CommChar Asterisk Eof 
+  lexical syntax
+    [\t\ \n\r]			-> Ws
+
+    "//" ~[\n]* ([\n] | Eof)	-> ShortCom
+    "/*" CommChar* "*/"	-> LongCom
+				-> Eof  
+
+    ~[\*]     -> CommChar
+
+    "*"       -> Asterisk
+    Asterisk  -> CommChar
+
+  lexical restrictions
+    Asterisk -/- [\/]
+    Eof      -/- ~[]
+
+  lexical syntax
+    ShortCom 	-> LAYOUT
+    LongCom 	-> LAYOUT
+    Ws 		-> LAYOUT
+
+  context-free restrictions
+    LAYOUT? -/- [\ \t\n\r]
+    LAYOUT? -/- [\/].[\*]
+    LAYOUT? -/- [\/].[\/]
+
+module Stratego-Sugar-Layout
+imports Stratego-Core-Layout
+%%exports
+%%  sorts VeryLongCom Eof VLCchar Backslash
+%%  lexical syntax
+%%    "\\end{code}" VLCchar* "\\begin{code}" -> VeryLongCom
+%%    "\\begin{code}" 			   -> VeryLongCom
+%%    "\\end{code}" VLCchar* Eof 		   -> VeryLongCom
+%%    "\\literate" VLCchar* "\\begin{code}"  -> VeryLongCom
+%%    ~[\\] 				   -> VLCchar
+%%    Backslash 				   -> VLCchar
+%%    [\\] 				   -> Backslash
+
+%%  lexical restrictions
+%%    Backslash -/- [b].[e].[g].[i].[n].[\{].[c].[o].[d].[e].[\}]
+%%    Eof -/- ~[]
+
+%%  lexical syntax
+%%    VeryLongCom -> LAYOUT
+
+
+
+module Stratego-Sugar
+imports
+  Stratego-Sugar-Layout
+  Stratego-Core-Identifiers
+  Stratego-Sugar-Constants 
+  Stratego-Sugar-Modules
+  Stratego-Sugar-Signatures
+  Stratego-Sugar-Terms
+  Stratego-Sugar-Strategies
+  Stratego-Sugar-Rules
+  Stratego-Sugar-DynamicRules
+  Stratego-Sugar-Overlays
+
+hiddens
+  context-free start-symbols Module
+
+module Stratego
+imports Stratego-Sugar
+hiddens
+  context-free start-symbols Module
+
+module StrategoMix[Ctx0]
+imports Stratego
+          [ RuleNames      => RuleNames[[Ctx0]]
+            RuleDec        => RuleDec[[Ctx0]]
+            DynRuleScopeId => DynRuleScopeId[[Ctx0]]
+            DynRuleId      => DynRuleId[[Ctx0]]
+            DynRuleDef     => DynRuleDef[[Ctx0]]
+            ScopeLabels    => ScopeLabels[[Ctx0]]
+            RuleCond       => RuleCond[[Ctx0]]
+            Rule           => Rule[[Ctx0]]
+            RuleDef        => RuleDef[[Ctx0]]
+            Overlay        => Overlay[[Ctx0]]
+            SwitchCase     => SwitchCase[[Ctx0]]
+            StrategyCurly  => StrategyCurly[[Ctx0]]
+            StrategyAngle  => StrategyAngle[[Ctx0]]
+            Kind           => Kind[[Ctx0]]
+            LID            => LID[[Ctx0]]
+            ImportModName  => ImportModName[[Ctx0]]
+            Decl           => Decl[[Ctx0]]
+            Module         => Module[[Ctx0]]
+            StrategyParen  => StrategyParen[[Ctx0]]
+            Typedid        => Typedid[[Ctx0]]
+            StrategyDef    => StrategyDef[[Ctx0]]
+            SVar           => SVar[[Ctx0]]
+            Def            => Def[[Ctx0]]
+            Type           => Type[[Ctx0]]
+            RetType        => RetType[[Ctx0]]
+            ArgType        => ArgType[[Ctx0]]
+            FunType        => FunType[[Ctx0]]
+            ConstType      => ConstType[[Ctx0]]
+            Opdecl         => Opdecl[[Ctx0]]
+            Sort           => Sort[[Ctx0]]
+            Sdecl          => Sdecl[[Ctx0]]
+            Wld            => Wld[[Ctx0]]
+            ID             => ID[[Ctx0]]
+            Var            => Var[[Ctx0]]
+            CharChar       => CharChar[[Ctx0]]
+            Char           => Char[[Ctx0]]
+            StrChar        => StrChar[[Ctx0]]
+            String         => String[[Ctx0]]
+            Real           => Real[[Ctx0]]
+            Int            => Int[[Ctx0]]
+            Keyword        => Keyword[[Ctx0]]
+            UCID           => UCID[[Ctx0]]
+            LCID           => LCID[[Ctx0]]
+            LId            => LId[[Ctx0]]
+            Id             => Id[[Ctx0]]
+            ModNamePart    => ModNamePart[[Ctx0]]
+            ModName        => ModName[[Ctx0]]
+            PreTerm        => PreTerm[[Ctx0]]
+            Term           => Term[[Ctx0]]
+            StrategyMid    => StrategyMid[[Ctx0]]
+            Strategy       => Strategy[[Ctx0]] ]
+
+
+module Stratego-Java-Bytecode
+imports
+  StrategoMix[StrategoHost]
+  languages/java/EmbeddedJavaMix[Java Term[[StrategoHost]]]
+  languages/java/eblock/JavaEBlockMix[Java]
+  Java-Bytecode
+
+%% UNDONE: Problematic, using 'Java-Bytecode' instead:
+%% Java-Bytecode-Mix[Java]
+
+exports
+  context-free start-symbols Module[[StrategoHost]]
+  
+  sorts
+    QuotedTerm
+    QuotedTerms
+  
+  context-free syntax %% (Anti-)quotations
+    "bc" "|[" ClassFile "]|"       -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" Method "]|"          -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" MethodRef "]|"       -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" Field "]|"           -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" FieldRef "]|"        -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" InstructionList "]|" -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" NamedInnerClass "]|" -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "bc" "|[" ClassAttribute* "]|" -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    
+    "|[" ClassFile "]|"       -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" Method "]|"          -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" MethodRef "]|"       -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" Field "]|"           -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" FieldRef "]|"        -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" InstructionList "]|" -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" NamedInnerClass "]|" -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+    "|[" ClassAttribute* "]|" -> Term[[StrategoHost]] {cons("ToMetaExpr")}
+
+    "~"  Term[[StrategoHost]] -> QuotedTerm  {bracket}
+    "~*" Term[[StrategoHost]] -> QuotedTerms {bracket}
+
+    %% Instructions, operands, identifiers
+    QuotedTerm -> Instruction {cons("FromMetaExpr")}
+    QuotedTerm -> Id {cons("FromMetaExpr")}
+    QuotedTerm -> SomeId {cons("FromMetaExpr")}
+    QuotedTerm -> ClassTypeId {cons("FromMetaExpr")}
+    QuotedTerm -> Type {cons("FromMetaExpr")}
+    QuotedTerm -> MethodRef {cons("FromMetaExpr")}
+    QuotedTerm -> InterfaceMethodRef {cons("FromMetaExpr")}
+    QuotedTerm -> FieldRef {cons("FromMetaExpr")}
+    QuotedTerm -> Field {cons("FromMetaExpr")}
+    QuotedTerm -> AccessFlag {cons("FromMetaExpr")}
+    QuotedTerm -> Method {cons("FromMetaExpr")}
+    QuotedTerm -> CatchHeader {cons("FromMetaExpr")}
+    QuotedTerm -> ClassAttribute {cons("FromMetaExpr")}
+    QuotedTerm -> MethodAttribute {cons("FromMetaExpr")}
+    QuotedTerm -> FieldAttribute {cons("FromMetaExpr")}
+    QuotedTerm -> InnerClass {cons("FromMetaExpr")}
+    
+    QuotedTerms -> ListedInstruction* {cons("FromMetaExpr")}
+    QuotedTerms ";" -> ListedInstruction* {cons("FromMetaExpr")}
+    QuotedTerms -> {Type ","}* {cons("FromMetaExpr")}
+    QuotedTerms -> Field* {cons("FromMetaExpr")}
+    QuotedTerms -> Method* {cons("FromMetaExpr")}
+    QuotedTerms -> {Param ","}* {cons("FromMetaExpr")}
+    QuotedTerms -> AccessFlag* {cons("FromMetaExpr")}
+    QuotedTerms -> {ClassTypeId ","}+ {cons("FromMetaExpr")}
+    QuotedTerms -> {ClassType   ","}+ {cons("FromMetaExpr")}
+    QuotedTerms -> CatchHeader+ {cons("FromMetaExpr")}
+    QuotedTerms -> ClassAttribute* {cons("FromMetaExpr")}
+    QuotedTerms -> MethodAttribute* {cons("FromMetaExpr")}
+    QuotedTerms -> FieldAttribute* {cons("FromMetaExpr")}
+    QuotedTerms -> InnerClass* {cons("FromMetaExpr")}
+    
+    %% Literals
+    QuotedTerm -> Constant {cons("FromMetaExpr"), prefer}
+    QuotedTerm -> SimpleString {cons("FromMetaExpr")}
+    QuotedTerm -> UInt {cons("FromMetaExpr")}
+    QuotedTerm -> Int {cons("FromMetaExpr")}
+    QuotedTerm -> Float {cons("FromMetaExpr")}
+    QuotedTerm -> Boolean {cons("FromMetaExpr")}
+
+    %% Stratego applications as anti-quotation
+    "<" Strategy[[StrategoHost]] ">" Term[[StrategoHost]] -> QuotedTerm {cons("App")}
+    StrategyAngle[[StrategoHost]]                         -> QuotedTerm {cons("RootApp"), avoid}
+    InitId Term[[StrategoHost]]                           -> QuotedTerm {reject}
+    InitId                                                -> QuotedTerm {reject}
+
+  variables %% Variables for common labels
+  
+    "begin" [A-Za-z\_0-9]* -> LabelId {prefer}
+    "continue"      [0-9]* -> LabelId {prefer}
+    "break"         [0-9]* -> LabelId {prefer}
+    "finally"       [0-9]* -> LabelId {prefer}
+    "catch" [A-Za-z\_0-9]* -> LabelId {prefer}
+    "else"          [0-9]* -> LabelId {prefer}
+    "end"   [A-Za-z\_0-9]* -> LabelId {prefer}
+    "label" [A-Za-z\_0-9]* -> LabelId {prefer}

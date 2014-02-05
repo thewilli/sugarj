@@ -1,0 +1,21 @@
+/**
+ * Possible extensions of the Stratego Library Hashtable strategies.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/lib-ext/hash-table
+strategies
+
+  hashtable-get(ifnot | key) =
+    hashtable-get(|key)
+    <+ where(ifnot => value)
+       ; hashtable-put(|key, value)
+       ; !value
+
+  /**
+   * Avoid the choice operator in hashtable push if we know that we key exists.
+   * Also, fails if the key does not exist.
+   */
+  hashtable-push-existing(|key, value) =
+    where(hashtable-get(|key) => previous)
+    ; hashtable-put(|key, [value | previous])

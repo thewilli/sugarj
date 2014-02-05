@@ -1,0 +1,287 @@
+module dryad/ClassTree
+
+signature
+  constructors
+    ClassFile          : MinorVersion * MajorVersion * AccessFlags * ThisClass * SuperClass * Interfaces * Fields * Methods * Attributes -> ClassFile
+    MinorVersion       : Int -> MinorVersion
+    MajorVersion       : Int -> MajorVersion
+    AccessFlags        : AccessFlagList -> AccessFlags
+    Public             : AccessFlag
+    Private            : AccessFlag
+    Protected          : AccessFlag
+    Static             : AccessFlag
+    Final              : AccessFlag
+    Synchronized       : AccessFlag
+    Super              : AccessFlag
+    Bridge             : AccessFlag
+    Volatile           : AccessFlag
+    Varargs            : AccessFlag
+    Transient          : AccessFlag
+    Native             : AccessFlag
+    Interface          : AccessFlag
+    Abstract           : AccessFlag
+    Strict             : AccessFlag
+    Synthetic          : AccessFlag
+    Annotation         : AccessFlag
+    Enum               : AccessFlag
+    ThisClass          : String -> ThisClass
+    SuperClass         : OptString -> SuperClass
+    Some               : String -> OptString
+    None               : OptString
+    Interfaces         : InterfaceList -> Interfaces
+    Fields             : FieldList -> Fields
+    Field              : AccessFlags * Name * FieldDescriptor * Attributes -> Field
+    FieldDescriptor    : Type -> FieldDescriptor
+    Methods            : MethodList -> Methods
+    Method             : AccessFlags * Name * MethodDescriptor * Attributes -> Method
+    MethodDescriptor   : TypeList * Type -> MethodDescriptor
+    Name               : String -> Name
+    Class              : String -> Class
+    Interface          : String -> Interface
+    Void               : Type
+    Byte               : Type
+    Char               : Type
+    Double             : Type
+    Float              : Type
+    Int                : Type
+    Long               : Type
+    Short              : Type
+    Boolean            : Type
+    ArrayType          : Type -> Type
+    ObjectType         : String -> Type
+                       : Type -> SourceType
+    Attributes         : AttributeList -> Attributes
+    InnerClass         : InnerClassName * OuterClass * InnerName * AccessFlags -> InnerClass
+    InnerClass         : OptId -> InnerClassName
+    OuterClass         : OptId -> OuterClass
+    InnerName          : OptId -> InnerName
+    Some               : String -> OptId
+    None               : OptId
+    SuperClass         : SourceType -> SigSuperClass
+    SuperInterfaces    : SourceTypeList -> SigSuperInterfaces
+    Returns            : SourceType -> SigReturns
+    Params             : SourceTypeList -> SigParams
+                       : String -> SigTypeParams
+                       : String -> SigThrows
+    Code               : MaxStack * MaxLocals * Instructions * ExceptionTable * Attributes -> Attribute
+    InnerClasses       : InnerClassList -> Attribute
+    ClassSignature     : String -> Attribute
+    MethodSignature    : String -> Attribute
+    ClassSignature     : SigTypeParams * SigSuperClass * SigSuperInterfaces -> Attribute
+    MethodSignature    : SigTypeParams * SigParams * SigReturns * SigThrows -> Attribute
+    FieldSignature     : SourceType -> Attribute
+    SourceFile         : String -> Attribute
+    Exceptions         : ClassList -> Attribute
+    ConstantValue      : Constant -> Attribute
+                       : LineNumberTable -> Attribute
+                       : LocalVariableTable -> Attribute
+    LocalVariableTable : LocalVariableEntryList -> LocalVariableTable
+    Cons               : LocalVariableEntry -> LocalVariableEntryList
+    None               : LocalVariableEntryList
+    LineNumberTable    : LineNumberEntryList -> LineNumberTable
+    Cons               : LineNumberEntry -> LineNumberEntryList
+    None               : LineNumberEntryList
+    Entry              : Range * Name * FieldDescriptor * Index -> LocalVariableEntry
+    Index              : Int -> Index
+    Entry              : Instruction * Line -> LineNumberEntry
+    Line               : Int -> Line
+    MaxStack           : OptInt -> MaxStack
+    MaxLocals          : OptInt -> MaxLocals
+    Some               : Int -> OptInt
+    None               : OptInt
+    ExceptionTable     : ExceptionHandlerList -> ExceptionTable
+    Entry              : Range * Handler * CatchType -> ExceptionHandler
+    Range              : Int * Int -> Range
+    Handler            : Int -> Handler
+    CatchType          : ObjectType -> CatchType
+    Instructions       : InstructionList -> Instructions
+    Instruction        : Int -> Instruction
+    POP                : Instruction
+    POP2               : Instruction
+    BIPUSH             : Int -> Instruction
+    SIPUSH             : Int -> Instruction
+    ICONST_M1          : Instruction
+    ICONST_0           : Instruction
+    ICONST_1           : Instruction
+    ICONST_2           : Instruction
+    ICONST_3           : Instruction
+    ICONST_4           : Instruction
+    ICONST_5           : Instruction
+    LCONST_0           : Instruction
+    LCONST_1           : Instruction
+    DCONST_0           : Instruction
+    DCONST_1           : Instruction
+    FCONST_0           : Instruction
+    FCONST_1           : Instruction
+    FCONST_2           : Instruction
+    ACONST_NULL        : Instruction
+    LDC                : Constant -> Instruction
+    LDC_W              : Constant -> Instruction
+    LDC2_W             : Constant -> Instruction
+    NEW                : Type -> Instruction
+    DUP                : Instruction
+    DUP_X1             : Instruction
+    DUP_X2             : Instruction
+    DUP2               : Instruction
+    DUP2_X1            : Instruction
+    DUP2_X2            : Instruction
+    SWAP               : Instruction
+    INVOKESPECIAL      : MethodRef -> Instruction
+    INVOKEVIRTUAL      : MethodRef -> Instruction
+    INVOKEINTERFACE    : InterfaceMethodRef -> Instruction
+    INVOKESTATIC       : MethodRef -> Instruction
+    GETSTATIC          : FieldRef -> Instruction
+    PUTSTATIC          : FieldRef -> Instruction
+    GETFIELD           : FieldRef -> Instruction
+    PUTFIELD           : FieldRef -> Instruction
+    ILOAD              : Int -> Instruction
+    LLOAD              : Int -> Instruction
+    FLOAD              : Int -> Instruction
+    DLOAD              : Int -> Instruction
+    ALOAD              : Int -> Instruction
+    IINC               : Int * Int -> Instruction
+    ISTORE             : Int -> Instruction
+    LSTORE             : Int -> Instruction
+    FSTORE             : Int -> Instruction
+    DSTORE             : Int -> Instruction
+    ASTORE             : Int -> Instruction
+    DADD               : Instruction
+    DDIV               : Instruction
+    DMUL               : Instruction
+    DNEG               : Instruction
+    DREM               : Instruction
+    DSUB               : Instruction
+    FADD               : Instruction
+    FDIV               : Instruction
+    FMUL               : Instruction
+    FNEG               : Instruction
+    FREM               : Instruction
+    FSUB               : Instruction
+    IADD               : Instruction
+    IAND               : Instruction
+    IDIV               : Instruction
+    IMUL               : Instruction
+    INEG               : Instruction
+    IOR                : Instruction
+    IREM               : Instruction
+    ISHL               : Instruction
+    ISHR               : Instruction
+    ISUB               : Instruction
+    IUSHR              : Instruction
+    IXOR               : Instruction
+    LADD               : Instruction
+    LAND               : Instruction
+    LDIV               : Instruction
+    LMUL               : Instruction
+    LNEG               : Instruction
+    LOR                : Instruction
+    LREM               : Instruction
+    LSHL               : Instruction
+    LSHR               : Instruction
+    LSUB               : Instruction
+    LUSHR              : Instruction
+    LXOR               : Instruction
+    DCMPG              : Instruction
+    DCMPL              : Instruction
+    FCMPG              : Instruction
+    FCMPL              : Instruction
+    LCMP               : Instruction
+    IF_ACMPEQ          : BranchTarget -> Instruction
+    IF_ACMPNE          : BranchTarget -> Instruction
+    IF_ICMPEQ          : BranchTarget -> Instruction
+    IF_ICMPGE          : BranchTarget -> Instruction
+    IF_ICMPGT          : BranchTarget -> Instruction
+    IF_ICMPLE          : BranchTarget -> Instruction
+    IF_ICMPLT          : BranchTarget -> Instruction
+    IF_ICMPNE          : BranchTarget -> Instruction
+    IFEQ               : BranchTarget -> Instruction
+    IFGE               : BranchTarget -> Instruction
+    IFGT               : BranchTarget -> Instruction
+    IFLE               : BranchTarget -> Instruction
+    IFLT               : BranchTarget -> Instruction
+    IFNE               : BranchTarget -> Instruction
+    IFNONNULL          : BranchTarget -> Instruction
+    IFNULL             : BranchTarget -> Instruction
+    D2F                : Instruction
+    D2I                : Instruction
+    D2L                : Instruction
+    F2D                : Instruction
+    F2I                : Instruction
+    F2L                : Instruction
+    I2B                : Instruction
+    I2C                : Instruction
+    I2D                : Instruction
+    I2F                : Instruction
+    I2L                : Instruction
+    I2S                : Instruction
+    L2D                : Instruction
+    L2F                : Instruction
+    L2I                : Instruction
+    CHECKCAST          : Type -> Instruction
+    INSTANCEOF         : Type -> Instruction
+    ARETURN            : Instruction
+    DRETURN            : Instruction
+    FRETURN            : Instruction
+    IRETURN            : Instruction
+    LRETURN            : Instruction
+    RETURN             : Instruction
+    NEWARRAY           : Type -> Instruction
+    ANEWARRAY          : Type -> Instruction
+    MULTIANEWARRAY     : Type * Int -> Instruction
+    ARRAYLENGTH        : Instruction
+    IASTORE            : Instruction
+    LASTORE            : Instruction
+    BASTORE            : Instruction
+    CASTORE            : Instruction
+    SASTORE            : Instruction
+    FASTORE            : Instruction
+    DASTORE            : Instruction
+    AASTORE            : Instruction
+    IALOAD             : Instruction
+    LALOAD             : Instruction
+    BALOAD             : Instruction
+    CALOAD             : Instruction
+    SALOAD             : Instruction
+    FALOAD             : Instruction
+    DALOAD             : Instruction
+    AALOAD             : Instruction
+    ATHROW             : Instruction
+    GOTO               : BranchTarget -> Instruction
+    GOTO_W             : BranchTarget -> Instruction
+    JSR                : BranchTarget -> Instruction
+    JSR_W              : BranchTarget -> Instruction
+    RET                : Int -> Instruction
+    MONITORENTER       : Instruction
+    MONITOREXIT        : Instruction
+    BREAKPOINT         : Instruction
+    IMPDEP1            : Instruction
+    IMPDEP2            : Instruction
+    NOP                : Instruction
+    LABEL              : String -> Instruction
+    MethodRef          : Class * Name * MethodDescriptor -> MethodRef
+    InterfaceMethodRef : Interface * Name * MethodDescriptor -> InterfaceMethodRef
+    FieldRef           : Class * Name * FieldDescriptor -> FieldRef
+    String             : String -> Constant
+    Long               : String -> Constant
+    Float              : String -> Constant
+    Double             : String -> Constant
+    Class              : ObjectType -> Constant
+                       : Int -> Constant
+    ArrayType          : ObjectType -> ObjectType
+    ObjectType         : String -> ObjectType
+    Int                : String -> Int
+    Count              : Int -> BranchTarget
+    Label              : String -> BranchTarget
+
+
+signature
+  constructors
+    Some : a -> Option(a)
+    None : Option(a)
+
+
+signature
+  constructors
+    Cons : a * List(a) -> List(a)
+    Nil  : List(a)
+    Conc : List(a) * List(a) -> List(a)

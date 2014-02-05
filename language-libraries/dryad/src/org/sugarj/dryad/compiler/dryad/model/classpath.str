@@ -1,0 +1,276 @@
+/**
+ * Serialized Dryad repositories.
+ *
+ * This module defines the structure of a serialized Dryad repository
+ * and provides strategies to (de)serialize such a serialized repository.
+ */
+module dryad/model/classpath
+imports
+  liblib
+  dryad/jls/binary/Form
+  dryad/model/repository
+
+signature
+  constructors
+
+   /**
+    * Constructor for exported packages.
+    *
+    * @param SimpleName of this package
+    * @param List of subpackages
+    * @param List of top level classes
+    */    
+   Package : String * List(ExportedPackage) * List(ExportedClass) -> ExportedPackage
+   
+   /**
+    * Constructor for exported classes.
+    *   
+    * @param SimpleName of this class
+    * @param Location of this class
+    * @param Member classes of this class
+    */
+   Class   : String * Location * List(ExportedClass) -> ExportedClass
+
+   /**
+    * Constructor for the location of source files.
+    *
+    * @param Path of source file
+    */
+   Source : String -> Location
+
+   /**
+    * Constructor for the location of a bytecode .class file.
+    *
+    * @param Path of .class file
+    */
+   ClassFile : String -> Location
+
+   /**
+    * Constructor for the location of a class file in a jar.
+    *   
+    * @param Path of jar file
+    * @param Path of class file in jar file
+    */
+   Jar     : String * String -> Location
+
+strategies
+
+  /**
+   * Defines the classes in the specified jar file in the Dryad repository.
+   *
+   * @type String -> ?
+   */
+  define-jar-entries =
+    ?jar; where(
+      xtc-new-ffd => (path, fd)
+      ; <call(|None(), Some(fd), None())>  (<xtc-find> "jar", ["tf", jar])
+      ; <fopen> (path, "r") => stream
+      ; repeat(
+          <fgetchars-line> stream
+        ; private-define-jar-entry(|jar)
+        )
+      ; try(<fclose> stream)
+    )
+    
+  /**
+   * Private util for define-jar-entries. Do not invoke directly.
+   *
+   * This strategy does not fail if the specified file does not have
+   * the .class extension.
+   *
+   * @param Jar file of this class file (String).
+   * @type  List(Char) -> Class Object
+   */
+  private-define-jar-entry(|jar) =
+    ?filename
+    ; ( define-bytecode-class(|Jar(jar, <implode-string> filename))
+       <+ if get-extension => "class" then
+            log(|Error(), "Could not define jar entry in repository.", <implode-string> filename)
+            ; fail
+          else
+            id
+          end
+      )
+
+  /**
+   * @type String -> Class Object
+   */
+  define-bytecode-class-file =
+    ?path
+    ; explode-string
+    ; define-bytecode-class(|ClassFile(path))
+
+  /**
+   * Defines the .class file of the specified name and location in the Dryad repository.
+   *
+   * Example names:
+   *   org/foo/Bar.class
+   *   org/foo/Bar$Fred.class
+   *
+   * @todo Local classes are not supported
+   * @todo Anonymous classes are not supported
+   * @type List(Char) -> Class Object
+   */
+  define-bytecode-class(|location) =
+    parse-class-pathname => (pkgname, simplename)
+    ; <parse-binary-name> simplename => parts
+    ; <lookup-or-add-package> pkgname => pkg
+    ; <private-classpath-handle-toplevel-class(|pkg)> parts
+    ; set-package(|pkg)    
+    ; set-location(|location)
+
+/**
+ * Private helpers. These used to be nested functions, but this produced a C
+ * compilation error.
+ */
+strategies
+    
+  private-classpath-get-or-add-toplevel-class(|name, pkg) =
+    <get-toplevel-class(|name)> pkg
+    <+ new-bytecode-class(|name) => class
+       ; <add-toplevel-class(|class)> pkg
+       ; !class
+
+  private-classpath-get-or-add-member-type(|name, declaring-class) =
+    <get-declared-member-type(|name)> declaring-class
+    <+ new-bytecode-class(|name) => class
+       ; <add-declared-member-type(|class)> declaring-class
+       ; <set-declaring-class(|declaring-class)> class
+       ; !class
+       
+  private-classpath-handle-toplevel-class(|pkg) =
+    ?[TopLevel(name) | <id>]
+    ; where(private-classpath-get-or-add-toplevel-class(|name, pkg) => class)
+    ; private-classpath-handle-member-type(|class)
+             
+  private-classpath-handle-member-type(|declaring-class) =
+    if ?[] then
+      !declaring-class
+    else
+      ?[Member(name) | <id>]
+      ; where(private-classpath-get-or-add-member-type(|name, declaring-class) => class)
+      ; private-classpath-handle-member-type(|class)
+    end
+
+strategies
+
+  /**
+   * Imports a serialized Dryad repository by registering a package, its subpackages and 
+   * all classes in the Dryad repository.
+   *
+   * The structure of the ExportedPackage input is specified in dryad/model/classpath.
+   *
+   * @type ExportedPackage -> ExportedPackage
+   */
+  import-repository =
+    let create-package-in(|pkg) = {simplename:
+          ?Package(simplename, _, _)
+          ; fill-package(|<get-or-add-subpackage(|simplename)> pkg)
+        }
+
+        fill-package(|pkg) = {pkgs, classes:
+          ?Package(_, pkgs, classes)
+          ; <map(create-package-in(|pkg))> pkgs
+          ; <set-toplevel-bytecode-classes(|classes)> pkg
+        }
+
+     in where(fill-package(|<get-root-package> ()))
+    end
+
+  /**
+   * Exports the current Dryad repository by constructing an ATerm that represents its content.
+   * The structure of the ExportedPackage result is specified in dryad/model/classpath.
+   *
+   * @type _ -> ExportedPackage
+   */
+  export-repository =
+    let 
+        /**
+         * @type Package Object -> ExportedPackage
+         */      
+        export-package =
+          !Package(
+            <get-simple-name>
+          , <get-subpackages; map(export-package)>        
+          , <get-toplevel-classes; filter(export-class)>
+          )
+          
+        /**
+         * @type Class Object -> ExportedClass
+         */  
+        export-class =
+          !Class(<get-simple-name>, <get-location>, <get-declared-member-types; filter(export-class)>)
+          <+ /**
+              * @todo Some classes have $, but are not inner classes (e.g. CUP$parser$actions). This
+              *       is hack to workaround that. Is it wrong to determine of a class from its name?
+              */
+             if get-location then
+               log(|Error(), "Could not export class", <get-simple-name>); fail          
+             else
+               log(|Warning(), "Class has no location", <get-simple-name>); fail
+             end
+
+     in get-root-package
+        ; export-package
+    end
+    
+/**
+ * Java related utils
+ */
+strategies
+
+  /**
+   * @type  List(Char) -> (List(String), String)
+   */
+  parse-class-pathname =
+    list-tokenize(?'/' + ?'.')
+    ; split-last2 => (ps, name, ['c', 'l', 'a', 's', 's'])
+    ; !(<map(implode-string)> ps, <implode-string> name)
+
+  /**
+   * @type  List(Char) -> Class
+  parse-java-pathname =
+    list-tokenize(?'/' + ?'.')
+    ; split-last2 => (ps, name, ['j', 'a', 'v', 'a'])
+    ; !Class(<map(implode-string)> ps, <implode-string> name)
+   */    
+
+/**
+ * Generic library utils
+ */
+strategies
+
+  split-last2 =
+    at-suffix(?[_, _]; ?[x1, x2]; ![])
+    ; !(<id>, x1, x2)
+
+  /**
+   * @param List(Char) -> a
+   */
+  fgetchars-lines(postlinehook, at-last) =
+    ?stream
+    ; rec x(
+        <fgetchars-line> stream
+      ; ( postlinehook
+        < ![<id> | <x> ()]
+        + <x> ()
+        )
+      <+ at-last
+      )
+
+  fgetchars-line =
+    fgetchars-until(?'\n')
+
+  /**
+   * fails if there is an immediate EOF.
+   */
+  fgetchars-until(pred) =
+    ?stream
+    ; <fgetc> stream
+    ; rec x(
+        if not(pred) then
+          ![<id> | <fgetc; x> stream]
+        else
+          ![]
+        end
+      )

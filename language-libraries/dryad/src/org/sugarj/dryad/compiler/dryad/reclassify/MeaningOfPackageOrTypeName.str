@@ -1,0 +1,70 @@
+/**
+ * 6.5.4: "Meaning of PackageOrTypeName"
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/MeaningOfPackageOrTypeName
+strategies
+  
+  Reclassify-SimplePackageOrTypeName(rec) =
+    ?PackageOrTypeName(_); (
+       ReclassifySimpleInScopeTypeName
+    <+ ReclassifyAs-PackageName
+    )
+
+  Reclassify-QualifiedPackageOrTypeName(rec) =
+    PackageOrTypeName(rec, id); (
+       ReclassifyAs-TypeName-TypeName
+    <+ ReclassifyAs-PackageName-TypeName
+    <+ ReclassifyAs-PackageName-PackageName)
+
+/**
+ * Simple PackageOrTypeName
+ */
+rules
+
+  /**
+   * The scope of the declaration of an observable top level package is all 
+   * observable compilation units.
+   */
+  ReclassifyAs-PackageName :
+    PackageOrTypeName(Id(x)) -> PackageName([Id(x)])
+    where
+      get-root-package; has-subpackage(|x)
+
+/**
+ * Qualified PackageOrTypeNames
+ */
+rules
+
+  ReclassifyAs-PackageName-TypeName :
+    PackageOrTypeName(pkgname@PackageName(_), Id(x)) -> TypeName(pkgname, Id(x))
+    where    
+      <lookup-package> pkgname ; has-toplevel-class(|x)
+
+  /**
+   * @todo Check for declared member type in import declarations.
+   */
+  ReclassifyAs-TypeName-TypeName :
+    PackageOrTypeName(type@TypeName(_, _), Id(x)) -> TypeName(type, Id(x))
+    where
+      <lookup-class <+ log(|Warning(),"Class not found:",<id>); fail> type
+      ; has-member-type(|x)
+
+  ReclassifyAs-PackageName-PackageName =
+    ?PackageOrTypeName(pkgname@PackageName(_), <id>)
+    ; Create-PackageName-PackageName(|pkgname)
+    
+/**
+ * Utils
+ */
+strategies
+   
+  Create-PackageName-PackageName(|pkgname) :
+    Id(x) -> pkg
+    where
+      !pkgname => PackageName(ids)
+      ; !PackageName(<conc> (ids, [Id(x)])) => pkg
+      ; if not(<is-package-observable> pkg) then
+          maybe-exit(|"package is not observable")
+        end

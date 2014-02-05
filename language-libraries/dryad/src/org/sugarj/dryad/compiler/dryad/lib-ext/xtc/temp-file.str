@@ -1,0 +1,6 @@
+module dryad/lib-ext/xtc/temp-file
+strategies
+
+  xtc-new-ffd =
+    new-temp-file => (f, fd)
+    ; where(<assert(!TempFiles())> (f, ()))

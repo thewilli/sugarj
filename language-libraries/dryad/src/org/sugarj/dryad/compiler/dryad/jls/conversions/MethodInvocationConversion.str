@@ -1,0 +1,71 @@
+/**
+ * 5.3: Method Invocation Conversion
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/MethodInvocationConversion
+imports
+  dryad/jls/conversions/Kinds
+
+signature
+  constructors
+    MethodInvocationConversion : List(Conversion) -> MethodInvocationConversion
+
+strategies
+
+  /**
+   * Checks if the current type is method invocation convertable to type 'to'.
+   *
+   * @param Type
+   * @type  Type -> Type
+   */   
+  is-method-invocation-convertable(|to) =
+    where(method-invocation-conversion(|to))
+
+strategies
+
+  /**
+   * Construct the method invocation from the current type to type 'to'.
+   *
+   * @type Type -> MethodInvocationConversion
+   */
+  method-invocation-conversion(|to) = (
+      identity-conversion(|to)
+      ; ![<id>]
+
+    + widening-reference-conversions
+      ; maybe-unchecked-conversion(|to)
+
+    + adhoc-widening-reference-conversions(|to)
+
+    + widening-primitive-conversion(|to)
+      ; ![<id>]
+
+    + boxing-conversion
+      ; optional-widening-reference-conversion(|to)
+      
+    + unboxing-conversion
+      ; optional-widening-primitive-conversion(|to)
+    )
+    ; !MethodInvocationConversion(<id>)
+
+strategies
+
+  /**
+   * Returns the types involved in this method invocation conversion.
+   *
+   * @type Conversion -> List(Type)
+   */
+  types-of-conversion =
+    ?MethodInvocationConversion(<id>)
+    ; map(types-of-conversion)
+    ; concat
+    
+  /**
+   * Returns the result type of this method invocation conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =    
+    ?MethodInvocationConversion(<last>)
+    ; result-of-conversion

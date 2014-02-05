@@ -1,0 +1,98 @@
+/**
+ * 15.11: Field Access Expressions
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/FieldAccessExpressions
+strategies
+
+  /**
+   * Note: member fields are always accessible in the class itself, so access control is not necessary.
+   * @todo Instance access not allowed from static context.
+   */
+   dryad-attributes-of :
+    Field(Id(x)) -> [Type(<capture-conversion> t), DeclaringClass(cname)]
+    where
+      bigbagof-ThisClass
+      ; fetch-elem(get-field(|x))
+      ; where(get-declaring-class; get-canonical-name => cname)
+      ; get-type => t
+
+  /**
+   * @todo Handle final fields. Final fields are not variable.
+   */
+  dryad-attributes-of :
+    Field(e, Id(x)) -> [Type(<capture-conversion> type), DeclaringClass(cname)]
+    where
+      <type-attr> e => dec
+      ; is-reference-type
+      ; log-lookup-class => subjectclass
+      ; get-field(|x)
+      ; where(get-declaring-class; get-canonical-name => cname)
+      ; is-accessible-from(|subjectclass, <ThisClass>)
+      ; get-type => type
+
+  /**
+   * 6.5.6.2: Qualified Expression Names
+   *
+   * Case: Q is as type name that names a class type.
+   *
+   * @todo  Not a variable if member is final. Variable if it is.
+   * @todo  Different behaviour for class and interface.
+   */
+  dryad-attributes-of :
+    Field(tn@TypeName(_, _), Id(x)) -> [Type(<get-type> f), DeclaringClass(cname)]
+    where
+      <log-lookup-class> tn
+      ; get-field(|x) => f
+      ; where(get-declaring-class; get-canonical-name => cname)
+      ; is-accessible-from(|<ThisClass>)      
+      ; is-static
+
+  /**
+   * Super field access.
+   *
+   * @todo Can only be applied in instance code, but the underlying This() already guarantees that.
+   * @todo The old forwarding implementation reveals a bug in the JLS. Submit later.
+   * @todo This ignores the type parameters of this class.
+   *
+  dryad-attributes-of(rec) :
+    |[ super.x ]| -> [Type(<type-attr> e'), DeclaringClass(<declaring-class-attr> e')]
+    where
+      <ThisType> ()
+      ; log-lookup-class
+      ; get-superclass-as-type => reft
+      ; <rec> |[ ((reft) this).x ]| => e'
+   */      
+  dryad-attributes-of :
+    |[ super.x ]| -> [Type(<capture-conversion> type), DeclaringClass(cname)]
+    where
+      <ThisType> ()
+      ; log-lookup-class
+      ; get-superclass
+      ; get-field(|x)
+      ; where(get-declaring-class; get-canonical-name => cname)      
+      ; is-accessible-from(|<ThisClass>)
+      ; get-type => type
+
+  /**
+   * Qualified super field access.
+   *
+   * @todo This ignores type variables
+   * @todo Current class must be cname or an inner class of cname.
+  dryad-attributes-of(rec) :
+    |[ cname.super.x ]| -> [Type(<type-attr> e'), DeclaringClass(<declaring-class-attr> e')]
+    where
+      <log-lookup-class> cname
+      ; get-superclass-as-type => reft
+      ; <rec> |[ ((reft) cname.this).x ]| => e'
+   */
+  dryad-attributes-of(rec) :
+    |[ tname.super.x ]| -> [Type(<capture-conversion> type), DeclaringClass(tname')]
+    where
+      <log-lookup-class> tname
+      ; get-superclass
+      ; get-field(|x)
+      ; where(get-declaring-class; get-canonical-name => tname')      
+      ; is-accessible-from(|<ThisClass>)
+      ; get-type => type

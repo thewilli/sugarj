@@ -1,0 +1,77 @@
+/**
+ * Utils for Java Bytecode
+ */
+module dryad/bytecode/util
+imports
+  dryad/jls/names/Main
+  dryad/jls/types/Primitive
+
+strategies
+
+  /**
+   * Succeeds if this is a class initialization method (static initializer).
+   *
+   * @type Bytecode Method -> Bytecode Method
+   */
+  is-class-init-method =
+    ?Method(_, Name("<clinit>"), _, _)
+
+  /**
+   * Succeeds if this is an instance initialization method (constructor).
+   *
+   * @type Bytecode Method -> Bytecode Method
+   */
+  is-instance-init-method =
+    ?Method(_, Name("<init>"), _, _)
+
+strategies
+
+  /**
+   * Converts a bytecode type to a source type.
+   */
+  bytecode-type-to-source-type =
+    (?ObjectType(s) + ?Class(s) + ?Interface(s) + is-string => s)
+    ; <string-tokenize(| ['.'])> s
+    ; split-init-last => (q, x)
+          
+    ; <string-tokenize(|['$'])> x
+    ; if ?[_] then
+        !TypeName(PackageName(<map(!Id(<id>))> q), Id(x))
+      else
+        ?[toplevel | members]
+        ; !TypeName(PackageName(<map(!Id(<id>))> q), Id(toplevel))
+        ; let create-member(|next) =
+                !TypeName(<id>, Id(next))
+           in foldl(create-member | members)
+          end
+      end
+    ; type-name-to-type
+    
+  bytecode-type-to-source-type =
+    ArrayType(bytecode-type-to-source-type)
+    
+  bytecode-type-to-source-type =    
+    is-primitive-type
+
+  bytecode-type-to-source-type =    
+    Void()
+
+  bytecode-type-to-source-type =
+    Null()
+
+strategies
+
+  /**
+   * @type TypeName -> Type
+   */
+  type-name-to-type =
+      is-type-name
+    ; if lookup-class => class then
+        if <is-interface> class then
+          !InterfaceType(<id>, None())
+        else
+          !ClassType(<id>, None())
+        end
+      else
+        !ClassOrInterfaceType(<id>, None())
+      end

@@ -1,0 +1,277 @@
+/**
+ * Looking up package and class objects in the repository.
+ *
+ * Use the strategies in this module to get references to packages, classes, 
+ * methods, fields, and all other code.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/repository
+imports
+  dryad/components
+  dryad/model/array-class
+  dryad/model/classpath  
+  dryad/model/class  
+  dryad/model/compilation-unit
+  dryad/model/package
+  dryad/simplify/Sanity
+
+/**
+ * Lookup packages
+ */
+strategies
+
+  /**
+   * Returns the root package.
+   *
+   * @type _ -> Package Object
+   */
+  get-root-package =
+    table-hashtable
+    ; (hashtable-get(|RootPackage()) <+ init-root-package)
+    
+  /**
+   * Checks if the specified PackageName exists as a package in the repository.
+   *
+   * @type PackageName -> PackageName
+   */
+  is-package-observable =
+    where(lookup-package)
+
+  /**
+   * Looks up the package object for a given PackageName.
+   * The package is not created if it does not exist.
+   *
+   * @type  PackageName -> Package Object
+   */
+  lookup-package = 
+    ?pkg@PackageName(<map(?Id(<id>))>)
+    ; lookup-package
+
+  /**
+   * Looks up the package object for a given list of strings.
+   * The package is not created if it does not exist.
+   *  
+   * @type List(String) -> Package Object
+   */    
+  lookup-package =
+    is-list
+    ; ?names
+    ; get-root-package
+    ; get-subsubpackage(|names)
+    
+  /**
+   * Looks up or adds the package object for a given PackageName.
+   * The package is added if it does not exist.
+   *
+   * @type PackageName -> Package Object
+   */
+  lookup-or-add-package =
+    ?PackageName(<map(?Id(<id>))>) => names
+    ; lookup-or-add-package
+    
+  /**
+   * Looks up or adds the package object for a given list of strings.
+   * The package is added if it does not exist.
+   *  
+   * @type List(String) -> Package Object
+   */    
+  lookup-or-add-package =
+    is-list
+    ; ?names
+    ; get-root-package
+    ; get-or-add-subsubpackage(|names)
+
+  /**
+   * Looks up the package object and logs an error if is not available.
+   */
+  log-lookup-package =
+    lookup-package <+ log(|Error(), "package not found", <id>); fail
+
+
+/**
+ * Lookup classes
+ */
+strategies
+
+  /**
+   * Looks up the class object for the given TypeName.
+   * This alternative implements toplevel classes.   
+   *
+   * @type  TypeName -> Class Object
+   */
+  lookup-class =
+    ?TypeName(pkg@PackageName(_), Id(simplename))
+    ; jdebug(!"lookup-class: ")
+    ; <lookup-package> pkg
+    ; jdebug(!"lookup-class2: ")
+    ; get-toplevel-class(|simplename)
+    ; jdebug(!"lookup-class3: ")
+    
+  /**
+   * Looks up the class object for the given TypeName.
+   * This alternative implements member classes.
+   *
+   * @type  TypeName -> Class Object
+   */    
+  lookup-class =
+    ?TypeName(type@TypeName(_, _), Id(simplename))
+    ; <lookup-class> type
+    ; get-member-type(|simplename)
+
+  /**
+   * Looks up the class object for the given class type.
+   *
+   * @type  Type -> Class Object
+   */
+  lookup-class =
+    ?ClassType(<id>, _); lookup-class
+
+  /**
+   * Looks up the class object for the given interface type.  
+   *
+   * @type  Type -> Class Object
+   */
+  lookup-class =
+    ?InterfaceType(<id>, _); lookup-class
+    
+  /**
+   * Looks up the class object for the given array type.  
+   *
+   * @type  Type -> ArrayClass Object
+   */
+  lookup-class =
+    ?ArrayType(<get-array-class>)
+
+  /**
+   * Looks up the class object for the given TypeName or Type and logs an error if is not available.
+   */
+  log-lookup-class =
+    lookup-class <+ log(|Error(), "class not found", <try(pp-java-string)>); fail
+    
+/**
+ * Lookup methods
+ */
+strategies
+
+  /**
+   * Lookup a method by its canonical name.
+   *
+   * @type MethodName -> Method Object
+   */
+  lookup-method =
+    jdebug(!"lookup-method 0");
+    ?MethodName(tn@TypeName(_, _), Id(x), param-types, return-type)
+    ; jdebug(!"lookup-method 1: ")
+    ; <lookup-class> tn
+    ; get-declared-methods(|x)
+    ; jdebug(!"lookup-method 2: ")
+    ; where(!param-types; jdebug(!"exp param-types"))
+    ; where(!return-type; jdebug(!"exp ret.   type"))
+    
+    ; retain-all(
+        where(get-formal-parameter-types; jdebug(!"got param-types") => param-types)
+      ; where(get-return-type ; jdebug(!"got ret.   type") => return-type)
+    )
+    ; jdebug(!"lookup-method 3: ")
+    ; ?[<id>]
+    
+
+/**
+ * Lookup constructors
+ */
+strategies
+
+  /**
+   * Lookup a constructor by its canonical name.
+   *
+   * @type ConstructorName -> Constructor Object
+   */
+  lookup-constructor =
+    ?ConstructorName(tn@TypeName(_, _), param-types)
+    ; <lookup-class> tn
+    ; get-declared-constructors
+    ; retain-all(
+        where(get-formal-parameter-types => param-types)
+      )
+    ; ?[<id>]
+
+/**
+ * Lookup type variables of methods.
+ */
+strategies
+
+  lookup-type-parameter =
+    ?TypeVar(tn@TypeName(_, _), Id(simplename))
+    ; <lookup-class> tn
+    ; get-formal-type-parameter(|simplename)
+
+  /**
+   * @todo Use the new canonical name for methods (DRY-223)
+   * @todo Lookup of type param does not support overloading. This is not acceptable.
+   */
+  lookup-type-parameter =
+    ?TypeVar(mn@MethodName(tn, Id(simplemethodname)), Id(simplename))
+    ; <lookup-class> tn
+    ; get-declared-methods(|simplemethodname)
+    ; ?[_]
+    ; get-formal-type-parameter(|simplename)
+
+/**
+ * Registration
+ */
+strategies
+
+  /**
+   * Initializes the root package object.
+   *
+   * @type _ -> Package Object
+   */    
+  init-root-package =
+    new-package(|None(), "/") => rootpkg
+    ; table-hashtable
+    ; hashtable-put(|RootPackage(), rootpkg)
+    ; !rootpkg
+
+  /**
+   * Register the classes defined in a list of source files in the Dryad repository.
+   *  
+   * @type List(FILE) -> List(CompilationUnit Object)
+   */
+  define-source-files =
+    parse-java
+    ; map(define-compilation-unit)
+    ; dryad-reclassify
+    
+  /**
+   * Registers all classes of a source compilation unit in the Dryad repository.
+   *
+   * @type CompilationUnit -> CompilationUnit Object
+   */
+  define-compilation-unit =
+    ?CompilationUnit(_, _, _)
+    ; dryad-simplify-sanity => ast
+    ; new-compilation-unit
+    ; set-ast(|ast)
+
+  /**
+   * Destroy the stateful observable data structures.
+   *
+   * @todo Not all fields are in the global field table: some use local hashtables.
+   *       These local hashtables should be dropped and real objects should be used.
+   *       (suggested by Eelco Visser)
+   */
+  destroy-repository =
+    where(
+      classes_get-fieldtbl
+      ; hashtable-clear
+      ; table-hashtable
+      ; hashtable-remove(|RootPackage())
+    )
+
+/**
+ * Keys for Dryad repository.
+ */
+signature
+  constructors
+    RootPackage : TableTableKey    

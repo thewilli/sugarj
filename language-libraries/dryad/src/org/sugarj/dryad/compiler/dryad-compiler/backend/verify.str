@@ -1,0 +1,52 @@
+/**
+ * dryad-compiler rich bytecode verification.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/verify
+
+imports dryad-compiler/backend/asm
+
+strategies
+
+  /** 
+   * Return a list of DryadError and DryadWarnings,
+   * reporting any problems that may exist in the given
+   * rich bytecode fragment.
+   *
+   * @note Runs bc-asm internally, which generates the same messages.
+   */
+  bc-verify =
+    // HACK: this should be collect-argument-invokes(bc-asm), once STRC supports it...
+    let call(s) =
+      bc-verify(s)
+    in
+      collect-argument-invokes(call)
+    end
+  
+  /**
+   * Run bytecode assembly, reporting any errors to onfailure,
+   * and restore the current term.
+   */
+  bc-verify(onfailure) =
+    scoped-set-config(!Optimization,
+    scoped-set-config(!NoDebugInfo,
+      where(bc-asm(onfailure))
+    ))
+  
+  /**
+   * Verifies the format of a compilation unit, by attempting to convert
+   * it using aterm2class. Not to be used in regular compilation pipelines.
+   *
+   * @internal
+   */
+  bc-verify-format =
+    where(
+      as-list;
+      map({
+        where(dir := <new-temp-dir>);
+        write-class-file(|<conc-strings> (dir, "/", "verified.class")) => FILE(file);
+        <remove-file> file;
+        <remove-file> dir
+      })
+    )

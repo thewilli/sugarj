@@ -1,0 +1,51 @@
+/**
+ * 14.14.2: The enhanced for statement
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad/type-check/stm/ForStatement
+rules
+      
+  /**
+   * Define the type of and conversions for a local variable declared in
+   * an enhanced for loop.
+   */      
+  dryad-tc-foreach(rec) =
+    ?ForEach(_, _, _)
+  
+    ; {| TypeOf :
+        ForEach(id, rec, id)
+        ; ForEach(dryad-tc-declare-param, id, rec)
+      |}
+    
+    ; try(dryad-tc-foreach-add-conversion(rec))
+  
+  /**
+   * The foreach is defined as a desugaring over the regular for;
+   * do on-the-fly desugaring to determine the required conversion.
+   */ 
+  dryad-tc-foreach-add-conversion(rec) :
+    ForEach(Param(mods, type, Id(x)),              list, body) ->
+    ForEach(Param(mods, type, Id(x)) {conversion}, list, body)
+    where
+      rhs-type := <get-foreach-rhs-value; rec; type-attr>
+      
+    ; conversion := <assignment-conversion(|type)> rhs-type
+
+/** @internal */
+strategies
+
+  get-foreach-rhs-value =
+    ?ForEach(_, list, _)
+    ; where(ArrayType(_) := <dryad-type-of> list)
+    ; !ArrayAccess(list, Lit(Deci("0")))
+
+  get-foreach-rhs-value =
+    ?ForEach(_, list, _)
+    ; where(
+        <type-attr> list
+      ; is-subtype(|TypeIterable())
+      )
+    
+    ; !Invoke(Method(list, None(), Id("iterator")), [])
+    ; !Invoke(Method(<id>, None(), Id("next")), [])

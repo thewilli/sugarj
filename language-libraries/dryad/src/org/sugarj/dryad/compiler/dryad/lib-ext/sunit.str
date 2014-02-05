@@ -1,0 +1,48 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/lib-ext/sunit
+strategies
+
+  testsuite-section(tests |msg ) =
+    let do-it = 
+          say-line
+          ; say(<conc-strings> ("               ", msg))
+          ; tests
+          ; say(!"")
+
+        skip-it =
+          id
+          // say(<concat-strings> ["               ", msg, " (skipped)"])
+
+     in if <get-config> "--only" => only then
+          where(
+            <lower-case> msg  => lcthis
+          ; <lower-case> only => lconly
+          )
+          ; if !lconly => lcthis then
+              do-it
+            else
+              skip-it
+            end
+        else
+          do-it
+        end
+    end
+
+  test-only-option =
+    MultiArgOption("--only"
+    , separate-by(|" ")
+      ; concat-strings
+      ; <set-config> ("--only", <id>)
+    , !"--only  Only perform tests in specified section"
+    )
+    
+/**
+ * Useless utils
+ */
+strategies
+
+  say-line =
+    say(!"=======================================================================")
+    

@@ -1,0 +1,37 @@
+/**
+ * 15.8.1: Lexical Literals
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/primary/LexicalLiterals
+strategies
+
+  dryad-type-of =
+    is-integer-literal;
+
+    if is-long-literal then
+      !Long()
+    else
+      !Int()
+    end
+
+  dryad-type-of =
+    is-floating-point-literal;
+
+    if is-float-literal then
+      !Float()
+    else
+      !Double()
+    end
+
+  dryad-type-of :
+    Lit(Bool(_)) -> Boolean()
+
+  dryad-type-of :
+    Lit(Char(_)) -> Char()
+
+  dryad-type-of :
+    Lit(String(_)) -> RefTypeString()
+
+  dryad-type-of :
+    |[ null ]| -> Null()

@@ -1,0 +1,17 @@
+/**
+ * 15.13: Array Access Expressions
+ */
+module dryad/type-check/ArrayAccessExpressions
+strategies
+
+  /**
+   * @todo  Result is a variable.
+   */
+  dryad-type-of :
+    |[ e1[e2] ]| -> <capture-conversion> t
+    where
+        <type-attr> e1 => t1
+      ; <type-attr> e2 => t2
+
+      ; !t1 => ArrayType(t)
+      ; <unary-numeric-promotion-of-type> t2 => Int()

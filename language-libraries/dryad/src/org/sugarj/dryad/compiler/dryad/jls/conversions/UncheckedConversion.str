@@ -1,0 +1,94 @@
+/**
+ * 5.1.9: Unchecked Conversion
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/types/UncheckedConversion
+signature
+  constructors
+    /**
+     * @param From
+     * @param To
+     */
+    UncheckedConversion : Type * Type -> UncheckedConversion
+
+strategies
+
+  /**
+   * Returns the types involved in this unchecked conversion.
+   */
+  types-of-conversion :
+    UncheckedConversion(from, to) -> [from, to]        
+
+  /**
+   * Returns the result type of this conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =
+    ?UncheckedConversion(_, <id>)
+    
+strategies
+
+  /**
+   * @type List(Conversion) -> List(Conversion)
+   */
+  maybe-unchecked-conversion(|to) =
+    if fetch-elem(where(result-of-conversion; ?to)) => conversion then
+      // @todo What to do if there is more than one correct conversion?
+      ![conversion]
+    else
+      if <is-parameterized-type> to then
+        where(<typename-of-type> to => tn)
+        ; filter({type, rawtype:
+            where(
+              result-of-conversion => type
+              ; is-raw-type
+              ; typename-of-type => tn
+            )
+            ; ![<id>, UncheckedConversion(type, to)]
+          })
+        ; filter(check-parameterized-types-of-conversion)
+        // @todo What to do if there is more than one correct conversion?
+        ; ?[<id> | _]
+      else
+        fail
+      end
+    end
+
+strategies
+
+  /**
+   * Checks if the chain of types involved in this conversion is ok.
+   *
+   * @type List(Conversion) -> List(Conversion)
+   */
+  check-parameterized-types-of-conversion =
+    where(
+      map(types-of-conversion)
+      ; concat
+      ; filter(is-parameterized-type)
+      ; make-set
+      ; if not([]) then
+          ?list
+          ; map({t1:
+              ?t1
+              ; <map({t2: ?t2; have-subtype-relation(|t1, t2)})> list
+            })
+        end
+    )
+
+strategies
+
+  /**
+   * @todo Hack: handle member types
+   */
+  typename-of-type =
+    ?ClassType(<id>, _)
+
+  /**
+   * @todo Hack: handle member types
+   */
+  typename-of-type =
+    ?InterfaceType(<id>, _)
+    

@@ -1,0 +1,24 @@
+/**
+ * 6.5.6 Meaning of Expression Names
+ *
+ * Fields are handled in FieldAccessExpressions.
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/MeaningOfExpressionNames
+strategies
+
+  /**
+   * 6.5.6.1: Simple Expression Names.
+   *
+   * The type of the expression name is the declared type of the
+   * field, local variable or parameter after capture conversion.
+   *
+   * This rule only considers simple expression names that are
+   * declared in this current source file.
+   */
+  dryad-type-of :
+    ExprName(Id(x)) -> <capture-conversion> t
+    where
+      <TypeOf> Id(x) => t
+

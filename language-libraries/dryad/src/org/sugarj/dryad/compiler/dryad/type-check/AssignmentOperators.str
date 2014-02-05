@@ -1,0 +1,46 @@
+/**
+ * 15.26: Assignment Operators
+ */
+module dryad/type-check/AssignmentOperators
+strategies
+
+  /**
+   * @todo  Check if the LHS is a variable. Options are listed in 15.26 intro.
+   *
+   * @note  Specific rules are much more attractive to see (the rewrite
+   *        of assignments with an operator is clear. But, this leads to lot
+   *        of code duplication.
+   */
+  dryad-attributes-of(rec) =
+      where(assignment-lhs-value => e1)
+    ; where(attributed-assignment-rhs-value(rec) => e2)
+
+    ; <type-attr> e1 => lhs-type
+    ; <type-attr> e2 => rhs-type
+
+    ; <assignment-conversion(|lhs-type)> rhs-type => conversion
+    
+    ; ![Type(<capture-conversion> lhs-type), conversion]
+
+rules
+
+  /**
+   * Given an assignment, returns the rhs value.
+   */
+  attributed-assignment-rhs-value(rec) :
+    |[ e1 = e2 ]| -> e2
+
+  /**
+   * Assignment with an operator
+   */
+  attributed-assignment-rhs-value(rec) =
+      where(assignment-op-rhs-value; dryad-attribute(rec) => e2)
+    ; where(assignment-lhs-value => e1)
+
+    ; <type-attr> e1
+    ; if is-reference-type then
+        \ reft -> |[ (reft) e2 ]| \
+      else
+        \ primt -> |[ (primt) e2 ]| \
+      end
+    ; dryad-attribute(rec)

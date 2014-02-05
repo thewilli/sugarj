@@ -1,0 +1,34 @@
+/**
+ * 15.18: Additive Operators
+ */
+module dryad/type-check/AdditiveOperators
+strategies
+
+  /**
+   * 15.18.1: String Concatenation Operator +
+   *
+   * Check of the other operand is not necessary, since any type may
+   * be converted to type String by String conversion.
+   *
+   * @todo  Still apply string coversion?
+   */
+  dryad-type-of :
+    Plus(<type-attr; ?t1>, <type-attr; ?t2>) -> RefTypeString()
+    where
+        <?RefTypeString()> t1
+      + <?RefTypeString()> t2
+
+  /**
+   * 15.18.2: Additive Operators (+ and -) for Numeric Types
+   */
+  dryad-type-of :
+    |[ e1 + e2 ]| -> <dryad-type-of-num-add-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 - e2 ]| -> <dryad-type-of-num-add-op> (e1, e2)
+
+  /**
+   * @type (Expr, Expr) -> Type
+   */
+  dryad-type-of-num-add-op =
+    dryad-type-of-num-bin-op

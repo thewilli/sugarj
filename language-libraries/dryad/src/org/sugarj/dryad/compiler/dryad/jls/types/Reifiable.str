@@ -1,0 +1,47 @@
+/**
+ * 4.7: Reifiable Types
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/types/Reifiable
+imports
+  dryad/jls/types/Raw
+
+strategies
+
+  /**
+   * Refers to a non-generic type declaration.
+   *
+   * @todo When does a type refer to a non-generic type declaration?
+   */
+  is-reifiable-type =
+    fail
+
+  /**
+   * Parameterized type in which all type arguments are unbounded wildcards.
+   */
+  is-reifiable-type =
+    ClassType(id, Some(type-args-unbounded-wildcards))
+
+  is-reifiable-type =
+    InterfaceType(id, Some(type-args-unbounded-wildcards))
+
+  is-reifiable-type =
+    ClassOrInterfaceType(id, Some(type-args-unbounded-wildcards))
+
+  /**
+   * Raw type
+   */
+  is-reifiable-type =
+    is-raw-type
+
+  /**
+   * Array type whose component type is reifiable.
+   */
+  is-reifiable-type =
+    ArrayType(is-reifiable-type)
+
+strategies
+
+  type-args-unbounded-wildcards =
+    TypeArgs(map(Wildcard(None())))

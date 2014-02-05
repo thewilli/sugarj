@@ -1,0 +1,32 @@
+/**
+ * 15.19: Shift Operators
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/ShiftOperators
+strategies
+
+  dryad-type-of :
+    |[ e1 << e2 ]| -> <dryad-type-of-shift-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 >> e2 ]| ->  <dryad-type-of-shift-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 >>> e2 ]| ->  <dryad-type-of-shift-op> (e1, e2)
+
+  /**
+   * @type (Expr, Expr) -> Type
+   */
+  dryad-type-of-shift-op =
+    ?(e1, e2);
+
+    where(
+      <type-attr> e1 => t1
+    ; <type-attr> e2 => t2
+    ; <is-convertible-to-integral-type> t1
+    ; <is-convertible-to-integral-type> t2
+    )
+
+    ; <unary-numeric-promotion-of-type> t1
+

@@ -1,0 +1,37 @@
+/**
+ * Attributes of the source AST.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/source/Attributes
+signature
+  constructors
+    Type           : Type -> Attribute
+    DeclaringClass : Type -> Attribute
+    
+    CompileTimeDeclaration : MethodName -> Attribute
+    Declaration            : ConstructorName -> Attribute
+    
+    Conversions    : List(Conversion) -> Attribute
+    ActualTypeArgs : List(Type) ->  Attribute
+
+    MethodName      : TypeName * Id * List(Type) * Type -> MethodName
+    ConstructorName : TypeName * List(Type) -> ConstructorName    
+
+strategies
+
+  type-attr =
+    ?_{a*}
+    ; <fetch-elem(?Type(<id>))> a*
+
+  declaring-class-attr = 
+    ?_{a*}
+    ; <fetch-elem(?DeclaringClass(<id>))> a*
+
+  compile-time-declaration-attr = 
+    ?_{a*}
+    ; <fetch-elem(?CompileTimeDeclaration(<id>))> a*
+
+  declaration-attr = 
+    ?_{a*}
+    ; <fetch-elem(?Declaration(<id>))> a*

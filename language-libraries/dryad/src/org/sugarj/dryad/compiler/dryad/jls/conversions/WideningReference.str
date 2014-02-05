@@ -1,0 +1,96 @@
+/**
+ * 5.1.5: Windening Reference Conversions
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/conversions/WideningReference
+signature
+  constructors
+    /**
+     * First element of the list is the type being converted to.
+     */
+    WideningReferenceConversion : List(Type) -> WideningConversion
+
+strategies
+
+  /**
+   * Checks if the current type is convertable to t by a widening
+   * conversion.
+   *
+   * @todo Is check for reference type necessary?   
+   * @param t Type
+   * @type    Type -> Type
+   */
+  is-widening-reference-convertable(|t) =
+    is-reference-type
+    ; is-subtype(|t)
+
+  /**
+   * @todo Cannot list all the supertypes of Null.
+   * @type Type -> List(WideningReferenceConversion)
+   */
+  widening-reference-conversions =
+    is-reference-type
+    // iset for the results
+    ; where(new-iset => results)
+    
+    // initial conversion
+    ; ![WideningReferenceConversion([<id>])]
+    
+    ; let next = {hd, tail, current:
+            ?current@WideningReferenceConversion([hd | tail])
+            ; where(<iset-add(|current)> results)
+            ; <direct-supertypes> hd
+            ; map(!WideningReferenceConversion([<id>, hd | tail]))
+          }
+          
+       in rec x(
+            map(next; x)
+          )
+      end
+    ; <iset-elements> results
+    ; where(<iset-destroy> results)
+   
+
+  /**
+   * @type Type -> List(WideningConversions)
+   */
+  widening-reference-conversions(|to) =
+    widening-reference-conversions
+    ; filter(
+        where(?WideningReferenceConversion([to | _]))
+      )
+
+  widening-reference-conversions(|to) =
+    adhoc-widening-reference-conversions(|to)
+
+  /**
+   * The direct supertypes of the null type are all reference types other than the null type itself.
+   * Thus, a widening reference conversion exists from Null to every reference type.
+   */
+  adhoc-widening-reference-conversions(|to) :
+    Null() -> [ WideningReferenceConversion([to, Null()]) ]
+    where
+      not(to := Null())
+      ; <is-reference-type> to
+
+/**
+ * Getting info about a widening reference conversion.
+ */
+strategies
+
+  /**
+   * Returns the types involved in this widening reference conversion.
+   *
+   * @type WideningReferenceConversion -> List(Type)
+   */
+  types-of-conversion =
+    ?WideningReferenceConversion(<id>)
+
+  /**
+   * Returns the result type of this conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =
+    ?WideningReferenceConversion([<id> | _])

@@ -1,0 +1,17 @@
+module dryad/lib-ext/common
+imports 
+  liblib
+
+strategies
+
+  verbosity-scope(s|level) = 
+    where( 
+      verbosity => oldlevel
+    ; <if is-int then id else verbose-to-int end>level
+    ; set-verbosity 
+    )
+  ; finally(
+      s 
+    , <set-verbosity> oldlevel
+    )
+

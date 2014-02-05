@@ -1,0 +1,207 @@
+/**
+ * 6.5.2: Reclassification of Contextually Ambiguous Names
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/ContextuallyAmbName
+strategies
+
+  /**
+   * Ambiguous name is simple name.
+   */
+  Reclassify-SimpleAmbName(rec) =
+    ?AmbName(Id(_)); (
+
+       /**
+        * The identifier appears in within the scope of:
+        *
+        * - local variable declaration
+        * - parameter declaration
+        * - field declaration
+        *
+        * => ExprName
+        */
+       ReclassifySimpleInScopeVar
+
+       /**
+        * A field of that name is declared in the compilation unit by
+        * 
+        * - single-static import declaration
+        * - static-import-on-demand declaration
+        *
+        * => ExprName
+        */
+    <+ ReclassifySimpleByImportInScopeField
+
+       /**
+        * The identifier appears within the scope of:
+        *
+        * - top-level class
+        * - interface-type declaration
+        * - local class declaration
+        * - member type declaration
+        *
+        * => TypeName
+        *
+        * @todo Local class declarations
+        * @todo What about type variables in the JLS?
+        */
+    <+ ReclassifySimpleInScopeTypeName
+
+       /**
+        * A type of that name is declared in the compilation unit by
+        *
+        * - single-type import declaration
+        * - type-import-on-demand declaration
+        * - single static import declaration
+        * - static-import-on-demand declaration
+        *
+        * => TypeName
+        *
+        * @todo Is this option necessary?
+        */
+    <+ fail // ReclassifySimpleByImportInScopeTypeName
+
+       /**
+        * => PackageName
+        */
+    <+ ReclassifyAs-PackageName
+    )
+
+  /**
+   * Ambiguous name is a qualified name.
+   */
+  Reclassify-QualifiedAmbName(rec) =
+
+    /**
+     * The LHS is first reclassified, for it is itself an AmbName.
+     */
+    AmbName(rec, id); (
+
+       /**
+        * LHS reclassified as PackageName => TypeName or PackageName
+        */
+       ?AmbName(PackageName(_), _); (
+           ReclassifyAs-PackageName-TypeName
+        <+ ReclassifyAs-PackageName-PackageName
+        )
+
+       /**
+        * LHS reclassified as TypeName => ExprName or TypeName
+        * 
+        * @todo JLS mentions that this AmbName can be reclassified as
+        *       an ExprName if there is a *method* in the class or interface
+        *       denoted by the LHS. Is that really possible?
+        */
+    <+ ?AmbName(TypeName(_, _), _); (
+          ReclassifyAs-TypeName-TypeName
+       <+ ReclassifyAs-TypeName-ExprName
+       )
+
+       /**
+        * LHS reclassified as ExprName => ExprName or TypeName
+        *
+        * @todo TypeName case (see jls-relation.html)
+        */
+    <+ ?AmbName(Field(_), _)
+       ; ReclassifyAs-Field-Field
+
+    <+ ?AmbName(Field(_, _), _)
+       ; ReclassifyAs-Field-Field
+
+    <+ ?AmbName(ExprName(_), _);
+         ReclassifyAs-ExprName-ExprName
+    )
+    
+/**
+ * Reclassification of a simple name to a PackageName
+ */
+rules
+
+  ReclassifyAs-PackageName =
+    \ AmbName(Id(s)) -> PackageOrTypeName(Id(s)) \
+    ; ReclassifyAs-PackageName
+
+/**
+ * Reclassification of qualified ambiguous names.
+ */
+rules
+
+  ReclassifyAs-TypeName-TypeName :
+    AmbName(type@TypeName(_, _), Id(x)) -> TypeName(type, Id(x))
+    where
+      <lookup-class <+ log(|Warning(),"Class not found:",<id>); fail> type
+      ; has-member-type(|x)
+
+  /**
+   * @todo Reclassify to ExprName and reuse ExprName reclassification?
+   */
+  ReclassifyAs-TypeName-ExprName :
+    AmbName(type@TypeName(_, _), Id(x)) -> Field(type, Id(x))
+    where
+      <lookup-class <+ log(|Warning(),"Class not found:",<id>); fail> type
+      ; has-field(|x)
+
+  /**
+   * @todo This reclassification should be checked. This seems to require 
+   *   the combination of the name reclassifier with the type checker, which
+   *   is very annoying.
+   * @todo Reclassify to ExprName and reuse ExprName reclassification?
+   */   
+  ReclassifyAs-ExprName-ExprName :
+    AmbName(ExprName(q), Id(x)) -> Field(ExprName(q), Id(x))
+
+  /**
+   * @todo This reclassification should be checked: DRY-244
+   */
+  ReclassifyAs-Field-Field :
+    AmbName(f@Field(_), Id(y)) -> Field(f, Id(y))
+  //  where
+  //    <reclassify-has-field(|y)> f
+
+  /**
+   * @todo This reclassification should be checked: DRY-244
+   */
+  ReclassifyAs-Field-Field :
+    AmbName(f@Field(_, _), Id(y)) -> Field(f, Id(y))
+  //  where
+  //    <reclassify-has-field(|y)> f
+
+  reclassify-has-field(|y) =
+    reclassify-lookup-class
+    ; has-field(|y)
+
+/**
+ * @todo A bit hacky. Does not support local variables.
+ */
+strategies
+
+  reclassify-lookup-class =
+    ?Field(Id(x))
+    ; ThisClass
+    ; get-field(|x)
+    ; get-type
+    ; lookup-class
+
+  reclassify-lookup-class =
+    ?Field(<reclassify-lookup-class>, Id(x))
+    ; get-field(|x)
+    ; get-type
+    ; lookup-class
+
+  reclassify-lookup-class =
+    ?TypeName(_, _)
+    ; lookup-class
+
+rules
+
+  ReclassifyAs-PackageName-TypeName :
+    AmbName(pkgname@PackageName(_), Id(x)) -> TypeName(pkgname, Id(x))
+    where    
+      <lookup-package> pkgname ; has-toplevel-class(|x)
+
+strategies
+
+  ReclassifyAs-PackageName-PackageName =
+    ?AmbName(pkgname@PackageName(_), <id>)
+    ; Create-PackageName-PackageName(|pkgname)

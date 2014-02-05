@@ -1,0 +1,54 @@
+/**
+ * 15.10: Array Creation Expressions
+ */
+module dryad/type-check/ArrayCreationExpressions
+imports
+  dryad/jls/names/Main
+
+strategies
+
+  /**
+   * Array Creation without initializer
+   */
+  dryad-type-of :
+    e@NewArray(t, dimse, dims) -> type
+    where
+      <is-list> dims
+      ; <map(check-type-of-array-dimension)> dimse
+      ; let foo(|t) = !ArrayType(<id>)
+         in <dryad-type-of-array-component> t
+          ; foldl(foo | dimse)
+          ; foldl(foo | dims)
+        end
+      ; ?type
+
+  /**
+   * Array Creation with initializer
+   */
+  dryad-type-of :
+    e@NewArray(t, dims, ai@ArrayInit(_)) -> type
+    where
+        let foo(|t) = !ArrayType(<id>)
+         in <dryad-type-of-array-component> t
+          ; foldl(foo | dims)
+        end
+      ; ?type
+      ; <check-type-of-array-init(|type)> ai
+
+  /**
+   * @type PrimType or TypeName -> Type
+   */
+  dryad-type-of-array-component =
+    if is-primitive-type then
+      id
+    else
+      type-name-to-type
+      ; is-reifiable-type
+    end
+
+  check-type-of-array-dimension =
+   ?Dim(<id>)
+   ; type-attr
+   ; is-convertible-to-integral-type
+   ; unary-numeric-promotion-of-type
+   ; ?Int()

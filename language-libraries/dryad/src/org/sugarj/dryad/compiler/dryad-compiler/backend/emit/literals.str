@@ -1,0 +1,47 @@
+/**
+ * dryad-compiler emit literal expressions.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/emit/literals
+
+strategies
+
+  emit-java(emit):
+    Lit(String(_)) -> LDC(String(string))
+    where string := <from-java-string>
+       <+ emit-error(emit|"Illegal String escape code")
+
+  emit-java(emit):
+    Lit(Char(_)) -> LDC(Int(char))
+    where char := <from-java-char; write-to-string>
+       <+ emit-error(emit|"Illegal character")
+
+  emit-java(emit): |[ true ]|  -> |[ ldc true ]|
+  emit-java(emit): |[ false ]| -> |[ ldc false ]|
+  emit-java(emit): |[ null ]|  -> |[ ldc null ]|
+  
+  emit-java(emit):
+    Lit(Deci(i)) -> LDC(Int(i))
+    where type-attr => <is-single-integral>
+  
+  emit-java(emit):
+    Lit(Deci(i)) -> LDC(Long(<clean-lit-string> i))
+    where type-attr => Long
+  
+  emit-java(emit):
+    Lit(Float(i)) -> LDC(Float(<clean-lit-string> i))
+    where type-attr => Float
+  
+  emit-java(emit):
+    Lit(Float(i)) -> LDC(Double(<clean-lit-string> i))
+    where type-attr => Double
+  
+  // TODO2: emit-java(emit): Lit(Hexa(i)) ->
+  
+  // TODO2: emit-java(emit): Lit(Octa(i)) ->
+  
+  /** @internal */
+  clean-lit-string =
+    try(explode-string; at-last([is-alpha]; ![]); implode-string) // "10f" -> "10"
+    

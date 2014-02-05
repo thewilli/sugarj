@@ -1,0 +1,63 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/Bytecode
+imports
+  dryad/reclassify/Main
+  dryad/reclassify/ClassOrInterfaceType
+  
+strategies
+
+  /**
+   * @type BytecodeMethod Object -> BytecodeMethod Object
+   */
+  reclassify-method-signature = instanceof-JavaBytecodeMethod; ?this;
+    classes_get-instance-field(|GenericSignature())
+    ; topdown(try(dryad-reclassify-type + bytecode-method-qualify-type-variable(|this)))
+    ; ?result
+    ; <classes_set-instance-field(|GenericSignature(), result)> this
+    
+  /**
+   * @type BytecodeField Object -> BytecodeField Object
+   */    
+  reclassify-field-signature = instanceof-JavaBytecodeField; ?this;
+    classes_get-instance-field(|GenericSignature())
+    ; topdown(try(dryad-reclassify-type + bytecode-class-qualify-type-variable(|<get-declaring-class> this)))
+    ; ?result
+    ; <classes_set-instance-field(|GenericSignature(), result)> this
+    
+  /**
+   * @type BytecodeClass Object -> BytecodeClass Object
+   */
+  reclassify-class-signature = instanceof-JavaBytecodeClass; ?this;
+    classes_get-instance-field(|GenericSignature())
+    ; topdown(try(dryad-reclassify-type + bytecode-class-qualify-type-variable(|this)))
+    ; ?result
+    ; <classes_set-instance-field(|GenericSignature(), result)> this
+
+strategies
+
+  bytecode-method-qualify-type-variable(|method) =
+    ?var@TypeVar(Id(x));
+    
+    if <has-formal-type-parameter(|x)> method then
+      !TypeVar(<get-name> method, Id(x))
+    else
+      <get-declaring-class> method => class
+      ; <bytecode-class-qualify-type-variable(|class)> var
+    end
+
+  /**
+   * @todo Consider local classes (enclosing method)
+   * @todo Report an error if this is a top-level class and
+   *       the type variable is still not found.
+   */    
+  bytecode-class-qualify-type-variable(|class) =
+    ?var@TypeVar(Id(x));
+
+    if <has-formal-type-parameter(|x)> class then
+      !TypeVar(<get-name> class, Id(x))
+    else
+      <get-enclosing-class> class => enclosingclass
+      ; <bytecode-class-qualify-type-variable(|enclosingclass)> var
+    end

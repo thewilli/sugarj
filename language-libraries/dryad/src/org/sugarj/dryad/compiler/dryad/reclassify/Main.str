@@ -1,0 +1,75 @@
+/**
+ * 6.5: "Determining the Meaning of a Name"
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/Main
+imports
+  libstratego-lib
+  libjava-front
+  
+  dryad/lib-ext/list  
+  
+  dryad/model/bytecode-class
+  dryad/model/source-class
+  dryad/model/classpath
+  dryad/model/reference-ast  
+ 
+  dryad/reclassify/Body
+  dryad/reclassify/Check 
+  dryad/reclassify/Header
+
+  dryad/util/jtree
+  dryad/util/option
+
+strategies
+
+  /**
+   * Reclassify header of a compilation unit.
+   *
+   * @type List(CompilationUnit Object) -> List(CompilationUnit Object)
+   */
+  dryad-reclassify =
+    {| HasBeenReclassified :
+      /**
+       * First, reclassify all the import declarations of the compilation units.
+       */
+      map(
+        apply-to-reference(CompilationUnit(id, map(dryad-reclassify-header), id))
+      )
+  
+      /**
+       * Next, reclassify all the type declarations in a maybe. This maybe is used to avoid
+       * reclassification: reclassification of a type declaration can indirectly lead to
+       * reclassification of other classes.
+       */
+    ; map(
+        apply-to-reference(CompilationUnit(id, id, map(dryad-reclassify-all-class-declarations <+ ?Semicolon())))
+      )
+
+      /**
+       * Check if everything has been reclassified and qualified.
+       */
+    ; where(
+        map(
+          get-ast
+          ; check-ambnames
+          ; check-qualifiers
+        )
+      )
+
+    |}
+      
+  dryad-maybe-reclassify(s) =
+    HasBeenReclassified
+    <+ if IsBeingReclassified then
+         log(|Error(), "Cyclic dependency involving", <get-canonical-name>)
+         ; fail
+       else
+         ?this
+         ; {| IsBeingReclassified :
+             rules(IsBeingReclassified : this)
+             ; s
+             ; rules(HasBeenReclassified : this)
+           |}
+       end

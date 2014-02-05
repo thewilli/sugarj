@@ -1,0 +1,42 @@
+/**
+ * 15.12: Method Invocation Expressions
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/MethodInvocationExpressions
+imports
+  dryad/jls/types/Subtyping
+  dryad/type-check/invoke/StepSearch
+  dryad/type-check/invoke/StepSignature
+  dryad/type-check/invoke/StepAppropriate  
+  
+strategies
+
+  /**
+   * Returns the type of a method invocation.
+   *
+   * @todo Store information about the application of type erasure?
+   */
+  dryad-attributes-of :
+    e@Invoke(methodid, args)
+      ->
+    [ Type(type)
+    , DeclaringClass(invtype)
+    , CompileTimeDeclaration(<get-canonical-name> method)
+    | attrs
+    ]
+    where
+        log(|Debug(), "Method invocation", <id>)
+        
+      ; <dryad-tc-search-class-of-method> methodid => invtype
+      ; log(|Debug(), "Search type of method", <id>)
+      
+      ; <log-lookup-class> invtype => class
+      ; log(|Debug(), "Search class object of method", <id>)
+
+      ; <determine-method-signature(|invtype, class, <ThisClass>)> e => (method, attrs)
+      ; log(|Debug(), "Method", <id>)
+      
+      ; <determine-result-type(|invtype, attrs)> method => type
+      
+      ; log(|Debug(), "Type", type)

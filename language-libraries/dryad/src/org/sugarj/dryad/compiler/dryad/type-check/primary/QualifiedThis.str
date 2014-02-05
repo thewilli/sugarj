@@ -1,0 +1,16 @@
+/**
+ * 15.8.4: Qualified this
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/primary/QualifiedThis
+strategies
+
+  dryad-type-of :
+    |[ tname.this ]| -> type
+    where
+      !tname => TypeName(_, x)
+      ; <bigbagof-ThisType> ()
+      ; fetch-elem(?ClassType(TypeName(_, x), _))
+      ; ?type
+

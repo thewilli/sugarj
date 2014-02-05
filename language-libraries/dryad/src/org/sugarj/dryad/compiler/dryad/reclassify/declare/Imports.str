@@ -1,0 +1,109 @@
+/**
+ * Declare import declarations.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/declare/Imports
+strategies
+
+  /**
+   * The scope of a type imported by a type import declaration is all the 
+   * class and interface type declarations in the compilation unit in which 
+   * the import declaration appears. (7.5.1, page 161)
+   *
+   * Single type imports shadow on demand imports.
+   * Single type imports shadow classes in this package.
+   *
+   * On demand imports do not shadow type declarations of the package of compilation unit.
+   *
+   * @todo Work on the Object here?
+   */
+  declare-imported-types(cont) =
+    ?cu@CompilationUnit(_, _, _);
+
+    {| ReclassifySimpleInScopeTypeName, QualifySimpleInScopeTypeName :
+      let declare-single-type =
+            TypeImportDec(declare-type-helper)
+
+          declare-on-demand =
+            TypeImportOnDemandDec(
+              where(
+                lookup-package
+                ; get-toplevel-classes
+                ; map(get-canonical-name)                
+                ; map(declare-type-helper)
+              )
+            )
+
+          declare-types-of-pkgdec =
+            <get-package-of-compilation-unit> cu
+            ; get-toplevel-classes
+            ; map(get-canonical-name)
+            ; map(declare-type-helper)
+
+       in where(
+            add-java-lang-imports
+            ; ?CompilationUnit(_, imports, _)
+            ; <map(try(declare-on-demand))> imports
+            ; declare-types-of-pkgdec
+            ; <map(try(declare-single-type))> imports
+            ; map(try(declare-single-type))
+          )
+      end
+    ; cont
+    |}
+
+  /**
+   * Adds the java.lang imports to a CompilationUnit.
+   *
+   * @type _ -> List(ImportDec)
+   */
+  add-java-lang-imports :
+    CompilationUnit(pkgdec, imports, typedecs)
+      ->
+    CompilationUnit(pkgdec, [
+      TypeImportOnDemandDec(PackageName([Id("java"), Id("lang")]))
+      | imports ], typedecs)
+      
+  /**
+   * Declare imported static fields.
+   */
+  declare-imported-fields(cont) =
+    ?CompilationUnit(_, imports, _);
+
+    {| ReclassifySimpleByImportInScopeField :
+      let declare-single = {s:
+            ?StaticImportDec(_, Id(x))
+            ; rules(
+                ReclassifySimpleByImportInScopeField :
+                  AmbName(Id(x)) -> ExprName(Id(x))
+              )
+          }
+
+       in where(<map(try(declare-single))> imports)
+      end;
+      
+      cont
+    |}
+      
+/**
+ * Helpers
+ */
+strategies
+
+  /**
+   * @type TypeName -> TypeName
+   */
+  declare-type-helper =
+    ?TypeName(qualifier, Id(x));
+
+    rules(
+      ReclassifySimpleInScopeTypeName :
+        AmbName(Id(x)) -> TypeName(qualifier, Id(x))
+
+      ReclassifySimpleInScopeTypeName :
+        PackageOrTypeName(Id(x)) -> TypeName(qualifier, Id(x))
+
+      QualifySimpleInScopeTypeName :
+        TypeName(Id(x)) -> TypeName(qualifier, Id(x))
+    )

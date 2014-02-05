@@ -1,0 +1,19 @@
+/**
+ * 15.24: Conditional-Or Operator ||
+ */
+module dryad/type-check/ConditionalOrOperator
+strategies
+
+  dryad-type-of :
+    |[ e1 || e2 ]| -> <dryad-type-of-cond-bin-op> (e1, e2)
+
+  dryad-type-of-cond-bin-op =
+    ?(e1, e2)
+
+    ; <type-attr> e1 => t1
+    ; <type-attr> e2 => t2
+
+    ; <is-convertible-to-boolean-type> t1
+    ; <is-convertible-to-boolean-type> t2
+
+    ; !Boolean()

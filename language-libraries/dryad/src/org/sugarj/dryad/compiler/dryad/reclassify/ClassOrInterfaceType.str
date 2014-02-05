@@ -1,0 +1,32 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/ClassOrInterfaceType
+strategies
+
+  dryad-reclassify-type =
+    ?ClassOrInterfaceType(name@TypeName(_, _), args)
+    ; <lookup-class> name
+    ; if is-interface then
+        !InterfaceType(name, args)
+      else
+        !ClassType(name, args)
+      end
+
+  dryad-reclassify-type :
+    ClassOrInterfaceType(TypeVar(qualifier, Id(x)), None()) -> TypeVar(qualifier, Id(x))
+
+  dryad-reclassify-type :
+    ClassOrInterfaceType(TypeVar(qualifier, Id(x)), Some(args)) -> TypeVar(qualifier, Id(x), args)
+
+  dryad-reclassify-type :
+    ClassType(TypeVar(qualifier, Id(x)), None()) -> TypeVar(qualifier, Id(x))
+        
+  dryad-reclassify-type :
+    ClassType(TypeVar(qualifier, Id(x)), Some(args)) -> TypeVar(qualifier, Id(x), args)
+
+  dryad-reclassify-type :
+    InterfaceType(TypeVar(qualifier, Id(x)), None()) -> TypeVar(qualifier, Id(x))
+
+  dryad-reclassify-type :        
+    InterfaceType(TypeVar(qualifier, Id(x)), Some(args)) -> TypeVar(qualifier, Id(x), args)

@@ -1,0 +1,65 @@
+/**
+ * 13.1: The Form of a Binary
+ */
+module dryad/jls/binary/Form
+strategies
+
+  /**
+   * Parses the binary name of a class file to a list of parts the describe the meaning of the name.
+   *
+   * @type List(String) -> List(BinaryNamePart(String))
+   */
+  parse-binary-name =
+    is-string
+    ; explode-string
+    ; parse-binary-name
+    ; map(try(id#([implode-string])))
+
+  /**
+   * Parses the binary name of a class file to a list of parts the describe the meaning of the name.
+   *  
+   * @type List(Char) -> List(BinaryNamePart(List(Char)))
+   */
+  parse-binary-name =
+    list-tokenize(?'$')
+    ; let digit-plus(c) = [is-digit | id]; ?[_ | <digit-star(c)>]
+          digit-star(c) = [is-digit | id] < ?[_ | <digit-star(c)>] + c
+
+          /**
+           * @todo Should check this, but is not really necessary.
+           */
+          toplevel =
+            !TopLevel(<id>)
+          
+          member =
+            [is-alpha | id]
+            ; !Member(<id>)
+
+          local-or-anonymous =
+            digit-plus(id)
+            ; if ?[] then
+                !Anonymous()
+              else
+                !Local(<id>)
+              end
+          
+       in [toplevel | map(member <+ local-or-anonymous)]
+      end
+      
+  is-digit =
+    ?'0' + ?'1' + ?'2' + ?'3' + ?'4' + ?'5' + ?'6' + ?'7' + ?'8' + ?'9'
+      
+signature
+  constructors
+    TopLevel  : a -> BinaryNamePart(a)
+    Member    : a -> BinaryNamePart(a)    
+    
+    /**
+     * @todo Include the number?
+     */    
+    Anonymous : BinaryNamePart(a)
+    
+    /**
+     * @todo Include the number?
+     */
+    Local     : a -> BinaryNamePart(a)

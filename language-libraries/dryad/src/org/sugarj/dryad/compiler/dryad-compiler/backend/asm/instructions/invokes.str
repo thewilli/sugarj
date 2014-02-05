@@ -1,0 +1,70 @@
+/**
+ * dryad-compiler invoke instruction analysis.
+ *
+ * Predicts stack effects for a given stack, and reports errors.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/instructions/invokes
+
+imports dryad-compiler/backend/asm
+
+strategies
+
+  bc-invoke-effect:
+    (stack, byte @ <bc-get-invoked(?class, ?name, ?params, ?ret)>) ->
+    stack'
+    where if <not(bc-invoke-exists)> byte then
+            bc-error(|"Specified method does not exist", <bc-pp-method-name> byte, byte)
+          else
+            // Assume correct invoke; pop arguments
+            <bc-invoke-take-args> (stack, <reverse> params);
+            
+            // Pop invoked object
+            bc-invoke-take-object(|byte, class, name);
+            
+            // Push return type
+            if not(<Void> ret) then ![ret | <id>] end;
+            ?stack'
+          <+
+            !stack;
+            take(<length> params); reverse;
+            bc-error(|"Invalid arguments for method", [<bc-pp-method-name> byte | <id>], byte);
+            bc-asm-abort
+          <+
+            bc-error(|"Insufficient arguments for method", <bc-pp-method-name> byte);
+            bc-asm-abort
+          end
+
+  /** @internal */
+  strategies
+
+  bc-invoke-exists =
+    bc-get-invoked(?class, ?name, ?params, ?ret)
+    // TODO2: Check method existance and access 
+
+  /** Take invoke arguments off the stack, and verify their types. */
+  bc-invoke-take-args =
+    (?[stack | <id>], ?[param | <id>]);
+    where(<is-bc-subtype(|param)> stack);
+    bc-invoke-take-args
+  <+
+    ?(<id>, []) // Done
+
+  /** Take invoked object off the stack, and verify its type. */
+  bc-invoke-take-object(|byte, class, name) =
+    if not(INVOKESTATIC(_) := byte) then
+      ?[<is-bc-subtype(|class)> | tail];
+      !tail
+    <+
+      jdebug(!"bc-input-error call 1");
+      bc-input-error(|<id>, byte, 1);
+      bc-asm-abort
+    end
+
+  bc-pp-method-name =
+    bc-get-invoked(id, ?name, ?params, ?ret);
+    <map(bc-type-to-string)> params;
+    separate-by(|", ");
+    <conc> (<id>, [")"]);
+    <concat-strings> [<bc-type-to-string> ret, " ", name, "(" | <id>]

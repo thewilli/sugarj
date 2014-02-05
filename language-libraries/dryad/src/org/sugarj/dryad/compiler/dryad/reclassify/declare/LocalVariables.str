@@ -1,0 +1,100 @@
+/**
+ * Declare local variables.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/declare/LocalVariables
+strategies
+
+  /**
+   * Declares a local variable
+   */
+  declare-local-variables(rec) =
+    ?[LocalVarDecStm(_) | _];
+
+    {| ReclassifySimpleInScopeVar :
+      [ LocalVarDecStm(declare-local-vardec-helper(rec)) | id]
+    ; [id | rec]
+    |}
+
+  /**
+   * Declares local variable of a for loop.
+   */
+  declare-local-variables(rec) =
+    ?For(LocalVarDec(_, _, _), _, _, _);
+
+    {| ReclassifySimpleInScopeVar :
+      For(declare-local-vardec-helper(rec), rec, rec, rec)
+    |}
+    
+  /**
+   * @todo Traverse the rhs of the header first.
+   */
+  declare-local-variables(rec) =
+    ForEach(rec, rec, id)
+    ; {| ReclassifySimpleInScopeVar :
+        ?ForEach(param, _, _)
+        ; where(<declare-param-helper> param)
+        ; ForEach(id, id, rec)
+      |}
+    
+/**
+ * Helpers for variable declarations
+ */
+strategies
+
+  declare-local-vardec-helper(rec) =
+    LocalVarDec(id, rec, map(declare-var-helper; rec))
+    
+  declare-var-helper =
+    ( ?VarDec(Id(x))
+    + ?VarDec(Id(x), _)
+    + ?VarDec(ArrayVarDecId(Id(x), _))
+    + ?VarDec(ArrayVarDecId(Id(x), _), _)
+    )
+    ; rules(
+        ReclassifySimpleInScopeVar :
+          AmbName(Id(x)) -> ExprName(Id(x))
+        
+        /**
+         * Hides a possibly defined reclassify rule for fields.
+         *
+         * @todo Use a different constructor for local variables?
+         */
+        ReclassifySimpleInScopeVar :
+          ExprName(Id(x)) -> ExprName(Id(x))        
+      )
+    
+  declare-param-helper =
+    ( ?Param(_, _, Id(x))
+    + ?Param(_, _, ArrayVarDecId(Id(x), _))
+    )
+    ; rules(
+        ReclassifySimpleInScopeVar:
+          AmbName(Id(x)) -> ExprName(Id(x))
+          
+        /**
+         * Hides a possibly defined reclassify rule for fields.
+         *      
+         * @todo Use a different constructor for local variables?
+         */
+        ReclassifySimpleInScopeVar :
+          ExprName(Id(x)) -> ExprName(Id(x))
+      )
+
+  /**
+   * @todo I don't think this code is really necessary. Check
+   *       Maybe it is necessary to hide variables in outer scopes,
+   *       but it might be cleaner to use an undefine dynamic rule for that.
+   */
+  declare-field-var-helper =
+    (?VarDec(Id(x)) + ?VarDec(Id(x), _));
+
+    rules(
+      ReclassifySimpleInScopeVar :
+        AmbName(Id(x)) -> Field(Id(x))
+        
+      ReclassifySimpleInScopeVar :
+        ExprName(Id(x)) -> Field(Id(x))
+    )
+

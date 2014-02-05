@@ -1,0 +1,211 @@
+/**
+ * 6.6: Access Control
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/names/AccessControl
+strategies
+
+/**
+ * Packages
+ */
+strategies
+
+  /**
+   * A package is always accessible.
+   */
+  is-accessible-from(|from) =
+    instanceof-JavaPackage
+    ; true
+    
+/**
+ * Top level classes
+ */
+strategies
+
+  /**
+   * Public top level classes are accessible.
+   *
+   * @todo Exclude array classes?
+   * @param Class object
+   * @type Class object -> Class object
+   */
+  is-accessible-from(|from) =
+    instanceof-JavaClass
+    ; is-top-level-class
+    ; is-public
+
+  /**
+   * Top level classes with default access are only accessible in the same package.
+   *
+   * @todo Exclude array classes?   
+   * @param Class object
+   * @type Class object -> Class object   
+   */
+  is-accessible-from(|from) =
+    instanceof-JavaClass => this
+    ; is-top-level-class
+    ; where(
+        get-access => DefaultAccess()
+        ; <get-package> this => decpackage
+        ; <get-package> from => decpackage
+      )
+      
+/**
+ * Arrays
+ */
+strategies
+
+  /**
+   * Array class is accessible if its element type is accessible.
+   *
+   * @param Class object
+   * @type Class object -> Class object   
+   */
+  is-accessible-from(|from) =
+    instanceof-JavaClass
+    ; is-array-class
+    ; get-element-type
+    ; if is-reference-type then
+        lookup-class
+        ; is-accessible-from(|from)
+      else // primitives @todo Report missing specification of accessible primitives.
+        true
+      end
+      
+/**
+ * Members
+ */
+strategies
+
+  is-accessible-from(|from) =
+       public-member-is-accessible(|from)
+
+    <+ protected-member-is-accessible-from-same-package(|from)
+    <+ protected-member-is-accessible-from-subclass(|from)
+
+    <+ private-member-is-accessible-from(|from)
+    <+ default-access-member-is-accessible-from(|from)
+  
+  is-accessible-from(|to, from) =
+       public-member-is-accessible(|from)
+
+    <+ protected-member-is-accessible-from-same-package(|from)
+    <+ protected-member-is-qualified-accessible-from-subclass(|to, from)    
+
+    <+ private-member-is-accessible-from(|from)
+    <+ default-access-member-is-accessible-from(|from)
+  
+
+
+  /**
+   * Public members are accessible (if the declaring class is accessible).
+   *
+   * @param Class object
+   * @type Member object -> Member object
+   */
+  public-member-is-accessible(|from) =
+    (instanceof-JavaMember + instanceof-JavaConstructor) => this
+    ; where(
+        <get-declaring-class> this => decclass
+        ; <is-public> this      
+        ; <is-accessible-from(|from)> decclass
+      )
+    
+  /**
+   * Protected members are accessible if the access occurs within this package.
+   *
+   * @param Class object
+   * @type Member object -> Member object   
+   */
+  protected-member-is-accessible-from-same-package(|from) =
+    (instanceof-JavaMember + instanceof-JavaConstructor) => this
+    ; where(
+        <is-protected> this          
+        ; <get-declaring-class> this => decclass
+        ; <is-accessible-from(|from)> decclass
+        ; <get-package> decclass => decpackage
+        ; <get-package> from => decpackage
+      )
+    
+  /**
+   * Protected members are accessible if access is correct according to 6.6.2.
+   *
+   * @type  Member object -> Member object   
+   */
+  protected-member-is-accessible-from-subclass(|from) =
+    instanceof-JavaMember => this
+    ; where(
+        <is-protected> this
+        ; <get-declaring-class> this => decclass
+        ; <is-accessible-from(|from)> decclass
+        ; <is-subclass(|decclass)> from
+      )
+      
+  protected-member-is-qualified-accessible-from-subclass(|to, from) =
+    where(is-static + not(instanceof-JavaField + instanceof-JavaMethod))
+    ; protected-member-is-accessible-from-subclass(|from)
+
+  /**
+   * Protected members are accessible if access is correct according to 6.6.2.
+   *
+   * @param Use site, static class object of which a member is accessed (type of E)
+   * @param Class object from which the member is accessed (S)
+   * @type  Member object -> Member object
+   */
+  protected-member-is-qualified-accessible-from-subclass(|to, from) =
+    instanceof-JavaMember => this
+    ; (instanceof-JavaField + instanceof-JavaMethod)
+    ; not(is-static)
+    ; where(
+        <is-protected> this
+        ; <get-declaring-class> this => decclass
+        ; <is-accessible-from(|from)> decclass
+        ; <is-subclass(|decclass)> from
+        ; <?from + is-subclass(|from)> to
+      )
+
+  /**
+   * @todo Protected constructors.
+   */
+  is-accessible-from(|from) =
+    fail 
+
+  /**
+   * Private access is allowed in the same top level class.
+   *
+   * @param Class object
+   * @type Member object -> Member object      
+   */
+  private-member-is-accessible-from(|from) =
+    (instanceof-JavaMember + instanceof-JavaConstructor)  
+    ; ?this
+    ; let get-top-level-class =
+            repeat(get-declaring-class)
+          
+       in where(
+            <is-private> this
+            ; <get-declaring-class> this => decclass
+            ; <is-accessible-from(|from)> decclass
+            ; <get-top-level-class> this => to
+            ; <get-top-level-class> from => to
+          )
+      end
+    
+  /**
+   * Default access is allowed in the same package.
+   *
+   * @param Class object
+   * @type Member object -> Member object      
+   */
+  default-access-member-is-accessible-from(|from) =
+    (instanceof-JavaMember + instanceof-JavaConstructor)
+    ; ?this  
+    ; where(
+        get-access => DefaultAccess()    
+        ; <get-declaring-class> this => decclass
+        ; <is-accessible-from(|from)> decclass
+        ; <get-package> decclass => decpackage
+        ; <get-package> from => decpackage      
+      )
+    

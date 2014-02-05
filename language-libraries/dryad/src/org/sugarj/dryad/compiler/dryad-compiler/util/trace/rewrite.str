@@ -1,0 +1,66 @@
+/**
+ * dryad-compiler source tracing strategies for rewriting terms.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/util/trace/rewrite
+
+imports
+  dryad-compiler/util/trace/-
+
+strategies
+  
+  /**
+   * Wrapper strategy to rewrite code while storing the trace in a wrapper
+   * aterm.
+   *
+   * Example: <trace(dryad-emit)> This => Trace(This, [load("this")])
+   *
+   * @see disable-trace         Disables source tracing.
+   * @see trace-terms-to-annos  Replace trace tags by annotations.
+   * @see strip-trace-tags      Removes all Trace tags from a term.
+   * @see bc-apply-to-wrap      Apply a strategy inside a Trace tag.
+   */
+  trace(rewrite) =
+    switch id
+      // TODO2: trace(s) for lists is too specific for dryad-emit
+      
+      case ?[_ | _]: // Non-empty list; seperate tag for each item
+        rename-locals-scope( // Lists of things introduce a scope
+          emit-map(trace(rewrite)) 
+        )
+      
+      case []: // Empty list; don't really want any tags here
+        rewrite;
+        ([] <+ !Trace([], <id>))
+
+      case traverse-trace-tags(trace(rewrite)) => traced:
+        !traced
+      
+      case trace-annos-to-terms => new: // Input is formed like _{Trace(...)}
+        <trace(rewrite)> new
+
+      case ?traced:
+        if DisableTrace then
+          rewrite
+        else
+          {| LastTrace:
+            rules(LastTrace :+= traced);
+            !Trace(traced, <rewrite>)
+          |}
+        end
+    end
+
+  /**
+   * Wrapper strategy to rewrite generated code. Disables source tracing
+   * except for terms wrapped in a EndTrace(t) constructor.
+   *
+   * Example: <disable-trace(trace(dryad-emit)> This => [LOAD("this")]
+   *
+   * @see trace
+   */
+  disable-trace(rewrite) =
+  {| DisableTrace:
+    rules(DisableTrace : _); // No longer record
+    rewrite
+  |}

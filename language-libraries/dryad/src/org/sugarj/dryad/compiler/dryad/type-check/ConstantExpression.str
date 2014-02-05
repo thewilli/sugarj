@@ -1,0 +1,21 @@
+/**
+ * 15.28: Constant Expression
+ */
+module dryad/type-check/ConstantExpression
+strategies
+
+  /**
+   * @todo Implement the check for constant expressions.
+   */
+  is-constant-expression =
+    ?Lit(_)
+
+  /**
+   * @todo What are the representable values of a type?
+   */
+  is-representable-in(|t) =
+    ?Lit(Deci(s))
+    ; where(
+        <string-to-int> s
+      ; <lt-lt> (0, <id>, 255)
+      )

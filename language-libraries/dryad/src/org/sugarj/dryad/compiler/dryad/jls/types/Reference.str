@@ -1,0 +1,19 @@
+/**
+ * 4.3: Reference Types and Values
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/types/Reference
+imports
+  dryad/util/jtree
+  
+strategies
+
+  /**
+   * @todo Should a TypeVar be a reference type? Yes, I think so.
+   */
+  is-reference-type =
+      ?ClassType(_, _)
+    + ?InterfaceType(_, _)
+    + ?ClassOrInterfaceType(_, _) 
+    + ?ArrayType(_)

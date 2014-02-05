@@ -1,0 +1,19 @@
+/**
+ * Declare this class.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/declare/This
+strategies
+
+  /**
+   * @todo Enums, Annotations.
+   */
+  declare-type(cont) =
+    instanceof-JavaClass;
+
+    {| ReclassifySimpleInScopeTypeName, ThisClass :
+        where(get-canonical-name; declare-type-helper)
+      ; rules(ThisClass := <id>)
+      ; cont
+    |}

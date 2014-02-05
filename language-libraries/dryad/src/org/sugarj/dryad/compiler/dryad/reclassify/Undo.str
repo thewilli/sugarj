@@ -1,0 +1,23 @@
+/**
+ * Undo the reclassification and qualification.
+ *
+ * Warning: this is a quick hack and currently does *not* remove
+ * type qualifiers, as some may be necessary
+ * (i.e., not listed in the imports).
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ * @author Lennart Kats <lclkats@cs.uu.nl>
+ */
+module dryad/reclassify/Undo
+strategies
+
+  /**
+   * Undo the reclassification of a compilation unit.
+   */
+  dryad-undo-reclassify-ambnames =
+    alltd(
+      \ Field(x)       -> AmbName(x) \
+    + \ ExprName(x)    -> AmbName(x) \
+    + \ TypeVar(_, x)  -> TypeVar(x) \
+  //+ \ TypeName(_, x) -> ClassOrInterfaceType(x) \ // (may lose required information)
+    )

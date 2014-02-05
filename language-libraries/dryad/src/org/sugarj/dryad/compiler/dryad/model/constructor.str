@@ -1,0 +1,95 @@
+/**
+ * Abstract Java constructor
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/constructor
+imports
+  dryad/model/member
+  dryad/lib-ext/oo/classes
+  dryad/source/Extensions
+
+/**
+ * Arguments
+ */
+strategies
+  
+  /**
+   * Succeeds if this constructor does not take a variable number of arguments.
+   */
+  is-fixed-arity-constructor =
+    not(is-variable-arity-constructor)
+    
+  /**
+   * Returns the ConstructorName of this method.
+   *
+   * @todo Hacky: introduce a ConstructorName.
+   * @type Constructor Object -> ConstructorName
+   */
+  get-name = instanceof-JavaConstructor; ?this;
+    where(get-declaring-class => class)
+    ; !ConstructorName(<get-fully-qualified-name> class)
+    
+  /**
+   * Return name that uniquely identifiers a constructor.
+   *
+   * Note that the JLS does not define canonical names for constructors.
+   * We just use the same terminology for this unique constructor name, to
+   * avoid another kind of name.
+   *
+   * @todo Include type parameters one way or another?
+   */
+  get-canonical-name = instanceof-JavaConstructor; ?this;
+    !ConstructorName(
+       <get-declaring-class; get-canonical-name> this
+     , <get-formal-parameter-types> this
+     )
+
+strategies
+
+  /**
+   * @todo This method is rather useless. Should it be there?
+   */
+  get-formal-parameter-types-in-class(|inclass) = instanceof-JavaConstructor;
+    get-formal-parameter-types  
+
+  /**
+   * Returns the formal parameter types of this constructor if this constructor is invoked
+   * as a member of the given type.
+   *
+   * If the constructor is not actually a member of the specified type, then 
+   * this strategy will fail.
+   *
+   * @todo Raw types and type erasure.
+   * @param Type
+   */
+  get-formal-parameter-types-in-type(|intype) = instanceof-JavaConstructor; ?this;
+    <is-reference-type> intype
+    ; if ?InterfaceType(typename, None()) + ?ClassType(typename, None()) then
+        <get-formal-parameter-types> this
+      else
+        ( ?InterfaceType(typename, Some(TypeArgs(t*))) + ?ClassType(typename, Some(TypeArgs(t*))))
+        ; where(<lookup-class> typename => dec)
+
+        ; <get-formal-parameter-types> this
+        ; apply-type-substitution(| dec, t*)
+      end
+
+/**
+ * Stratego class support for Java constructors.
+ */
+strategies
+
+  /**
+   * Succeeds if the current term is an instance of a Java constructor.
+   *
+   * Subclasses of Java constructor implement this strategy.   
+   */
+  instanceof-JavaConstructor = fail
+
+  /**
+   * Every Java constructor is a Java member.
+   */
+  instanceof-JavaMember =
+    instanceof-JavaConstructor       
+    

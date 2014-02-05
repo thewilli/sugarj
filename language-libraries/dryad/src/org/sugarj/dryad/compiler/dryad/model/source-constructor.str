@@ -1,0 +1,132 @@
+/**
+ * Source Constructor
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/source-constructor
+strategies
+
+  /**
+   * Constructs a new source constructor.
+   *
+   * @type  _ -> Source Constructor
+   */
+  new-source-constructor(|ast) =
+    <classes_get-class> JavaSourceConstructor()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"reference-ast", ast)
+
+/**
+ * AST representation
+ */
+strategies
+
+  get-ast = instanceof-JavaSourceConstructor;
+    get-reference-ast
+    
+  get-reference-ast =  instanceof-JavaSourceConstructor;
+    classes_get-instance-field(|"reference-ast")  
+    
+  set-reference-ast(|refast) =  instanceof-JavaSourceConstructor;
+    classes_set-instance-field(|"reference-ast", refast)
+    
+
+strategies
+    
+  /**
+   * @type Constructor Object -> Access Modifier
+   */
+  get-access = instanceof-JavaSourceConstructor;
+    get-modifiers
+    ; ( fetch-elem(?Public() + ?Private() + ?Protected())
+     <+ !DefaultAccess()
+      )
+
+  /**
+   * Returns the modifiers of a source constructor.
+   *
+   * @type Constructor Object -> List(Modifier)
+   */
+  get-modifiers = instanceof-JavaSourceConstructor;
+    get-reference-ast
+    ; ?ConstrDec(ConstrDecHead(<id>, _, _, _, _), _)
+    
+strategies
+
+  /**
+   * Returns a list of exceptions declared to be thrown by this
+   * method.
+   *
+   * @type Constructor Object -> List(Source type)
+   */
+  get-declared-exception-types = instanceof-JavaSourceConstructor;
+    get-ast
+    ; ( ?ConstrDec(ConstrDecHead(_, _, _, _, Some(ThrowsDec(<id>))), _)
+      + ?ConstrDec(ConstrDecHead(_, _, _, _, None()), _)
+        ; ![]
+      )
+
+  /**
+   * Returns the arity (number of arguments) of this constructor
+   */
+  get-arity = instanceof-JavaSourceConstructor;
+    get-ast
+    ; ?ConstrDec(ConstrDecHead(_, _, _, <length>, _), _)
+
+  /**
+   * Succeeds if this constructor takes a variable number of arguments.
+   */
+  is-variable-arity-constructor = instanceof-JavaSourceConstructor;
+    where(
+      get-ast
+      ; ?ConstrDec(ConstrDecHead(_, _, _, <id>, _), _)
+      ; fetch(is-variable-arity-param)
+    )
+
+  /**
+   * Returns the formal parameters types of a method as source types.
+   *
+   * @todo Handle VarArityParam. What is its type?
+   * @type Constructor Object -> List(Source Type)
+   */
+  get-formal-parameter-types = instanceof-JavaSourceConstructor;
+    get-ast
+    ; ?ConstrDec(ConstrDecHead(_, _, _, <id>, _), _)
+    ; map(get-type-of-param)
+    
+strategies
+
+  /**
+   * Returns the list of formal type parameters declared by this constructor.
+   *
+   * @type Constructor Object -> List(TypeParam)
+   */
+  get-formal-type-parameters = instanceof-JavaSourceConstructor;
+    get-reference-ast
+    ; ( ?ConstrDec(ConstrDecHead(_, Some(TypeParams(<id>)), _, _, _), _)
+     <+ ?ConstrDec(ConstrDecHead(_, None(), _, _, _), _)
+        ; ![]
+      )
+
+/**
+ * Stratego class support for source constructors
+ */    
+signature
+  constructors
+    JavaSourceConstructor: ClassName
+    
+strategies
+
+  /**
+   * Succeeds if the current term is an instance of Java source constructor
+   */
+  instanceof-JavaSourceConstructor =
+    classes_instanceof(|JavaSourceConstructor())
+
+  /**
+   * Succeeds if the current term is an instance of a Java constructor.
+   *
+   * This alternative declares a JavaSourceConstructor to be a JavaConstructor.
+   */
+  instanceof-JavaConstructor =
+    classes_instanceof(|JavaSourceConstructor())

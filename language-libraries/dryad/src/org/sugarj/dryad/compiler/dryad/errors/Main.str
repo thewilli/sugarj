@@ -1,0 +1,139 @@
+/**
+ * Report the errors of a Java CompilationUnit
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad/errors/Main
+imports
+  dryad/type-check/-
+  libjava-front
+  libstratego-lib
+  java/typematch/common
+ 
+signature
+  constructors
+    DryadError   : String * Expr -> DryadError
+    DryadWarning : String * Expr -> DryadWarning
+    
+strategies
+
+
+
+  /**
+   * Collect all type checker errors and report them using
+   * dryad-simple-error-report.
+   */
+  dryad-errors =
+    dryad-collect-errors
+    ; list-loop(dryad-simple-error-report)
+  
+  dryad-collect-errors =
+    collect-all(dryad-fetch-error)
+
+/**
+ * Collect (type) errors
+ */    
+strategies
+    
+  /**
+   * @type Error -> Error
+   */
+  dryad-simple-error-report =
+    if ?DryadError(msg, e) then
+      severity := Error()
+    else
+      ?DryadWarning(msg, e)
+    ; severity := Warning()
+    end
+    
+    ; where(
+        pp := <try(pp-java5-to-string)> e
+        ; log(|severity, msg)
+        ; log(|severity, <prefix-lines(|"  ")> pp)
+        
+        ; if <sub-expressions> e => args; not([]) then
+            log(|severity, "  inferred types of arguments: ")
+          ; !args
+          ; map({e1, ppe1, pptype1:
+              ?e1
+              ; <pp-java5-to-string> e1 => ppe1
+              ; <type-attr; pp-java5-to-string> e1 => pptype1
+              ; <conc-strings> ("    ", <trim-chars('\n' + ' ')> ppe1, ": ", pptype1)
+              ; log(|severity, <id>)
+            })
+          end
+      )
+      
+strategies
+
+  /**
+   * Innermost type error in expression.
+   */       
+  dryad-fetch-error =
+    is-Expr
+    ; ?e
+    ; where(
+        <not(type-attr)> e
+      ; <sub-expressions; map(type-attr)> e
+      )
+    ; if ?ExprName(_) then
+        !DryadError("Cannot find symbol.", e)
+      else
+        !DryadError("Unable to assign a type to this expression.", e)
+      end
+      
+  /**
+   * Variable assigned without an assignment conversion.
+   * @todo Change from 'warning' to 'error' once this gets annotated.
+   */
+  dryad-fetch-error =
+    (?VarDec(_, e) + ?Assign(_, e)) => assign
+    ; where(<type-attr> e)
+    ; where(get-annos; not(fetch(?AssignmentConversion(_))))
+    ; !DryadWarning("Incompatible types.", assign)
+
+  /**
+   * Foreach assignment without conversion.
+   */
+  dryad-fetch-error =
+    ?ForEach(param, iterator, _) => for
+    ; where(<type-attr> iterator)
+    ; where(!param; get-annos; not(fetch(?AssignmentConversion(_))))
+    ; !DryadError("For loop identifier cannot be converted to the expected type.", for)
+
+  /**
+   * @todo error for: Return without conversion.
+   *
+  dryad-fetch-error =
+    ?Return(Some(e)) => return
+    ; where(<type-attr> e)
+    ; where(get-annos; not(fetch(AssignmentConversion(id))))
+    ; !DryadError("Incompatible return type.", return)
+   */
+
+strategies
+
+  /**
+   * Apply 'ifthen' if this is an innermost error.
+   */
+  dryad-if-innermost-error(ifthen) =
+    dryad-if-innermost-error(ifthen, id)
+
+  /**
+   * Apply 'ifthen' if this is an innermost error. Otherwise apply ifelse.
+   */
+  dryad-if-innermost-error(ifthen, ifelse) =
+    if dryad-fetch-error then ifthen else ifelse end
+
+strategies
+
+  /**
+   * Returns the sub-expressions of an expression.
+   *
+   * @type Expr -> List(Expr)
+   */
+  sub-expressions =
+    get-arguments-of-invocation
+    <+ ?_#(<id>)
+       ; filter(is-Expr)

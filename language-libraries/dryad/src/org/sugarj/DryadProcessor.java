@@ -3,10 +3,15 @@ package org.sugarj;
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.strategoxt.lang.Context;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
@@ -39,9 +44,9 @@ public class DryadProcessor extends AbstractBaseProcessor {
   private String prettyPrint(IStrategoTerm term) {
     if (ppTable == null){ 
       try {
-        ppTable = ATermCommands.readPrettyPrintTable(getLanguage().ensureFile("org/sugarj/languages/Jasmin.pp").getAbsolutePath());
+        ppTable = ATermCommands.readPrettyPrintTable(getLanguage().ensureFile("org/sugarj/languages/Dryad.pp").getAbsolutePath());
       } catch (Exception e) {
-        ATermCommands.setErrorMessage(term, "generating Jasmin parse table failed");
+        ATermCommands.setErrorMessage(term, "generating Dryad parse table failed");
         return null;
       } 
     }
@@ -94,17 +99,18 @@ public class DryadProcessor extends AbstractBaseProcessor {
       processNamespaceDecl(toplevelDecl);
       return Collections.emptyList();
     }
-    IStrategoTerm term = getApplicationSubterm(toplevelDecl, "JasminBody", 0);
+    IStrategoTerm term = getApplicationSubterm(toplevelDecl, "DryadBody", 0);
     String text = null;
     try {
       text = prettyPrint(term);
     } catch (NullPointerException e) {
-      ATermCommands.setErrorMessage(toplevelDecl, "pretty printing Jasmin failed");
+      ATermCommands.setErrorMessage(toplevelDecl, "pretty printing Dryad failed");
     }
     if (text != null)
       body.add(text);
-    //Extract modulename from class name (each Jasmin fle represents exactly one class)
-    moduleName = prettyPrint(term.getSubterm(0).getSubterm(2).getSubterm(1));
+    //Extract modulename from class name (each Dryad fle represents exactly one class)
+    //TODO: File can be in two formats (Java-based or Bytecode-based)
+    moduleName = prettyPrint(term.getSubterm(2).getSubterm(0).getSubterm(0).getSubterm(1));
     setNamespace();
     //TODO: Verify Filename = Modulename (-> Haskell) and namespace respectively
     return Collections.emptyList();
@@ -137,8 +143,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
   }
 
   @Override
-  public String getGeneratedSource() {
-    if(body.isEmpty())
+  public String getGeneratedSource() {    if(body.isEmpty())
       return "";
     return StringCommands.printListSeparated(body, "\n");
   }
@@ -147,24 +152,37 @@ public class DryadProcessor extends AbstractBaseProcessor {
   public Path getGeneratedSourceFile() {
    return outFile;
   }
+  
+  static String readFile(String path, Charset encoding) 
+      throws IOException 
+    {
+      byte[] encoded = Files.readAllBytes(Paths.get(path));
+      return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+    }
 
   @Override
   public List<Path> compile(List<Path> generatedSourceFiles, Path targetDir, List<Path> classpath) throws IOException, SourceCodeException {
-    //jasmin.Main compiler = null;
+    //FIXME
+    //IStrategoTerm target = this.getInterpreter().getCompiledContext().invokeStrategy("asdf",this.getInterpreter())
     LinkedList<Path> outputFiles = new LinkedList<Path>();
     String outputDirWithSuffix = targetDir.getAbsolutePath();
     if(!outputDirWithSuffix.endsWith("/") && !outputDirWithSuffix.endsWith(File.separator))
       outputDirWithSuffix += File.separator;
-    String compilerArgs[] = new String[3];
-    compilerArgs[0] = "-d";
-    compilerArgs[1] = targetDir.getAbsolutePath();
+    //String compilerArgs[] = new String[3];
+    //compilerArgs[0] = "-d";
+    //compilerArgs[1] = targetDir.getAbsolutePath();
     for(Path compileFile : generatedSourceFiles){
-      //compiler = new jasmin.Main();
-      compilerArgs[2] = compileFile.getAbsolutePath();
-      //TODO: Redirect compiler output (stdout) to log, and check for any errors
-      //compiler.run(compilerArgs); //execute
       String targetFile = outputDirWithSuffix + FileCommands.dropExtension(FileCommands.fileName(compileFile)) + DryadLanguage.getInstance().getBinaryFileExtension();
-      
+      try{
+      //FIXME: Use actual file content to handle several compilations at once
+      //String fileContent = readFile(compileFile.getAbsolutePath(), Charset.defaultCharset());
+      //IStrategoTerm parsedContent = getInterpreter().getCompiledContext().getFactory().parseFromString(fileContent);
+      IStrategoTerm parsedContent = getInterpreter().current();
+      parsedContent = getInterpreter().getCompiledContext().invokeStrategy("willispecial", parsedContent);
+      String x = "5";
+      }catch(Exception ex){
+        System.out.println(ex.getMessage());
+      }
       if(FileCommands.fileExists(new AbsolutePath(targetFile)))
         outputFiles.add(new AbsolutePath(targetFile));
     }

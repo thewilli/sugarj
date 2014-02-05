@@ -1,0 +1,51 @@
+/**
+ * Abstract class for Java members (field, constructor, method)
+ */
+module dryad/model/member
+strategies
+
+  /**
+   * @type Member Object -> Class Object
+   */
+  get-declaring-class = instanceof-JavaMember;
+    classes_get-instance-field(|"declaring-class")
+  
+  /**
+   * @type Member Object -> Member Object
+   */
+  set-declaring-class(|class) = instanceof-JavaMember;
+    classes_set-instance-field(|"declaring-class", class)
+    
+/**
+ * Access Control
+ */
+strategies
+
+  /**
+   * @type Method object -> Access Modifier
+   */
+  is-private =
+    where(get-access => Private())
+    
+  /**
+   * @type Method object -> Access Modifier
+   */
+  is-public =
+    where(get-access => Public())
+    
+  /**
+   * @type Method object -> Access Modifier
+   */
+  is-protected =
+    where(get-access => Protected())
+
+/**
+ * Stratego class support for members.
+ */
+strategies
+
+  /**
+   * Succeeds if the current term is a member.
+   * Subclasses of member implement this strategy.   
+   */
+  instanceof-JavaMember = fail

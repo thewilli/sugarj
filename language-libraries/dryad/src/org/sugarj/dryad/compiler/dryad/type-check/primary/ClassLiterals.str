@@ -1,0 +1,21 @@
+/**
+ * 15.8.2: Class Literals
+ *
+ * @todo Remember note on type of Object.getClass().
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/primary/ClassLiterals
+strategies
+
+  dryad-type-of :
+    |[ void.class ]| -> TypeClass(TypeVoid())
+
+  dryad-type-of :
+    |[ t.class ]| -> TypeClass(type')
+    where
+      if <is-primitive-type> t then
+        <boxing-conversion-of-type> t
+      else
+        !t
+      end;
+      ?type'

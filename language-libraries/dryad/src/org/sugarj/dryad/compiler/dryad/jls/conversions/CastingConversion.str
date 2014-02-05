@@ -1,0 +1,54 @@
+/**
+ * 5.5: Casting Conversion
+ *
+ * @author Martin Bravenboer
+ * @todo   Use the detailed rules or the conversions?
+ */
+module dryad/jls/conversions/CastingConversion
+imports
+  dryad/jls/conversions/NarrowingPrimitive
+  dryad/jls/conversions/NarrowingReference
+  dryad/jls/conversions/WideningPrimitive
+  dryad/jls/conversions/WideningReference
+
+strategies
+
+/**
+ * Checks if a type is convertable to the specified type (to) by
+ * applying casting conversion.
+ *
+ * @param to   Type to convert to
+ * @type       Type -> Type
+ */
+strategies
+
+  /**
+   * Primitive type
+   */
+  is-casting-convertable(|to) =
+    is-primitive-type; (
+       is-identity-convertable(|to)
+    <+ is-widening-primitive-convertable(|to)
+    <+ is-narrowing-primitive-convertable(|to)
+    <+ where(boxing-conversion-of-type => to)
+    )
+
+  /**
+   * Reference Type
+   */
+  is-casting-convertable(|to) =
+    is-reference-type; (
+       is-identity-convertable(|to)
+    <+ is-widening-reference-convertable(|to)
+    <+ is-narrowing-reference-convertable(|to)
+    <+ where(unboxing-conversion-of-type => to)
+    )
+
+  /**
+   * Null can be cast to any reference type.
+   *
+   * @todo Report: this special null case seems to be missing in the JLS
+   */
+  is-casting-convertable(|to) =
+    ?Null()
+    ; where(<is-reference-type> to)

@@ -1,0 +1,27 @@
+/**
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/declare/ClassMembers
+strategies
+
+  /**
+   * Declares class members.
+   *
+   * @type Class Object -> Class Object
+   */
+  declare-class-members(cont) = ?this; instanceof-JavaClass;
+    {| ReclassifySimpleInScopeTypeName, ReclassifySimpleInScopeVar, QualifySimpleInScopeTypeName : 
+      where(
+        <get-fields> this
+        ; map({x:
+            get-simple-name => x
+            ; <declare-field-var-helper> VarDec(Id(x))
+          })
+        ; <get-member-types> this
+        ; map(
+            get-canonical-name
+            ; declare-type-helper
+          )
+      )
+    ; cont
+    |}

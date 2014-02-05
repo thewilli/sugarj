@@ -1,0 +1,33 @@
+/**
+ * 15.22: Bitwise and Logical Operators
+ */
+module dryad/type-check/BitwiseAndLogicalOperators
+strategies
+
+  dryad-type-of :
+    |[ e1 & e2 ]| -> <dryad-type-of-bit-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 ^ e2 ]| -> <dryad-type-of-bit-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 | e2 ]| -> <dryad-type-of-bit-op> (e1, e2)
+
+  dryad-type-of-bit-op =
+    ?(e1, e2)
+
+    ; <type-attr> e1 => t1
+    ; <type-attr> e2 => t2
+
+    ; let option-integral =
+            <is-convertible-to-integral-type> t1
+          ; <is-convertible-to-integral-type> t2
+          ; <binary-numeric-promotion-of-types> (t1, t2)
+
+          option-bool =
+            <is-convertible-to-boolean-type> t1
+          ; <is-convertible-to-boolean-type> t2
+          ; !Boolean()
+
+       in option-integral <+ option-bool
+      end

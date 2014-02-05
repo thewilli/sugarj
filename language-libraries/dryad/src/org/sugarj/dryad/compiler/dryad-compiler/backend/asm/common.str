@@ -1,0 +1,96 @@
+/**
+ * dryad-compiler common assembly and verification strategies.
+ *
+ * @see bc-verify       Main verification strategy.
+ * @see bc-asm          Main assembly strategy (includes verification).
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/common
+
+imports
+  dryad-compiler/backend/asm/register-locals
+
+strategies
+
+  /** Scope all rules used by the (un)assembly process. */
+  bc-asm-scope(s) =
+  {| IgnoreAsmError, IgnoreAllAsmErrors, AsmErrors, IgnoreError,
+     ExceptionEntries, LineNumberEntries:
+    bc-locals-scope(s)
+  |}
+  
+  /**
+   * Scope all rules used by the (un)assembly process and report
+   * all errors and warnings to onfailure.
+   */
+  bc-asm-scope(onfailure, s) =
+    bc-asm-scope(
+      s;
+      
+      where( // collect and handle errors
+        bagof-AsmErrors;
+        list-loop(onfailure <+ try(?asmFailed));
+        not(!asmFailed)
+      )
+    )
+
+  /** Abort assembly (at least for this method). */
+  bc-asm-abort =
+    if-verbose4(
+      IgnoreAllAsmErrors <+ log(|Debug, "Fatal asm error encountered")
+    );
+    rules(IgnoreAllAsmErrors: _); // no further errors
+    fail
+
+/**
+ * Error/warning reporting. Stores all messages in a dynamic rule
+ * AsmErrors, for later use.
+ */
+strategies
+  bc-error(|message : String, byte) =
+    where(<bc-report-message> DryadError(message, <bc-get-reported-code> byte))
+  
+  bc-warning(|message : String, byte) =
+    where(<bc-report-message> DryadWarning(message, <bc-get-reported-code> byte))
+      
+  // Trivial overloads
+  bc-error(|m1 : String, m2, byte) =
+    bc-error(|<bc-format-message> (m1, m2), byte)
+  bc-warning(|m1 : String, m2, byte) =
+    bc-warning(|<bc-format-message> (m1, m2), byte)
+
+/** @internal */
+strategies
+
+  bc-report-message =
+    ?msg;
+    if not(IgnoreAsmError + IgnoreAllAsmErrors) then
+      rules(
+        AsmErrors :+= msg
+        IgnoreAsmError: msg -> msg
+      );      
+      log(|Debug, "Reporting asm error/warning", <id>)
+    end
+
+  /** @internal */
+  bc-get-reported-code =
+    try(
+      where(LastTrace => Trace(old, new));
+      if(None, !new{Trace(old)} // error did not specify the generated code
+             , !<id>{Trace(old)});
+      try(\x{Trace(x)} -> x\)
+    )
+
+  bc-format-message =
+    ?(m1, <as-list; map(?_{Id(<id>)} <+  bc-type-to-string <+ pp-java-string <+ as-string)>);
+    ![m1, ": " | <separate-by(|" ")>];
+    concat-strings
+
+  bc-type-to-string =
+    Any; !"anytype"
+  + None; !"nothing"
+  + Null; !"null"
+  + not(is-string);
+    bytecode-type-to-source-type;
+    pp-java-string

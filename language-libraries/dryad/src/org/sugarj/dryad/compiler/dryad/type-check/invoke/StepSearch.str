@@ -1,0 +1,204 @@
+/**
+ * 15.12.1: Compile-Time Step 1: Determine Class or Interface to Search
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/invoke/StepSearch
+imports
+  dryad/jls/types/Subtyping
+
+/**
+ * For all MethodId alternatives, the following three strategies must be defined.
+ */
+strategies
+
+  /**
+   * Returns the type on which the invocation is to be performed.
+   *
+   * @type MethodId -> Type
+   */
+  dryad-tc-search-class-of-method =
+    fail
+
+  /**
+   * Returns the name of the method to be invoked.
+   *
+   * @type MethodId -> String
+   */
+  dryad-tc-name-of-method =
+    fail
+  
+  /**
+   * Return a list of explicit actual type arguments specified in the invocation.
+   *
+   * @type MethodId -> List(ActualTypeArg)
+   */  
+  dryad-tc-explicit-type-arguments-method =
+    fail
+
+/**
+ * Form MethodName: Id 
+ */
+strategies
+
+  /**
+   * @todo Instance access not allowed from static context.
+   */
+  dryad-tc-search-class-of-method :
+    Method(MethodName(Id(s))) -> type
+    where
+      <bigbagof-ThisType> ()
+      ; fetch-elem(where(lookup-class; has-method(|s)))
+      ; ?type
+
+  dryad-tc-name-of-method :
+    Method(MethodName(Id(x))) -> x
+    
+  dryad-tc-explicit-type-arguments-method :    
+    Method(MethodName(Id(s))) -> []
+
+/**
+ * Form MethodName: TypeName.Id
+ */
+rules
+
+  /**
+   * @todo Method must be static.
+   */
+  dryad-tc-search-class-of-method :
+    Method(MethodName(tn@TypeName(_, _), _)) -> ClassType(tn, None())
+    where
+      <log-lookup-class> tn => class
+      ; <not(is-interface)> class
+
+  dryad-tc-name-of-method :
+    Method(MethodName(TypeName(_, _), Id(x))) -> x
+    
+  dryad-tc-explicit-type-arguments-method :    
+    Method(MethodName(TypeName(_, _), _)) -> []
+
+/**
+ * Form MethodName: FieldName.Id
+ *
+ * Note: FieldName is actually not an existing name in the
+ * JLS. Probably, the authors wanted to refer to an ExprName.
+ *
+ * @todo Is this indeed an error in the JLS? Submitted.
+ * @todo Duplicate cases: can this be normalized in the disamb phase? 
+ */
+rules
+
+  dryad-tc-search-class-of-method :
+    Method(MethodName(en@Field(_, _), _)) -> <type-attr> en
+    
+  dryad-tc-search-class-of-method :
+    Method(MethodName(en@Field(_), _)) -> <type-attr> en
+
+  dryad-tc-search-class-of-method :
+    Method(MethodName(en@ExprName(_), _)) -> <type-attr> en
+
+  dryad-tc-name-of-method :
+    Method(MethodName(Field(_, _), Id(x))) -> x
+    
+  dryad-tc-name-of-method :
+    Method(MethodName(Field(_), Id(x))) -> x
+
+  dryad-tc-name-of-method :
+    Method(MethodName(ExprName(_), Id(x))) -> x
+
+  dryad-tc-explicit-type-arguments-method :    
+    Method(MethodName(Field(_, _), _)) -> []
+    
+  dryad-tc-explicit-type-arguments-method :    
+    Method(MethodName(Field(_), _)) -> []
+
+  dryad-tc-explicit-type-arguments-method :
+    Method(MethodName(ExprName(_), _)) -> []
+
+/**
+ * Form Primary . TypeArgs? Identifier
+ *
+ * In fact, the syntax allows any expression.
+ */
+rules
+
+  /**
+   * @todo Handle expression that has variable type (i.e. take upper bound)
+   */
+  dryad-tc-search-class-of-method :
+    Method(e, _, _) -> <type-attr> e
+
+  dryad-tc-name-of-method :
+    Method(_, _, Id(x)) -> x
+    
+  dryad-tc-explicit-type-arguments-method :    
+    Method(_, None(), _)  -> []
+    
+  dryad-tc-explicit-type-arguments-method :    
+    Method(_, Some(TypeArgs(args)), _)  -> args
+
+/**
+ * Form super . TypeArgs? Identifier
+ */
+rules
+
+  /**
+   * @todo Super invoke: get-superclass-as-type requires the argument types of this class?
+   */
+  dryad-tc-search-class-of-method =
+    ?SuperMethod(_, _)
+    ; <ThisType> ()
+    ; log-lookup-class
+    ; get-superclass-as-type
+
+  dryad-tc-name-of-method :
+    SuperMethod(_, Id(x))  -> x
+    
+  dryad-tc-explicit-type-arguments-method :    
+    SuperMethod(None(), _)  -> []
+    
+  dryad-tc-explicit-type-arguments-method :    
+    SuperMethod(Some(TypeArgs(args)), _)  -> args
+
+/**
+ * Form TypeName.super.TypeArgs? Identifier
+ */
+rules
+
+  /**
+   * @todo Super invoke: get-superclass-as-type requires the argument types of this class?
+   */
+  dryad-tc-search-class-of-method =
+    ?QSuperMethod(tn, _, _)
+    ; <bigbagof-ThisType> ()
+    ; fetch-elem(?ClassType(tn, _))
+    ; log-lookup-class
+    ; get-superclass-as-type
+
+  dryad-tc-name-of-method :
+    QSuperMethod(_, _, Id(x))  -> x
+
+  dryad-tc-explicit-type-arguments-method :    
+    QSuperMethod(_, None(), _)  -> []
+    
+  dryad-tc-explicit-type-arguments-method :    
+    QSuperMethod(_, Some(TypeArgs(args)), _)  -> args
+
+/**
+ * Form TypeName. TypeArgs Identifier
+ *
+ * @todo This could be an expression name.
+ */
+rules
+
+  dryad-tc-search-class-of-method :
+    GenericMethod(tn@TypeName(_, _), _, _) -> ClassType(tn, None())
+    where
+      <log-lookup-class> tn => class
+      ; <not(is-interface)> class
+
+  dryad-tc-name-of-method :
+    GenericMethod(TypeName(_, _), _, Id(x)) -> x
+
+  dryad-tc-explicit-type-arguments-method :
+    GenericMethod(_, TypeArgs(args), _) -> args

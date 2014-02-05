@@ -1,0 +1,22 @@
+/**
+ * 15.17: Multiplicative Operators
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/MultiplicativeOperators
+strategies
+
+  dryad-type-of :
+    |[ e1 * e2 ]| -> <dryad-type-of-mul-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 / e2 ]| -> <dryad-type-of-mul-op> (e1, e2)
+
+  dryad-type-of :
+    |[ e1 % e2 ]| -> <dryad-type-of-mul-op> (e1, e2)
+
+  /**
+   * @type (Expr, Expr) -> Type
+   */
+  dryad-type-of-mul-op =
+    dryad-type-of-num-bin-op

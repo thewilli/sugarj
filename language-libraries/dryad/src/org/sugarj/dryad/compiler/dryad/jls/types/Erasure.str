@@ -1,0 +1,54 @@
+/**
+ * 4.6: Type Erasure
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/types/Erasure
+strategies
+
+  type-erasure = rec rec(
+       type-erasure-parameterized-type(rec)
+    <+ type-erasure-nested-type(rec)
+    <+ type-erasure-array-type(rec)
+    <+ type-erasure-type-variable(rec)
+    <+ id
+    )
+
+  type-erasure-parameterized-type(rec) :
+    ClassType(tn, Some(TypeArgs(_))) -> <rec> ClassType(tn, None())
+    
+  type-erasure-parameterized-type(rec) :
+    InterfaceType(tn, Some(TypeArgs(_))) -> <rec> InterfaceType(tn, None())
+
+  /**
+   * @todo Implement erasure of nested types.
+   */
+  type-erasure-nested-type(rec) =
+    fail
+
+  type-erasure-array-type(rec) :
+    ArrayType(t) -> ArrayType(<rec> t)
+    
+  type-erasure-type-variable(rec) :
+    tv@TypeVar(_, _) -> <rec> leftmost
+    where
+      <lookup-type-parameter> tv
+      ; get-upper-bound => [leftmost | _]
+
+/**
+ * @todo Move to a better place.
+ */
+strategies
+
+  /**
+   * @type TypeParam -> List(Type)
+   */    
+  get-upper-bound =
+    ?TypeParam(_, Some(TypeBound(<id>)))
+    
+  /**
+   * @type TypeParam -> List(Type)
+   */
+  get-upper-bound =
+    ?TypeParam(_, None())  
+    ; ![TypeObject()]

@@ -1,0 +1,211 @@
+/**
+ * Bytecode Method
+ */
+module dryad/model/bytecode-method
+imports
+  dryad/reclassify/Bytecode
+
+strategies
+
+  /**
+   * Constructs a new bytecode method.
+   *
+   * @type  _ -> Bytecode Method
+   */
+  new-bytecode-method(|bytecode) =
+    <classes_get-class> JavaBytecodeMethod()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"reference-ast", bytecode)
+
+/**
+ * Bytecode representation
+ */
+strategies
+
+  get-ast = instanceof-JavaBytecodeMethod;
+    get-reference-ast
+    
+  get-reference-ast = instanceof-JavaBytecodeMethod;
+    classes_get-instance-field(|"reference-ast")  
+    
+  set-reference-ast(|refast) =  instanceof-JavaBytecodeMethod;
+    classes_set-instance-field(|"reference-ast", refast)
+    
+/**
+ * Access and modifiers.
+ */
+strategies
+
+  /**
+   * @type Method Object -> Access Modifier
+   * @todo Default access in interface is public: do we need to handle that for bytecode?   
+   */
+  get-access = instanceof-JavaBytecodeMethod;
+    get-access-flags
+    ; (fetch-elem(?Public() + ?Private() + ?Protected())
+      <+ !DefaultAccess())
+
+  get-access-flags = instanceof-JavaBytecodeMethod;
+    get-reference-ast      
+    ; ?Method(AccessFlags(<id>), _, _, _)
+
+  /**
+   * Succeeds if a method is static
+   *
+   * @type Method Object -> Method Object
+   */
+  is-static =  instanceof-JavaBytecodeMethod; 
+    where(
+      get-access-flags
+      ; fetch(?Static())
+    )
+
+strategies
+
+  /**
+   * Returns the return type of this method, considering the 
+   * generic signature if it is available.
+   *
+   * @type Method -> Source type
+   */
+  get-return-type = instanceof-JavaBytecodeMethod;
+    if-signature(
+      ?MethodSignature(_, _, Returns(<id>), _)
+      
+    , get-reference-ast
+      ; ?Method(_, _, MethodDescriptor(_, <id>), _)
+      ; bytecode-type-to-source-type
+    )
+    
+  /**
+   * Returns a list of exceptions declared to be thrown by this
+   * method.
+   *
+   * @todo Consider generic exceptions declared in a signature.
+   * @type Method -> List(Source type)
+   */
+  get-declared-exception-types = instanceof-JavaBytecodeMethod;
+    get-reference-ast    
+    ; if ?Method(_, _, _, Attributes(<fetch(?Exceptions(es))>)) then
+        !es
+        ; map(?Class(<!ObjectType(<id>); bytecode-type-to-source-type>))
+      else
+        ![]
+      end
+      
+  /**
+   * @type Method -> String
+   */
+  get-simple-name = instanceof-JavaBytecodeMethod;
+    get-reference-ast      
+    ; ?Method(_, Name(<id>), _, _)
+
+  /**
+   * Returns the arity (number of arguments) of this method
+   */
+  get-arity = instanceof-JavaBytecodeMethod;
+    get-reference-ast      
+    ; ?Method(_, _, MethodDescriptor(<length>, _), _)
+
+  /**
+   * Succeeds if this method takes a variable number of arguments.
+   */
+  is-variable-arity-method = instanceof-JavaBytecodeMethod;
+    where(
+      get-reference-ast
+      ; ?Method(<id>, _, _, _)
+      ; fetch(?Varargs())
+    )
+
+  /**
+   * Returns the formal parameters types of a method as source types, 
+   * considering the generic signature if it is available.
+   *
+   * @type Method -> List(Source Type)
+   */
+  get-formal-parameter-types = instanceof-JavaBytecodeMethod;
+    if-signature(
+      ?MethodSignature(_, Params(<id>), _, _)
+      
+    , get-reference-ast
+      ; ?Method(_, _, MethodDescriptor(<id>, _), _)
+      ; map(bytecode-type-to-source-type)
+    )
+
+strategies
+
+  /**
+   * Returns the list of formal parameter types of this method.
+   * If this is not a generic method, then the empty list is returned.
+   *
+   * @type BytecodeMethod Object -> List(TypeParam)
+   */
+  get-formal-type-parameters = instanceof-JavaBytecodeMethod;
+    if-signature(
+      ?MethodSignature(TypeParams(<id>), _, _, _)
+    , ![]
+    )
+
+  /**
+   * Returns the generic signature of this method.
+   *
+   * @type BytecodeMethod Object -> MethodSignature
+   */
+  get-signature = instanceof-JavaBytecodeMethod;
+    ?this; (
+       classes_get-instance-field(|GenericSignature())
+       
+    <+ get-attributes
+       ; if fetch(?MethodSignature(_, _, _, _); ?sig) then
+           !Some(sig)
+         else
+           !None()
+         end
+       ; ?result
+       ; <classes_set-instance-field(|GenericSignature(), result)> this
+       ; reclassify-method-signature
+       ; classes_get-instance-field(|GenericSignature())
+     )
+     ; ?Some(<id>)
+    
+  if-signature(then, else) =
+    get-signature < then + else
+
+strategies
+
+  /**
+   * Returns the attributes of this bytecode method.
+   *
+   * Note: attributes are a bytecode-level construct and are not
+   * directly related to Java source annotations. This strategy returns
+   * the *bytecode* attributes.
+   *
+   * @type BytecodeMethod Object -> List(Attribute)
+   */
+  get-attributes = instanceof-JavaBytecodeMethod;
+    get-reference-ast      
+    ; ?Method(_, _, _, Attributes(<id>))
+
+/**
+ * Stratego class support for bytecode methods
+ */    
+signature
+  constructors
+    JavaBytecodeMethod : ClassName
+    GenericSignature   : FieldName
+
+strategies    
+
+  /**
+   * Succeeds if the current term is an instance of Java bytecode method
+   */
+  instanceof-JavaBytecodeMethod =
+    classes_instanceof(|JavaBytecodeMethod())
+
+  /**
+   * Succeeds if the current term is an instance of a Java method.
+   *
+   * This alternative declares a JavaBytecodeMethod to be a JavaMethod.
+   */
+  instanceof-JavaMethod =
+    classes_instanceof(|JavaBytecodeMethod())

@@ -1,0 +1,51 @@
+module libstratego-jvm
+
+imports
+  libstratego-lib
+  libstratego-xtc
+
+signature
+  constructors
+    SYMJVM : String -> Id
+
+strategies
+
+  /**
+   * @param List(String)
+   * @type _ -> StrategoJVM
+   */
+  strjvm-create(|classpath) = 
+    !SYMJVM("jvm")
+    ; jdebug(!"Pseudo-JVM created")
+    /*let classpath-option =
+          <separate-by(|":")> classpath
+          ; !["-Djava.class.path=" | <id>]
+          ; concat-strings
+     in prim("STRJVM_create", <classpath-option>)
+    end
+    */
+  /**
+   * Call a static method. Bit ad-hoc, but it works. List handling should be in native code.
+   */
+  strjvm-callstatic(|jvm, class, method) =
+     ?[arg1]
+    ; log(|
+        Debug()
+      , <concat-strings> ["Invoking JVM: ", class, ".", method, "(", arg1, ")"]
+      )
+    ; jdebug(!"strjvm-callstatic1: ")
+    ; fail
+    //; prim("STRJVM_callstatic_string_string", jvm, class, method, arg1)
+    //; <STRJVM_callstatic_string_string> (jvm, class, method, arg1)
+
+  strjvm-callstatic(|jvm, class, method) =
+    ?[arg1, arg2]
+    ; log(|
+        Debug()
+      , <concat-strings> ["Invoking JVM: ", class, ".", method, "(", arg1, ",", arg2, ")"]
+      )
+    ; jdebug(!"strjvm-callstatic2: ")
+    ; STRJVM_callstatic_string_stringstring(|jvm,class,method,arg1,arg2)
+    //; fail
+    //; prim("STRJVM_callstatic_string_stringstring", jvm, class, method, arg1, arg2)
+    

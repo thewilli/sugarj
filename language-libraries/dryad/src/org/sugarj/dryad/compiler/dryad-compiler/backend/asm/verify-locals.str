@@ -1,0 +1,50 @@
+/**
+ * dryad-compiler verification for locals:
+ * - Unassigned variable analysis
+ * - 'final' modifier compliance
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/verify-locals
+
+imports
+  dryad-compiler/backend/asm/transform/-
+
+strategies
+  
+  /**
+   * Verifies definite assignment of local variables;
+   * reports errors to AsmErrors.
+   */
+  bc-verify-local-assignment =
+    bc-flow-state-stack( // (is-list ensures reachable instructions)
+      \(stored @ <is-list>, STORE(x)) -> [x | stored]\
+    <+
+      \(stored @ <is-list>, LOAD(x))  -> stored
+        where <not(elem)> (x, stored);
+              bc-error(|"A value must always be assigned to", x, LOAD(x))\
+    <+
+      Fst  // no changes to the state
+    , isect // assume unassigned if "in one arm of if"
+    | ["this" | <bagof-MethodParamNames>] // initially assigned set
+    )
+
+  /**
+   * Verifies single assignment of final local variables;
+   * reports errors to AsmErrors.
+   */
+  bc-verify-final-locals =
+  {| IsFinal:
+    bc-all(try({ ?Final(x); rules(IsFinal: x) }));
+    
+    bc-flow-state-stack( // (is-list ensures reachable instructions)
+      \(stored @ <is-list>, STORE(x @ <IsFinal>)) -> [x | stored]
+       where <not(elem)> (x, stored)
+             <+ bc-error(|"Final variable may only be assigned once", x, STORE(x));
+                fail\
+    <+
+      Fst   // no changes to the state
+    , union // assume assigned if "in one arm of if"
+    | <bagof-MethodParamNames>
+    )
+  |}

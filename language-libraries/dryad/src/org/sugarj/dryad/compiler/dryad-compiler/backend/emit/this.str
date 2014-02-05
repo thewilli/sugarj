@@ -1,0 +1,24 @@
+/**
+ * dryad-compiler emit (qualified) this; JLS 15.8.3, 15.8.4.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/emit/this
+
+rules
+
+  emit-java(emit):
+    |[ this ]| -> <emit> QThis(<type-attr>)
+    where type-attr => ClassType(type, _)
+  
+  emit-java(emit):
+    QThis(_) -> |[ load this; ~*getfield ]|
+    where QThis(?ClassType(type, _) <+ ?type);
+          
+          where( // Try pushing inner class this$N field
+            not(equal(|type, <CurrentClassType>));
+            type'    := ObjectType(<emit> type);
+            getfield := |[ getfield <CurrentClassName>.<InnerClassField> type : ~type' ]|
+          <+
+            getfield := []
+          )

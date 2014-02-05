@@ -1,0 +1,509 @@
+regular tree grammar
+start ClassFile
+productions
+  ClassFile ->
+    ClassFile(
+      MinorVersion
+    , MajorVersion
+    , AccessFlags
+    , ThisClass
+    , SuperClass
+    , Interfaces
+    , Fields
+    , Methods
+    , Attributes
+    )
+
+  MinorVersion -> MinorVersion(<int>)
+  MajorVersion -> MajorVersion(<int>)
+
+  AccessFlags    -> AccessFlags(AccessFlagList)
+  AccessFlagList -> <cons>(AccessFlag, AccessFlagList)
+                  | <nil>()
+
+  AccessFlag ->
+      Public()
+    | Private()
+    | Protected()
+    | Static() 
+    | Final()
+    | Synchronized()
+    | Super()
+    | Bridge()
+    | Volatile()
+    | Varargs()
+    | Transient()
+    | Native()
+    | Interface()
+    | Abstract()
+    | Strict()
+    | Synthetic()
+    | Annotation()
+    | Enum()
+
+  ThisClass  -> ThisClass(<string>)
+  SuperClass -> SuperClass(OptString)
+  OptString  -> <some>(<string>)
+              | <none>()
+
+  Interfaces    -> Interfaces(InterfaceList)
+  InterfaceList -> <cons>(<string>, InterfaceList)
+                 | <nil>()
+
+  Fields    -> Fields(FieldList)
+  FieldList -> <cons>(Field, FieldList)
+             | <nil>()
+
+  Field -> Field(AccessFlags, Name, FieldDescriptor, Attributes)
+  FieldDescriptor  -> FieldDescriptor(Type)
+
+  Methods    -> Methods(MethodList)
+  MethodList -> <cons>(Method, MethodList)
+              | <nil>()
+
+  Method ->
+    Method(
+      AccessFlags
+    , Name
+    , MethodDescriptor
+    , Attributes
+    )
+
+  MethodDescriptor -> MethodDescriptor(TypeList, Type)
+
+  Name  -> Name(<string>)
+  Class -> Class(<string>)
+  Interface -> Interface(<string>)
+
+  ClassList -> <cons>(Class, ClassList)
+            | <nil>()
+
+  TypeList -> <cons>(Type, TypeList)
+            | <nil>()
+
+  Type ->
+      Void()
+    | Byte()
+    | Char()
+    | Double()
+    | Float()
+    | Int()
+    | Long()
+    | Short()
+    | Boolean()
+    | ArrayType(Type)
+    | ObjectType(<string>)
+    
+  SourceType -> Type
+  
+  SourceTypeList -> <cons>(SourceType, SourceTypeList)
+                  | <nil>()
+  
+/**
+ * Attributes
+ */
+
+  Attributes -> Attributes(AttributeList)
+  AttributeList -> <cons>(Attribute, AttributeList)
+                 | <nil>()
+
+  Attribute ->
+    Code(
+      MaxStack
+    , MaxLocals
+    , Instructions
+    , ExceptionTable
+    , Attributes
+    )
+
+  Attribute ->
+    InnerClasses(InnerClassList)
+  
+  InnerClassList -> <cons>(InnerClass, InnerClassList)
+                  | <nil>()
+    
+  InnerClass ->
+    InnerClass(
+      InnerClassName /* (c'tor is also named InnerClass) */
+    , OuterClass
+    , InnerName
+    , AccessFlags
+    )
+  
+  InnerClassName -> InnerClass(OptId)
+  OuterClass -> OuterClass(OptId)
+  InnerName -> InnerName(OptId)
+  
+  OptId -> <some>(<string>)
+         | <none>()
+      
+/**
+ * Unparsed generic signatures
+ */
+
+  Attribute -> ClassSignature(<string>)
+  Attribute -> MethodSignature(<string>)
+
+/**
+ * Parsed generic signatures.
+ */
+ 
+  Attribute ->
+    ClassSignature(
+      SigTypeParams
+    , SigSuperClass
+    , SigSuperInterfaces
+    )
+
+  SigSuperClass -> SuperClass(SourceType)
+  SigSuperInterfaces -> SuperInterfaces(SourceTypeList)
+
+  Attribute ->
+    MethodSignature(
+      SigTypeParams
+    , SigParams
+    , SigReturns
+    , SigThrows
+    )
+    
+  SigReturns    -> Returns(SourceType)
+  SigParams     -> Params(SourceTypeList)
+  
+  /**
+   * Hack: the actual children are not strings.
+   */  
+  SigTypeParams -> <string>
+  SigThrows     -> <string>
+  
+  Attribute ->
+    FieldSignature(SourceType)
+
+/**
+ * Misc attributes
+ */
+
+  Attribute -> SourceFile(<string>)
+  Attribute -> Exceptions(ClassList)
+  Attribute -> ConstantValue(Constant)
+  Attribute -> LineNumberTable
+  Attribute -> LocalVariableTable
+
+  LocalVariableTable -> LocalVariableTable(LocalVariableEntryList)
+  LocalVariableEntryList -> <cons>(LocalVariableEntry)
+                          | <none>()
+  
+  LineNumberTable -> LineNumberTable(LineNumberEntryList)
+  LineNumberEntryList -> <cons>(LineNumberEntry)
+                       | <none>()
+  
+  LocalVariableEntry -> Entry(Range, Name, FieldDescriptor, Index)
+  Index              -> Index(<int>)
+
+  LineNumberEntry -> Entry(Instruction, Line)
+  Instruction     -> Instruction(<int>)
+  Line            -> Line(<int>)
+  
+  MaxStack -> MaxStack(OptInt)
+  MaxLocals -> MaxLocals(OptInt)
+
+  OptInt -> <some>(<int>)
+          | <none>()
+
+  ExceptionTable -> ExceptionTable(ExceptionHandlerList)
+  ExceptionHandlerList -> <cons>(ExceptionHandler, ExceptionHandlerList)
+                        | <nil>()
+  
+  ExceptionHandler -> Entry(Range, Handler, CatchType)
+  Range            -> Range(<int>, <int>)
+  Handler          -> Handler(<int>)
+  CatchType        -> CatchType(ObjectType)
+  
+/**
+ * Instructions
+ */
+
+  Instructions -> Instructions(InstructionList)
+  InstructionList -> <cons>(Instruction, InstructionList)
+                   | <nil>()
+
+  Instruction ->
+      POP()
+    | POP2()
+    | BIPUSH(Int)
+    | SIPUSH(Int)
+
+    | ICONST_M1()
+    | ICONST_0()
+    | ICONST_1()
+    | ICONST_2()
+    | ICONST_3()
+    | ICONST_4()
+    | ICONST_5()
+
+    | LCONST_0()
+    | LCONST_1()
+
+    | DCONST_0()
+    | DCONST_1()
+
+    | FCONST_0()
+    | FCONST_1()
+    | FCONST_2()
+
+    | ACONST_NULL()
+    | LDC(Constant)
+    | LDC_W(Constant)
+    | LDC2_W(Constant)
+
+    | NEW(Type)
+
+    | DUP()
+    | DUP_X1()
+    | DUP_X2()
+    | DUP2()
+    | DUP2_X1()
+    | DUP2_X2()
+
+    | SWAP()
+
+    | INVOKESPECIAL(MethodRef)
+    | INVOKEVIRTUAL(MethodRef)
+    | INVOKEINTERFACE(InterfaceMethodRef)
+    | INVOKESTATIC(MethodRef)
+
+    | GETSTATIC(FieldRef)
+    | PUTSTATIC(FieldRef)
+
+    | GETFIELD(FieldRef)
+    | PUTFIELD(FieldRef)
+
+    | ILOAD(<int>)
+    | LLOAD(<int>)
+    | FLOAD(<int>)
+    | DLOAD(<int>)
+    | ALOAD(<int>)
+    | IINC(<int>, Int)
+    | ISTORE(<int>)
+    | LSTORE(<int>)
+    | FSTORE(<int>)
+    | DSTORE(<int>)
+    | ASTORE(<int>)
+
+    | DADD()
+    | DDIV()
+    | DMUL()
+    | DNEG()
+
+    | DREM()
+    | DSUB()
+
+    | FADD()
+    | FDIV()
+    | FMUL()
+    | FNEG()
+    | FREM()
+    | FSUB()
+
+    | IADD()
+    | IAND()
+    | IDIV()
+    | IMUL()
+    | INEG()
+    | IOR()
+    | IREM()
+    | ISHL()
+    | ISHR()
+    | ISUB()
+    | IUSHR()
+    | IXOR()
+
+    | LADD()
+    | LAND()
+    | LDIV()
+    | LMUL()
+    | LNEG()
+    | LOR()
+    | LREM()
+    | LSHL()
+    | LSHR()
+    | LSUB()
+    | LUSHR()
+    | LXOR()
+
+    /**
+     * Comparison
+     */
+
+    | DCMPG()
+    | DCMPL()
+    | FCMPG()
+    | FCMPL()
+    | LCMP()
+
+    /**
+     * If
+     */
+
+    | IF_ACMPEQ(BranchTarget)
+    | IF_ACMPNE(BranchTarget)
+    | IF_ICMPEQ(BranchTarget)
+    | IF_ICMPGE(BranchTarget)
+    | IF_ICMPGT(BranchTarget)
+    | IF_ICMPLE(BranchTarget)
+    | IF_ICMPLT(BranchTarget)
+    | IF_ICMPNE(BranchTarget)
+    | IFEQ(BranchTarget)
+    | IFGE(BranchTarget)
+    | IFGT(BranchTarget)
+    | IFLE(BranchTarget)
+    | IFLT(BranchTarget)
+    | IFNE(BranchTarget)
+    | IFNONNULL(BranchTarget)
+    | IFNULL(BranchTarget)
+
+    /**
+     * Conversion Instructions
+     */
+
+    | D2F()
+    | D2I()
+    | D2L()
+    | F2D()
+    | F2I()
+    | F2L()
+    | I2B()
+    | I2C()
+    | I2D()
+    | I2F()
+    | I2L()
+    | I2S()
+    | L2D()
+    | L2F()
+    | L2I()
+
+    | CHECKCAST(Type)
+    | INSTANCEOF(Type)
+
+    /**
+     * Return instructions
+     */
+
+    | ARETURN()
+    | DRETURN()
+    | FRETURN()
+    | IRETURN()
+    | LRETURN()
+    | RETURN()
+
+    /**
+     * Array Creation
+     */
+
+    | NEWARRAY(Type)
+    | ANEWARRAY(Type)
+    | MULTIANEWARRAY(Type, Int)
+
+    /**
+     * Array Length
+     */
+
+    | ARRAYLENGTH()
+
+    /**
+     * Array Store Instructions
+     */
+
+    | IASTORE()
+    | LASTORE()
+    | BASTORE()
+    | CASTORE()
+    | SASTORE()
+    | FASTORE()
+    | DASTORE()
+    | AASTORE()
+
+    /**
+     * Array Load Instructions
+     */
+
+    | IALOAD()
+    | LALOAD()
+    | BALOAD()
+    | CALOAD()
+    | SALOAD()
+    | FALOAD()
+    | DALOAD()
+    | AALOAD()
+
+    /**
+     * Exception Instructions
+     */
+
+    | ATHROW()
+
+    | GOTO(BranchTarget)
+    | GOTO_W(BranchTarget)
+    | JSR(BranchTarget)
+    | JSR_W(BranchTarget)
+
+    | RET(<int>)
+
+    /**
+     * Concurrency Instructions
+     */
+
+    | MONITORENTER()
+    | MONITOREXIT()
+
+    /**
+     * Switch
+     */
+
+    | LOOKUPSWITCH(BranchTarget, NPairs)
+    | TABLESWITCH(BranchTarget, Low, High, Jumps)
+
+    /**
+     * Misc.
+     */
+
+    | BREAKPOINT()
+    | IMPDEP1()
+    | IMPDEP2()
+    | NOP()
+
+    /**
+     * Warning: not yet support by the (dis)assembler
+     */
+    | LABEL(<string>)
+
+  Jump -> Jump(BranchTarget)
+  NPair -> NPAIR(<int>, BranchTarget)
+
+  MethodRef -> MethodRef(Class, Name, MethodDescriptor)
+  InterfaceMethodRef -> InterfaceMethodRef(Interface, Name, MethodDescriptor)
+  FieldRef  -> FieldRef(Class, Name, FieldDescriptor)
+
+  Constant ->
+      String(<string>)
+    | Long(<string>)
+    | Float(<string>)
+    | Double(<string>)
+    | Class(ObjectType)
+    | Int
+
+  ObjectType ->
+    ArrayType(ObjectType)
+
+  ObjectType ->
+    ObjectType(<string>)
+
+  Int ->
+    Int(<string>)
+
+  BranchTarget ->
+      Count(<int>)
+
+      /**
+       * Warning: this BranchTarget is not yet support by the (dis)assembler
+       */
+    | Label(<string>)

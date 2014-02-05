@@ -1,0 +1,145 @@
+/**
+ * Bytecode Field
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/bytecode-field
+imports
+  dryad/bytecode/util
+  dryad/model/field
+
+strategies
+  
+  /**
+   * Constructs a new bytecode field.
+   *
+   * @type  _ -> Bytecode Field
+   */
+  new-bytecode-field(|bytecode) =
+    <classes_get-class> JavaBytecodeField()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"reference-ast", bytecode)    
+    ; classes_set-instance-field(|"simple-name", <?Field(_, Name(<id>), _, _)> bytecode)
+
+/**
+ * Bytecode representation
+ */
+strategies
+
+  get-ast = instanceof-JavaBytecodeField;
+    get-reference-ast
+    
+  get-reference-ast = instanceof-JavaBytecodeField;
+    classes_get-instance-field(|"reference-ast")  
+    
+  set-reference-ast(|refast) =  instanceof-JavaBytecodeField;
+    classes_set-instance-field(|"reference-ast", refast)
+  
+strategies
+    
+  /**
+   * Succeeds if a field is static
+   *
+   * @type Field -> Field
+   */
+  is-static = instanceof-JavaBytecodeField;
+    where(
+      get-access-flags
+      ; fetch(?Static())
+    )
+    
+  /**
+   * @type Field Object -> Access Modifier
+   * @todo Default access in interface is public: do we need to handle that for bytecode?   
+   */
+  get-access = instanceof-JavaBytecodeField;
+    get-access-flags
+    ; (fetch-elem(?Public() + ?Private() + ?Protected())
+      <+ !DefaultAccess())
+
+  /**
+   * Returns the access flags of a field.
+   *
+   * @type Field -> List(AccessFlag)
+   */
+  get-access-flags = instanceof-JavaBytecodeField;
+    get-reference-ast  
+    ; ?Field(AccessFlags(<id>), _, _, _)
+    
+strategies
+
+  /**
+   * Returns the type of a field.
+   *
+   * @type Field -> Source Type
+   */
+  get-type = instanceof-JavaBytecodeField;
+    if-signature(
+      ?FieldSignature(<id>)
+
+    , get-reference-ast
+      ; ?Field(_, _, FieldDescriptor(<id>), _)
+      ; bytecode-type-to-source-type
+    )
+
+strategies
+
+  /**
+   * Returns the generic signature of this field.
+   *
+   * @type BytecodeField Object -> FieldSignature
+   */
+  get-signature = instanceof-JavaBytecodeField;
+    ?this; (
+       classes_get-instance-field(|GenericSignature())
+       
+    <+ get-attributes
+       ; if fetch(?FieldSignature(_); ?sig) then
+           !Some(sig)
+         else
+           !None()
+         end
+       ; ?result
+       ; <classes_set-instance-field(|GenericSignature(), result)> this
+       ; reclassify-field-signature
+       ; classes_get-instance-field(|GenericSignature())
+     )
+     ; ?Some(<id>)
+
+strategies
+    
+  /**
+   * Returns the attributes of this bytecode field.
+   *
+   * Note: attributes are a bytecode-level construct and are not
+   * directly related to Java source annotations. This strategy returns
+   * the *bytecode* attributes.
+   *
+   * @type BytecodeField Object -> List(Attribute)
+   */
+  get-attributes = instanceof-JavaBytecodeField;
+    get-reference-ast      
+    ; ?Field(_, _, _, Attributes(<id>))
+
+/**
+ * Stratego class support for bytecode fields
+ */    
+signature
+  constructors
+    JavaBytecodeField : ClassName
+   
+strategies
+
+  /**
+   * Succeeds if the current term is an instance of Java bytecode method
+   */
+  instanceof-JavaBytecodeField =
+    classes_instanceof(|JavaBytecodeField())
+
+  /**
+   * Succeeds if the current term is an instance of a Java field.
+   *
+   * This alternative declares a JavaBytecodeField to be a JavaField.
+   */
+  instanceof-JavaField =
+    classes_instanceof(|JavaBytecodeField())

@@ -1,0 +1,106 @@
+/**
+ * 5.1.8: Unboxing Conversion
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/conversions/Unboxing
+imports
+  dryad/jls/types/Primitive
+  
+signature
+  constructors
+    /**
+     * @param From
+     * @param To
+     */
+    UnboxingConversion : Type * Type -> UnBoxingConversion
+
+strategies
+
+  unboxing-conversion =
+    !UnboxingConversion(<id>, <unboxing-conversion-of-type>)
+
+strategies
+
+  /**
+   * @type Type -> Type
+   */
+  unboxing-conversion-of-type :
+    RefTypeBoolean() -> Boolean()
+
+  unboxing-conversion-of-type :
+    RefTypeByte() -> Byte()
+
+  unboxing-conversion-of-type :
+    RefTypeShort() -> Short()
+
+  unboxing-conversion-of-type :
+    RefTypeInteger() -> Int()
+
+  unboxing-conversion-of-type :
+    RefTypeLong() -> Long()
+
+  unboxing-conversion-of-type :
+    RefTypeCharacter() -> Char()
+
+  unboxing-conversion-of-type :
+    RefTypeFloat() -> Float()
+
+  unboxing-conversion-of-type :
+    RefTypeDouble() -> Double()
+    
+strategies
+
+  /**
+   * Returns the types involved in this conversion.
+   */
+  types-of-conversion :
+    UnboxingConversion(from, to) -> [from, to]        
+
+  /**
+   * Returns the result type of this conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =
+    ?UnboxingConversion(_, <id>)
+
+strategies
+
+  /**
+   * @type Type -> Type
+   */
+  is-convertible-to-numeric-type =
+    is-numeric-type
+
+  is-convertible-to-numeric-type =
+    where(
+      unboxing-conversion-of-type
+      ; is-numeric-type
+    )
+
+strategies
+
+  /**
+   * @todo  JLS mentions that every numeric type is allowed. Might be a bug. Submitted.
+   */
+  is-convertible-to-integral-type =
+    is-integral-type
+
+  is-convertible-to-integral-type =
+    where(
+      unboxing-conversion-of-type
+      ; is-integral-type
+    )
+
+strategies
+
+  is-convertible-to-boolean-type =
+    ?Boolean()
+
+  is-convertible-to-boolean-type =
+    where(
+      unboxing-conversion-of-type
+      ; ?Boolean()
+    )
+

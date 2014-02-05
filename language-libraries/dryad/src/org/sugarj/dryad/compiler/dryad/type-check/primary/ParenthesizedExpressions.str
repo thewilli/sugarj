@@ -1,0 +1,10 @@
+/**
+ * 15.8.5: Parenthesized Expressions
+ *
+ * Parenthesized Expressions are not present in the AST produced by
+ * the parser.
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/primary/ParenthesizedExpressions
+strategies

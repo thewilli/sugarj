@@ -1,0 +1,73 @@
+/**
+ * dryad-compiler bytecode instruction unassembly to rich bytecode.
+ *
+ * Translates regular Java bytecode instructions to 'rich bytecode';
+ * introduces labels and generalizes the instructions to a subset.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/unasm/instructions
+
+strategies
+
+  // TODO: unasm debugging information to source traces
+  // TODO: unasm try/catch
+
+  bc-unasm-instructions =
+    bc-all(
+      bc-unasm-instruction
+    <+
+      bc-error(|"Unable to un-asm instruction", <id>); fail // catch me if you can
+    )
+
+  bc-unasm-instruction =
+    (bc-unasm-ldc + bc-unasm-misc)
+  <+  
+    is-rich-bc-instruction
+  <+
+    ?<id>#(args);
+    nstruction := <string-as-chars(Tl)>;             // e.g., IRETURN => RETURN
+    xnstruction := <string-as-chars(!['X' | <id>])>; // e.g., RETURN => XRETURN
+    (
+      <is-rich-bc-instruction> xnstruction#(args)
+    <+
+      <is-rich-bc-instruction> nstruction#(args)
+    )
+
+/** Generalize an instruction for the unasm process. */
+strategies
+
+  // TODO2: IF* instructions should be translated to their general form
+  //        (not strictly necessary for the verifier)
+
+  bc-unasm-ldc: ACONST_NULL -> LDC(Null)
+
+  bc-unasm-ldc: ICONST_0 -> LDC(Int("0"))
+  bc-unasm-ldc: ICONST_1 -> LDC(Int("1"))
+  bc-unasm-ldc: ICONST_2 -> LDC(Int("2"))
+  bc-unasm-ldc: ICONST_3 -> LDC(Int("3"))
+  bc-unasm-ldc: ICONST_4 -> LDC(Int("4"))
+  bc-unasm-ldc: ICONST_5 -> LDC(Int("5"))
+  bc-unasm-ldc: ICONST_M1 -> LDC(Int("-1"))
+  
+  bc-unasm-ldc: FCONST_0 -> LDC(Float("0"))
+  bc-unasm-ldc: FCONST_1 -> LDC(Float("1"))
+  bc-unasm-ldc: FCONST_2 -> LDC(Float("2"))
+  
+  bc-unasm-ldc: DCONST_0 -> LDC(Double("0"))
+  bc-unasm-ldc: DCONST_1 -> LDC(Double("1"))
+  
+  bc-unasm-ldc: BIPUSH(i) -> LDC(Int(i)) // (value is a byte; type may not be)
+  bc-unasm-ldc: SIPUSH(i) -> LDC(Int(i))
+  
+  bc-unasm-ldc: LDC_W(x)  -> LDC(x)
+  bc-unasm-ldc: LDC2_W(x) -> LDC(x)
+  
+  // We don't care about wide-index instructions
+  // TODO2: Should we do wide-index instructions in asm?
+  bc-unasm-ldc: JSR_W(x)  -> JSR(x)
+  bc-unasm-ldc: GOTO_W(x) -> GOTO(x)
+  
+  bc-unasm-misc: ANEWARRAY(t) -> NEWARRAY(t)
+  bc-unasm-misc: ALOAD(t)     -> LOAD(t)
+  bc-unasm-misc: ASTORE(t)    -> STORE(t)

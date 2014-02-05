@@ -1,0 +1,72 @@
+/** 
+ * Utility strategies for navigating and loading classfiles from
+ * directory hierarchies.
+ *
+ * @author Karl Trygve Kalleberg <karltk@cs.uu.nl>
+ */
+module dryad/util/loader
+imports
+	liblib
+
+strategies
+
+	/**
+	 * Apply a strategy recursively to all files in a directory hierarchy.
+	 *
+	 * The initial input is the filename of the root directory to start 
+	 * traversing. 
+	 *
+	 * The result is a collection of the result of s, in hierarchical lists,
+	 * matching the directory hierarchy.
+	 *
+	 * @type String -> List(List(...))
+	 */	
+	dir-topdown(s) =
+	      ?base
+		; readdir 
+		; filter(not(?".") ; not(?".."))
+		; map({ x, y: ( x -> <concat-strings> [ base, "/", x ])}) => files
+		; <filter({ x: ?x ; filemode ; not(isdir) ; !x })
+			; filter(s)> files => r
+		; <filter({ x: ?x ; filemode ; isdir ; !x })
+			; map(dir-topdown(s))> files => r'
+		; <concat> [ r, r' ]
+
+	
+	/**
+	 * Load all .java files found in a directory hierarchy into the Dryad
+	 * repository.
+	 *
+	 * Input is the base directory to start from.
+	 *
+	 * @type String -> _
+	 */
+	load-all-source-files = 
+		load-all-x-files(|".java")
+
+	/**
+	 * Load all .class files found in a directory hierarchy into the Dryad
+	 * repository.
+	 *
+	 * Input is the base directory to start from.
+	 *
+	 * @type String -> _
+	 */
+	load-all-class-files = 
+		load-all-x-files(|".class")
+	
+/* hidden */	
+strategies
+
+	load-all-x-files(|ext) =
+		dir-topdown({x: ?x ; is-substring(!ext) ; !x})
+		; flatten-list
+		; map(\ x -> FILE(x) \)
+		; map(debug ; xtc-transform(!"parse-java", pass-verbose))
+    	; map(read-from; define-compilation-unit)
+	
+	register-java-file(|ext) =
+		  ?x
+		; is-substring(!ext)
+		; <define-source-files> [ FILE(x) ]
+		

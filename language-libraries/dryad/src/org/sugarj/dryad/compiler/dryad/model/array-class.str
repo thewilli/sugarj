@@ -1,0 +1,205 @@
+/**
+ * Array class.
+ (
+ * Array classes are stored in a global hashtable. They should never be created
+ * explicitly by users. 
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/array-class
+imports
+  dryad/lib-ext/oo/classes
+  dryad/model/class
+  dryad/model/source-field  
+  dryad/model/source-constructor
+  dryad/model/source-method
+  dryad/util/jtree
+  dryad/util/jtree-overlays  
+
+strategies
+
+  /**
+   * Succeeds if this class represents an array class.
+   * 
+   * @type Class Object -> Class Object
+   */
+  is-array-class =
+    instanceof-JavaArrayClass
+
+  /**
+   * Returns the array class for the given component type.
+   * 
+   * @type Type -> Class Object
+   */
+  get-array-class =
+    ?type
+    ; get-array-class-hashtable
+    ; hashtable-get(new-array-class(|type) | type)
+
+  /**
+   * Returns the hashtable of array classes.
+   *
+   * @type _ -> Hashtable(Type, Class Object)
+   */
+  get-array-class-hashtable =
+    table-hashtable
+    ; hashtable-get(new-hashtable | ArrayClasses())
+
+  /**
+   * @todo The fully qualified name of an array is currently a type, not a name. This
+   *       is a bit of a hack: do we need an explicit representation for names
+   *       of array types?
+   *
+   * @todo See 6.7: in which cases does a component type not have a fully qualified name?
+   */    
+  get-canonical-name = instanceof-JavaArrayClass;
+    !ArrayType(<get-component-type; fully-qualified-name>)
+    
+strategies
+
+  /**
+   * @type Type -> Name
+   */
+  fully-qualified-name =
+    is-reference-type
+    ; lookup-class
+    ; get-fully-qualified-name
+    
+  /**
+   * @type Type -> Name
+   */    
+  fully-qualified-name =
+    is-primitive-type
+    
+strategies
+
+  /**
+   * Returns the component type of this array class.
+   * For example, the component type of int[][] is int[].
+   *
+   * @type ArrayClass Object -> Type
+   */
+  get-component-type = instanceof-JavaArrayClass;
+    classes_get-instance-field(|ComponentTypeField())
+
+  /**
+   * Returns the element type of this array class.
+   * For example, the element type of int[][] is int.
+   *
+   * @type ArrayClass Object -> Type
+   */
+  get-element-type = instanceof-JavaArrayClass;
+    get-component-type
+    ; repeat(?ArrayType(<id>))
+
+strategies
+
+  /**
+   * Returns the superclass of this array class.
+   *
+   * @type ArrayClass Object -> Source Type
+   */
+  get-superclass-as-type = instanceof-JavaArrayClass;
+    !TypeObject()
+
+  /**
+   * Returns the interfaces implemented by this array class.
+   *  
+   * @type ArrayClass Object -> List(Source Type)
+   */   
+  get-superinterfaces-as-type = instanceof-JavaArrayClass;
+    ![TypeCloneable(), TypeSerializable()]
+
+  /**
+   * Succeeds if this class is an interface.
+   */
+  is-interface = instanceof-JavaArrayClass;
+    fail
+
+/**
+ * Constructors
+ */
+strategies
+
+  /**
+   * Initializes the declared constructors list of the array class.
+   *
+   * @type ArrayClass Object -> ArrayClass Object 
+   */
+  init-declared-constructor-list = instanceof-JavaArrayClass;
+    classes_set-instance-field(|"declared-constructor-list", [])
+
+/**
+ * Fields
+ */
+strategies
+
+  /**
+   * Initializes the field table of an array class.
+   *
+   * @todo Maybe use a different field subclass here.
+   * @todo The fields can be shared between all array classes.
+   * @type ArrayClass Object -> ArrayClass Object 
+   */
+  init-declared-field-table = instanceof-JavaArrayClass;
+    ?this; where(
+      <new-hashtable> () => fieldtbl
+      ; new-source-field(|"length", FieldDec([Public(),Final()],Int(),[VarDec(Id("length"))]))
+      ; set-declaring-class(|this)
+      ; ?field
+      ; <hashtable-put(|"length", field)> fieldtbl
+    )
+    ; classes_set-instance-field(|"declared-field-table", fieldtbl)
+    
+/**
+ * Methods
+ */
+strategies
+
+  /**
+   * Initializes the declared method table of an array class.
+   *
+   * @todo Maybe use a different method subclass here.
+   * @todo Add the clone method
+   * @type ArrayClass Object -> ArrayClass Object
+   */
+  init-declared-method-table = instanceof-JavaArrayClass;
+    ?this; where(new-hashtable => methodtbl)
+    ; classes_set-instance-field(|"declared-method-table", methodtbl)
+
+/**
+ * Stratego class support for array classes.
+ */
+strategies
+
+  /**
+   * Constructs a new array class.
+   *
+   * @param  Component type of this array class.
+   * @type   _ -> Class
+   */
+  new-array-class(|component-type) =
+    <classes_get-class> JavaArrayClass()
+    ; classes_new-instance
+    ; classes_set-instance-field(|ComponentTypeField(), component-type)
+    
+  /**
+   * Succeeds if the current term is an instance of a Java array class
+   */
+  instanceof-JavaArrayClass =
+    classes_instanceof(|JavaArrayClass())
+
+  /**
+   * Succeeds if the current term is an instance of a Java class.
+   *
+   * This alternative declares a JavaArrayClass to be a JavaClass.
+   */
+  instanceof-JavaClass =
+    classes_instanceof(|JavaArrayClass())
+
+signature
+  constructors
+    JavaArrayClass     : ClassName
+    ArrayClasses       : HashtableKey
+    ComponentTypeField : ObjectField
+    

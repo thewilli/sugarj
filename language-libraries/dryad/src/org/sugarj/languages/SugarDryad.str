@@ -1,0 +1,18 @@
+module org/sugarj/languages/SugarDryad
+imports
+	org/sugarj/languages/Dryad
+	org/sugarj/languages/Sugar
+
+signature
+ constructors
+  
+	SugarModuleDec		: Id 			-> SugarModuleDec
+	ExtensionBody		: List(ExtensionElem)	-> ExtensionBody
+	SugarModuleImport	: Id			-> SugarModuleImport
+	
+	DryadBody			: DryadCompilationUnit	-> ToplevelDeclaration
+	DryadImport			: SugarModuleImport 	-> ToplevelDeclaration
+	DryadExtension		: ExtensionBody			-> ToplevelDeclaration
+	
+	CompilationUnit		: List(SugarModuleImport) * DryadFile -> CompilationUnit
+	CompilationUnit		: List(SugarModuleImport) * SugarModuleDec * ExtensionBody -> SugarCompilationUnit

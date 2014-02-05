@@ -1,0 +1,23 @@
+/**
+ * Main module of the Dryad Library.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad
+imports
+  dryad/ClassTree
+  dryad/bytecode/-
+  dryad/jls/binary/-  
+  dryad/jls/conversions/-
+  dryad/jls/expressions/-
+  dryad/jls/names/-
+  dryad/jls/types/-  
+  dryad/lib-ext/-
+  dryad/lib-ext/oo/-  
+  dryad/lib-ext/xtc/-
+  dryad/model/-
+  dryad/reclassify/-
+  dryad/type-check/-
+  dryad/errors/-
+  dryad/util/-
+

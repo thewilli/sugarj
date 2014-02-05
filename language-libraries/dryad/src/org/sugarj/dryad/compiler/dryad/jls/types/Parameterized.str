@@ -1,0 +1,49 @@
+/**
+ * 4.5: Parameterized Types
+ *
+ * @author  Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/types/Parameterized
+imports
+  dryad/model/class
+  dryad/model/method  
+
+strategies
+
+  /**
+   * @param List(ActualTypeArgument)
+   * @type (Class Object -> Class Object) or (Method Object -> Method Object)
+   */
+  define-type-substitution(|t*) =
+    where(
+      where(get-name => name)
+      ; get-formal-type-parameters => a*
+      ; <zip> (t*, a*)
+      ; map({t, a:
+          ?(t, TypeParam(Id(a), _))
+          ; rules(LookupTypeVar : TypeVar(name, Id(a)) -> t)
+        })
+    )
+    
+  /**
+   * Performs the substition of the formal type parameters in dec with 
+   * the actual type parameters t*
+   *
+   * @param Method Object or Class Object
+   * @param List(ActualTypeArgument)
+   * @type  a -> a
+   */
+  apply-type-substitution(| dec, t*) =
+    {| LookupTypeVar : 
+      where(<define-type-substitution(|t*)> dec)
+      ; topdown(try(LookupTypeVar))
+    |}
+    
+strategies
+
+  is-parameterized-type =
+    ?ClassType(_, Some(_))
+
+  is-parameterized-type =
+    ?InterfaceType(tn, Some(_))
+    

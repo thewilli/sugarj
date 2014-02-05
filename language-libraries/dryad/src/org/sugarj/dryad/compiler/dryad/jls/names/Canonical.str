@@ -1,0 +1,10 @@
+/**
+ * 6.7: Canonical Names
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/names/Canonical
+strategies
+
+
+  

@@ -1,0 +1,217 @@
+/**
+ * dryad-compiler fixpoint-based bytecode analysis strategies.
+ *
+ * @see bc-flow-state-stack  Analyze/transform using a stack or list of states.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/transform/flow-state
+
+signature constructors
+
+  /**
+   * State of instruction that is unreachable (during or after an analysis).
+   * @see bc-flow-state-stack
+   * @see bc-flow-state
+   */
+  Unreachable      : Stack
+
+  /** Marker annotation for state flow to an exception handler. */
+  ExceptionHandler : StackAnno
+
+strategies
+
+  /** 
+   * Fixpoint based analysis or transformation of bytecode instructions.
+   * Will determine a stack or list of states for each instruction,
+   * and allows it to be applied for modifying the input code or simply
+   * for analysis.
+   *
+   * @see Unreachable is used as the stack for unreachable instructions.
+   *
+   * @param manipulate  Gets a pair (List(s), byte) or (Unreachable, byte) and
+   *                    _may_ return a manipulated stack.
+   * @param join        Joins two stacks at a branch target.
+   * @param transform   Executed after the analysis is complete;
+   *                    gets a pair (states, byte) and must return zero
+   *                    or more bytes to replace the old byte in the method.
+   * @param initStates  Initial state stack for the method entry point.
+   *
+   * @type List(a) -> List(a or b)
+   */
+  bc-flow-state-stack(manipulate, join, transform |initStack) =
+    bc-flow-state(
+      // Merge the stack at labels with multiple entry points
+      ?(Unreachable, <id>) <+ ?(<id>, Unreachable) // no old stack
+    <+
+      join
+    , // Change the stack at each instruction
+      manipulate
+      < risky(is-list + Unreachable |"Internal error: stack manipulation must return a list")
+      + ?(<id>, _)
+    , transform
+    | initStack
+    )
+  
+  // Trivial overload
+  bc-flow-state-stack(manipulate, join |initStack) =
+    bc-flow-state-stack(manipulate, join, fail |initStack)
+
+  /**
+   * Fixpoint based analysis or transformation of bytecode instructions.
+   * Will determine a state lattice (some user-defined structure) for
+   * each instruction, and allows it to be applied for modifying the
+   * input code or simply for analysis.
+   *
+   * @internal It is not recommended to use this strategy directly.
+   *
+   * @see Unreachable           The state lattice of an unreachable instruction.
+   * @see bc-flow-state-stack   Specialized strategy using a stack of states.
+   * @see bc-apply-to-wrap      Used for traversal; sets dynamic rules with the
+   *                            context of the current bytecode instruction.
+   *
+   * @param merge       Operator that joins two lattices at a branch target,
+   *                    could be 'isect' or 'union' for example.
+   * @param add         Operator that returns a new state lattice given a tuple
+   *                    (old state lattice, recorded state).
+   * @param transform   A strategy to execute after analysis is complete;
+   *                    gets a pair (states, byte) and must return zero
+   *                    or more to replace the old byte in the method.
+   * @param initial     Initial state lattice for the method entry point.
+   */
+  bc-flow-state(merge, add, transform |initial) =
+    // TODO: switch instructions
+    // TODO2: JSR/RET (deprecated in current Java versions)
+    //        implementation would require many extra checks, and won't look very attractive.
+    // TODO2: Optimize: Could skip unchanged labels? (only req'd for analysis, could make
+    //        a big difference for inline Java code)
+    let
+      // Main
+      bc-flow-state =
+      {| LabelStates, // States at a specific label
+         HadChanges:  // Stop condition
+        
+        // Analyze up to fixpoint
+        do-while(
+          where(loop-analyze(|initial))
+        , HadChanges; rules(HadChanges :- _)
+        );
+        
+        // Result; transform or original code
+        if <transform> ([], NOP) then // determine 'transform' isn't simply 'fail'
+          loop-transform(id|initial)
+        end
+      |}
+      
+      // Loop over all bytes; pass states and update with bc-flow-next-state
+      loop-analyze(|states) =
+      { entryStates, nextStates:
+        where(
+          Hd;
+          bc-maybe-apply-to-wrap(
+            // analyze a list of instructions (possibly in a wrapper tag like Trace)
+            nextStates := <loop-analyze(|states)>
+          , // analyze a single instruction
+            where(entryStates := <entry-states(|states)>);
+            nextStates := <next-states(|entryStates)>  
+          )
+        );
+        Tl; loop-analyze(|nextStates)
+      <+
+        []; !states
+      }
+      
+      // Similar to loop-analyze, but applies transformation 'transform'
+      // @param out-states  "out parameter" that captures the final states
+      loop-transform(out-states|states) =
+      { entryStates, nextStates:
+        [ bc-maybe-apply-to-wrap(
+            loop-transform(?nextStates|states) // go into wrapper tag like Trace
+          , 
+            // Transform a single instruction
+            where(entryStates := <entry-states(|states)>);
+            where(nextStates := <next-states(|entryStates)>);
+            <transform> (entryStates, <id>)
+          )
+        | loop-transform(out-states|nextStates)
+        ]
+      <+
+        []; where(<out-states> := states)
+      }
+
+      /** Return entry states set of current byte. */
+      entry-states(|states) =
+      { label:
+        if Label(?label) then
+          <bc-flow-merge-label-states(merge|label)> states
+        else
+          !states
+        end
+      }
+
+      /** Add any state information from current byte, return state of next byte. */
+      next-states(|states) =
+        bc-flow-move-next(merge|<add> (states, <id>))
+    in
+      bc-flow-state
+    end
+
+/** @internal */
+strategies
+  
+  /**
+   * Determines the outgoing flows of the current instruction, and updates
+   * any dependant labels. Returns the state for the next instruction.
+   */
+  bc-flow-move-next(merge|states) =
+    where(
+      try(bc-flow-to-exception-handlers(merge|states))
+    );
+  
+    switch ?byte // (simply fails if 'merge' fails)      
+      case ATHROW + XRETURN + RETURN:
+        !Unreachable // unreachable next instruction
+    
+      case bc-get-jump-target => label: // (conditional) goto
+        // DEBUG: verbose-msg(!" ", id, <LabelStates <+ !Unreachable> label, !"+=", !states);
+        if Count(_) := label then // Sanity check
+          err(|"Internal error: bytecode must be unassembled before analysis");
+          fail
+        end;
+
+        // State of the targeted label
+        <bc-flow-merge-label-states(merge|label)> states;
+
+        // State of the next instruction; only reachable for conditional jumps
+        (GOTO(_) := byte < !Unreachable + !states)
+
+      otherwise:
+        !states // No control flow instruction found
+    end
+
+  /**
+   * Update the flow states at the specified label.
+   * If there are any changes, HadChanges will succeed to ensure
+   * another iteration of the flow-state algorithm.
+   */
+  bc-flow-merge-label-states(merge|label) =
+    ?newStates;
+    oldStates := <LabelStates <+ !Unreachable> label;
+    
+    <merge> (oldStates, newStates);
+    merged := <if(?x{ExceptionHandler}, !x{})>;
+    
+    if not(?oldStates) then
+      rules(LabelStates: label -> merged);
+      rules(HadChanges: _) // remember there were changes 
+    end
+  
+  /** Enable control flow to all active exception handlers. */
+  bc-flow-to-exception-handlers(merge|states) =
+    ExceptionHandlers;
+    list-loop({ label:
+      // DEBUG: verbose-msg(!"    handler at", id, LabelStates <+ !Unreachable, !"?=", !states);
+      ?label;
+      // State gets an annotation since exceptions may need special treatment:
+      <bc-flow-merge-label-states(merge|label)> states {ExceptionHandler}
+    })

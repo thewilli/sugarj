@@ -1,0 +1,36 @@
+/**
+ * 15.12.2.7: Representation of Constraints
+ *
+ * @todo Add subtype constraint
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/invoke/Constraints
+signature
+  constructors
+    Constraint      : ConstraintKind * Type * Type -> Constraint
+    
+    /**
+     * Type U is convertible to type V by method invocation conversion
+     *
+     * U << V
+     */
+    LeftRightConvertible : ConstraintKind
+    
+    /**
+     * Type V is convertible to type U by method invocation conversion.
+     *
+     * U >> V
+     */
+    RightLeftConvertible : ConstraintKind
+    
+    /**
+     * U = V
+     */
+    Equal : ConstraintKind
+
+    /**
+     * Type U is a super type of type V.
+     *
+     * U :> V
+     */
+    SuperType : ConstraintKind

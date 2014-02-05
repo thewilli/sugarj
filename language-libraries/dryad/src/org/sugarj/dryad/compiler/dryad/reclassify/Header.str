@@ -1,0 +1,108 @@
+/**
+ * 6.5: "Determining the Meaning of a Name"
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/Header
+strategies
+
+  /**
+   * Reclasisfy this class declaration and 
+   */
+  dryad-reclassify-all-class-declarations = id
+    ; dryad-reclassify-header-class-declaration
+    ; where(
+        get-declared-member-types
+        ; map(dryad-reclassify-all-class-declarations)
+      )
+
+  /**
+   * (1) Reclassify enclosing class
+   * (2) Construct environment based on context
+   * (3) Reclassify the extends clause
+   * (4) Reclassify the superclass and superinterfaces
+   * (5) Reclassify this class        
+   */
+  dryad-reclassify-header-class-declaration =
+    ?this
+    ; if instanceof-JavaSourceClass then
+        dryad-maybe-reclassify(
+          if-verbose4(where(get-canonical-name; jdebug(!"reclassify class: ")))
+          ; if <is-nested-class> this then
+              where(
+                get-enclosing-class
+                ; dryad-reclassify-header-class-declaration
+              )
+            end
+          ; dryad-reclassify-header-env(
+              apply-to-reference(Reclassify-DecHead(dryad-reclassify-header))
+              ; if get-superclass => super then
+                  where(<dryad-reclassify-header-class-declaration> super)
+                end
+              ; where(
+                  get-superinterfaces-as-type
+                  ; map(log-lookup-class)
+                  ; map(dryad-reclassify-header-class-declaration)
+                )
+              ; dryad-reclassify-bodies
+            )
+        )
+      end
+    
+  /**
+   * Constructs the environment for reclassifying a class header.
+   */
+  dryad-reclassify-header-env(s) = ?this; where(
+    dr-ignore-states(
+      if <is-nested-class> this then
+        get-enclosing-class => enclosing
+        ; dryad-reclassify-header-env(
+            // member types of the enclosing class are required.
+            !enclosing
+            ; declare-class-members(
+                !this
+                ; declare-formal-type-parameters(s)
+              )
+          )
+      else
+        get-compilation-unit
+        ; get-reference-ast
+        ; declare-imported-fields(
+            declare-imported-types(
+              <declare-formal-type-parameters(s)> this
+            )
+          )
+      end
+    | ["ReclassifySimpleInScopeTypeName", "QualifySimpleInScopeTypeName"]))
+
+  dryad-reclassify-header =
+    rec rec(
+       ?PackageOrTypeName(_)
+       ; Reclassify-SimplePackageOrTypeName(rec)
+       
+    <+ ?PackageOrTypeName(_, _)
+       ; Reclassify-QualifiedPackageOrTypeName(rec)
+    
+    <+ ?TypeName(_)
+       ; QualifySimpleInScopeTypeName
+
+    <+ ClassOrInterfaceType(rec, rec)
+       ; dryad-reclassify-type
+       
+    <+ ClassType(rec, rec)
+       ; dryad-reclassify-type
+    
+    <+ InterfaceType(rec, rec)
+       ; dryad-reclassify-type
+      
+    <+ all(rec)
+    )
+    
+rules
+
+  Reclassify-DecHead(rec) =
+    ClassDec(rec, id)
+    
+  Reclassify-DecHead(rec) =
+    InterfaceDec(rec, id)
+    

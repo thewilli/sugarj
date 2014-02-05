@@ -1,0 +1,86 @@
+/**
+ * 15.26: Assignment Operators
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/expressions/AssignmentOperators
+
+/** Get the lhs of an assignment operator. */
+rules
+
+  assignment-lhs-value :
+    |[ e1 = e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 *= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 /= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 %= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 += e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 -= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 <<= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 >>= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 >>>= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 &= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 ^= e2 ]| -> e1
+
+  assignment-lhs-value :
+    |[ e1 |= e2 ]| -> e1
+
+/**
+ * Get the rhs value of a compound assignment operator (e.g, +=),
+ * as it would appear when rewritten to a simple assignment (i.e., =).
+ * (Note that the assignment conversion for such operators effectively
+ * acts as a cast - see JLS 15.26.2 - but is not included here.)
+ */ 
+rules
+
+  assignment-op-rhs-value :
+    |[ e1 *= e2 ]| -> |[ e1 * e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 /= e2 ]| -> |[ e1 / e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 %= e2 ]| ->  |[ e1 % e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 += e2 ]| -> |[ e1 + e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 -= e2 ]| -> |[ e1 - e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 <<= e2 ]| -> |[ e1 << e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 >>= e2 ]| -> |[ e1 >> e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 >>>= e2 ]| -> |[ e1 >>> e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 &= e2 ]| -> |[ e1 & e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 ^= e2 ]| -> |[ e1 ^ e2 ]|
+
+  assignment-op-rhs-value :
+    |[ e1 |= e2 ]| -> |[ e1 | e2 ]|

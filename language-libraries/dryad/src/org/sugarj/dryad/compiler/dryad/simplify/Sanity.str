@@ -1,0 +1,86 @@
+/**
+ * Simplify insane features of Java.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/simplify/Sanity
+imports
+  dryad/lib-ext/list
+
+/**
+ * @todo Desugar multiple variable declarations
+ */    
+strategies
+
+  dryad-simplify-sanity =
+    topdown-consnil(try(dryad-simplify-sanity-rules))
+    
+  dryad-simplify-sanity-rules =
+       DryadSimplify-BracketsInDeclarator
+    <+ DryadSimplify-MultipleFieldDeclarator
+    <+ DryadSimplify-MultipleConstantDeclarator    
+    
+/**
+ * Rewrites multiple field declarators in a single declaration to multiple declarations 
+ * with a single declarator.
+ *
+ * For example, "private int x, y;" is rewritten to "private int x; private int y;"
+ */
+rules
+ 
+  DryadSimplify-MultipleFieldDeclarator :
+    [FieldDec(mods, type, [fdec1, fdec2 | fdecs]) | decs]
+      ->
+    [FieldDec(mods, type, [fdec1]),  FieldDec(mods, type, [fdec2 | fdecs]) | decs]
+
+  DryadSimplify-MultipleConstantDeclarator :
+    [ConstantDec(mods, type, [fdec1, fdec2 | fdecs]) | decs]
+      ->
+    [ConstantDec(mods, type, [fdec1]),  ConstantDec(mods, type, [fdec2 | fdecs]) | decs]
+
+/**
+ * Moves all array dimensions to the type of a variable declaration.
+ *
+ * For example, int x[]; will be rewritten to int[] x;
+ * @todo This doesn't fix 'for (int a, b[];;);'
+ */ 
+rules
+
+  DryadSimplify-BracketsInDeclarator :
+    LocalVarDec(mods, component-type, [array-vardec])
+      ->
+    LocalVarDec(mods, array-type, [vardec])
+    where
+      <strip-dimensions-from-vardec> array-vardec => (vardec, dims)
+      ; <component-type-to-array-type(|dims)> component-type => array-type
+
+  DryadSimplify-BracketsInDeclarator :
+    Param(mods, component-type, ArrayVarDecId(name, dims))
+      ->
+    Param(mods, array-type, name)
+    where
+      <component-type-to-array-type(|dims)> component-type => array-type
+
+/**
+ * @type VarDec -> (VarDec, List(Dim))
+ */
+rules
+
+  strip-dimensions-from-vardec :
+    VarDec(ArrayVarDecId(Id(x), dims), init) -> (VarDec(Id(x), init), dims)
+
+  strip-dimensions-from-vardec :
+    VarDec(ArrayVarDecId(Id(x), dims)) -> (VarDec(Id(x)), dims)
+
+strategies
+
+  /**
+   * Given dimensions, constructs an array type from a component type.
+   *
+   * @param List(Dim)
+   * @type  Type -> Type
+   */
+  component-type-to-array-type(|dims) =
+      let next(|dim) = !ArrayType(<id>)
+       in foldl(next | dims)
+      end

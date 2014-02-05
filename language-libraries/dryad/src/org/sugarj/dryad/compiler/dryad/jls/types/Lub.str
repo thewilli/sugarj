@@ -1,0 +1,183 @@
+/**
+ * 15.12.2.7: Inferring Type Arguments based on Actual Arguments
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/types/Lub
+imports
+  dryad/jls/types/Erasure
+
+strategies
+
+  /**
+   * @todo Handle infinite types.
+   * @type List(Type) -> Type
+   */
+  lub =
+    lub-ST-MEC => (st, mec)
+    ; where(<iset-elements> st => supertypes)
+
+    ; <iset-elements> mec
+    ; map(lub-Candidate(|supertypes))
+    
+    ; if ?[t] then
+        !t
+      else
+        !IntersectionType(<id>)
+      end
+      
+  /**
+   * @type List(Type) -> (IndexedSet(Type), IndexedSet(Type))
+   */
+  lub-ST-MEC =
+    where(new-iset => st)
+    
+    // Fill ST and create list of EST sets
+    ; map({est:
+        where(new-iset => est)
+        ; lub-ST-EST(|st, est)
+        ; !est
+      })
+      
+    // Intersection of EST lists: EC
+    ; ?[ec | est-list]
+    ; <foldl(iset-isect | est-list)> ec
+    
+    // EC to MEC
+    // @todo This is a very expensive implementation. Sorting might help.
+    ; <iset-elements> ec
+    ; map({t: ?t; <iset-remove-all(is-proper-supertype(|t))> ec })
+    ; !ec => mec
+    
+    ; !(st, mec)
+    
+  /**
+   * Returns the set of (erased) super types (ST and EST).
+   *
+   * @param IndexedSet(Type)
+   * @type  Type -> List(Type)
+   */
+  lub-ST-EST(|st, est) =
+    where(
+      supertypes => list
+      ; <iset-addlist(|list)> st
+      ; <map({t: type-erasure => t; <iset-add(|t)> est})> list
+    )
+
+    
+strategies
+
+  /**
+   * @type  List(Type) -> IndexedSet(Type)
+   */
+  lub-MEC =
+    lub-ST-MEC => (_, <id>)
+
+strategies
+    
+  /**
+   * @param List(Type)
+   * @type  Type -> List(Type)
+   */
+  lub-Inv(|supertypes) =
+    ?g
+    ; (?ClassType(tn, _) + ?InterfaceType(tn, _))
+    ; <retain-all(?ClassType(tn, Some(_)) + ?InterfaceType(tn, Some(_)))> supertypes
+    
+  lub-CandidateInvocation(|supertypes) =
+    ?g
+    ; <lub-Inv(|supertypes)> g
+    // ; jdebug(!"Inv: ------------- ")
+    ; lub-lci
+
+  /**
+   * @todo Member types: tn can be type.
+   */
+  lub-Candidate(|supertypes) =
+    ?w
+    // ; jdebug(!"Candidate: ------------- ")
+    ; if (?ClassType(tn, _) + ?InterfaceType(tn, _))
+         ; <lookup-class> tn
+         ; is-generic
+      then
+        lub-CandidateInvocation(|supertypes)
+      else
+        id
+      end
+    
+/**
+ * lci.
+ *
+ * @todo This seems to be a fold.
+ */
+strategies
+
+  lub-lci =
+    ?[e1, e2, e3 | es]
+    ; <lub-lci> [<lub-lci> [e1, e2], e3 | es]
+
+  lub-lci :
+    [ClassType(tn, Some(TypeArgs(ts1))), ClassType(tn, Some(TypeArgs(ts2)))]
+      ->  
+    ClassType(tn, Some(TypeArgs(ts3)))
+    where
+      <zip(lub-lcta)> (ts1, ts2) => ts3    
+
+  lub-lci :
+    [InterfaceType(tn, Some(TypeArgs(ts1))), InterfaceType(tn, Some(TypeArgs(ts2)))]
+      ->
+    InterfaceType(tn, Some(TypeArgs(ts3)))
+    where
+      <zip(lub-lcta)> (ts1, ts2) => ts3
+     
+  /**
+   * @todo This (trivial) case seems to be missing in the JLS. Report.
+   */
+  lub-lci =
+    ?[<id>]
+
+/**
+ * lcta.
+ *
+ * @todo Wildcard alternatives
+ */    
+strategies
+  
+  lub-lcta :
+    (u, u) -> u
+    where
+      <is-type-expression> u
+      
+  lub-lcta :
+    (u, v) -> Wildcard(opt-upper)
+    where
+      not(<eq> (u, v))
+      ; <is-type-expression> u
+      ; <is-type-expression> v
+      ; <lub> [u, v] => upper
+      ; if !upper => TypeObject() then
+          !None()
+        else
+          !Some(WildcardUpperBound(upper))
+        end
+      ; ?opt-upper
+
+  /**
+   * @todo Implement: simple is-Type should be enough?      
+   */
+  is-type-expression =
+    not(?Wildcard(_))
+
+strategies
+
+  /**
+   * Removes all elements from set that satisfy s.
+   *
+   * @type  IndexedSet -> IndexedSet
+   */
+  iset-remove-all(s) =
+    ?set
+    ; where(
+        iset-elements
+        ; map({x: ?x; (s < <iset-remove(|x)> set + id)})
+      )

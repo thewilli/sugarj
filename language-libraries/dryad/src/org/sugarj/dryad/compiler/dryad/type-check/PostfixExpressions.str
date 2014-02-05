@@ -1,0 +1,41 @@
+/**
+ * 15.14: Postfix Expressions
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/PostfixExpressions
+imports
+  dryad/jls/conversions/Kinds
+strategies
+
+  /**
+   * 15.14.1: Expression Names
+   *   See 6.5.6
+   */
+
+  /**
+   * 15.14.2: Postfix Increment Operator ++
+   */
+  dryad-type-of :
+    |[ e++ ]| ->  <dryad-type-of-incr-decr-op> e
+
+  /**
+   * 15.14.2: Postfix Increment Operator ++
+   */
+  dryad-type-of :
+    |[ e-- ]| ->  <dryad-type-of-incr-decr-op> e
+
+  /**
+   * @todo Expression must be a variable.
+   */
+  dryad-type-of-incr-decr-op =
+    is-expr-variable
+    ; type-attr
+    ; is-convertible-to-numeric-type
+
+  /**
+   * @todo Implement the variable check
+   */
+  is-expr-variable =
+    id
+

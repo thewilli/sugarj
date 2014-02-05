@@ -1,0 +1,56 @@
+/**
+ * 15.15: Unary Operators
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/UnaryOperators
+strategies
+
+  /**
+   * 15.15.1: Prefix Increment Operator
+   */
+  dryad-type-of :
+    |[ ++e ]| -> <dryad-type-of-incr-decr-op> e
+ 
+  /**
+   * 15.15.2: Prefix Decrement Operator
+   */
+  dryad-type-of :
+    |[ --e ]| ->  <dryad-type-of-incr-decr-op> e
+
+  /**
+   * 15.15.3: Unary Plus Operator +
+   */
+  dryad-type-of :
+    |[ +e ]| -> <unary-numeric-promotion-of-type> t
+    where
+      <type-attr> e => t
+      ; is-convertible-to-numeric-type
+
+  /**
+   * 15.15.4: Unary Minus Operator -
+   */
+  dryad-type-of :
+    |[ -e ]| -> <unary-numeric-promotion-of-type> t
+    where
+      <type-attr> e => t
+      ; is-convertible-to-numeric-type
+
+  /**
+   * 15.15.5: Bitwise Complement Operator ~
+   */
+  dryad-type-of :
+    Complement(e) ->  <unary-numeric-promotion-of-type> t
+    where
+      <type-attr> e => t
+      ; is-convertible-to-integral-type
+
+  /**
+   * 15.15.6: Logical Complement Operator !
+   */
+  dryad-type-of :
+    |[ !e ]| -> Boolean()
+    where
+      <type-attr> e => t
+      ; is-convertible-to-boolean-type
+

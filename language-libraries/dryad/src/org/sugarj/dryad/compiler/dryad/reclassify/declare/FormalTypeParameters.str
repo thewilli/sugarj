@@ -1,0 +1,41 @@
+/**
+ * Declare formal type parameters.
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/reclassify/declare/FormalTypeParameters
+strategies
+
+  /**
+   * @todo The declaration needs to be reclassified first.
+   * @type SourceClass Object, SourceMethod Object, SourceConstructor Object
+   */    
+  declare-formal-type-parameters(cont) =
+    where(get-formal-type-parameters => params)
+    ; if not(?[]) then
+        where(get-name => qualifier)
+    
+      ; {|  ReclassifySimpleInScopeTypeName, QualifySimpleInScopeTypeName:
+          where(<map(declare-type-param-helper(|qualifier))> params)
+          ; cont
+        |}
+      else
+        cont
+      end
+
+  /**
+   * @todo Can PackageOrTypeName occur as a type variable?
+   */
+  declare-type-param-helper(|qualifier) =
+    ?TypeParam(Id(x), _);
+
+    rules(
+      ReclassifySimpleInScopeTypeName :
+        AmbName(Id(x)) -> TypeVar(qualifier, Id(x))
+        
+      ReclassifySimpleInScopeTypeName :
+        PackageOrTypeName(Id(x)) -> TypeVar(qualifier, Id(x))
+        
+      QualifySimpleInScopeTypeName :
+        TypeName(Id(x)) -> TypeVar(qualifier, Id(x))
+    )

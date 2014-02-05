@@ -1,0 +1,101 @@
+/**
+ * Support for implementing and invoking tools that have multiple
+ * inputs and outputs.
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/lib-ext/xtc/multi-options
+imports
+  dryad/lib-ext/multi-options
+
+strategies
+
+  /**
+   * Wraps a strategy into a command-line tool that allows a list of
+   * inputs and outputs.
+   *
+   * @param s  List(FILE) -> List(FILE)
+   */
+  xtc-multi-io-wrap(s) = 
+    xtc-multi-io-wrap(fail, s)
+
+  xtc-multi-io-wrap(extra-opts, s) = 
+    xtc-multi-io-wrap(extra-opts, system-usage, system-about, s)
+
+  xtc-multi-io-wrap(extra-opts, usage, about, s) = 
+    option-wrap(extra-opts <+  multi-io-options, usage, about, id, xtc-multi-io(s))
+
+strategies
+
+  /**
+   * Transform a list of files with an external process.
+   *
+   * @type List(FILE) -> List(FILE)
+   */
+  xtc-multi-transform(|tool) =
+    xtc-multi-transform(|tool, [])
+
+  xtc-multi-transform(|tool, args) :
+    fs -> <map(!FILE(<id>))> out-names
+    where
+      <map(?FILE(<id>))> fs => in-names
+      ; <map(xtc-new-file)> fs => out-names
+      ; <flatten-list> [args, "-i", in-names, "-o", out-names]
+      ; xtc-command(!tool)
+
+  xtc-multi-transform(|tool, args) :
+    [stdin()] -> FILE(g)
+    where
+      xtc-new-file => g
+      ; <conc> (args, ["-o", g])
+      ; xtc-command(!tool)
+
+/**
+ * Strategies that support multi-io-wrap and xtc-multi-io-wrap.
+ */
+strategies
+
+  xtc-multi-io(s) =
+    xtc-multi-input(xtc-multi-output(s))
+
+strategies
+
+  xtc-multi-output(s) =
+    abstract-multi-output(
+      s
+    , {file, t:
+        ?(file, t)
+        ; if <?FILE(_) + stdin()> t then
+            <copy-to(!file)> t
+          else
+            single-output-to-file
+          end
+      }
+    , {stream, t:
+        ?(stream, t)
+        ; if <?FILE(_) + stdin()> t then
+            <xtc-copy-to-stream(|stream)> t
+          else
+            single-output-to-stream          
+          end
+      }
+    )
+
+  xtc-copy-to-stream(|stream) =
+    ?FILE(f)
+    ; <open> f => fdin
+    ; <fflush> stream
+    ; <fileno> stream => fdout
+    ; <fdcopy> (fdin, fdout)
+
+  xtc-multi-input(s) =
+    xtc-temp-files(
+      ( <get-config> "--multi-input"; map(!FILE(<id>)) <+ ![stdin()] )
+      ; s
+      <+ prim("SSL_stacktrace_get_all_frame_names")
+         ; report-failure(xtc-exit)
+    )
+
+signature
+  constructors
+    FILE : String -> FILE

@@ -1,0 +1,16 @@
+/**
+ * 15.8.3: this
+ *
+ * The type of a generic class is the parameterized type.
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/primary/This
+strategies
+
+  /**
+   * @todo  Only allowed in instance methods.
+   * @todo  Shouldn't capture conversion be applied to ThisType?
+   */
+  dryad-type-of :
+    |[ this ]| -> <ThisType> ()

@@ -1,0 +1,13 @@
+/**
+ * Support for working with reference ASTs
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/reference-ast
+strategies
+
+  apply-to-reference(s) =
+    ?this; where(
+      get-reference-ast; s => ref-ast
+    )
+    ; set-reference-ast(|ref-ast)

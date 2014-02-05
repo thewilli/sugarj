@@ -1,0 +1,49 @@
+/**
+ * dryad-compiler debug information inclusion strategies.
+ *
+ * @author Lennart Kats <lennart add lclnet.nl>
+ */
+module dryad-compiler/backend/asm/debug-info
+
+imports
+  dryad-compiler/util/trace/-
+  dryad-compiler/backend/asm/transform/traverse
+
+strategies
+
+  /**
+   * Record all Trace information to LineNumberEntries rules,
+   * and flatten the input code.
+   *
+   * @note Must be called from within bc-asm-record-labels-wrap
+   *       _and_ bc-asm-scope to scope all dynamic rules.
+   */
+  bc-asm-debug-info =
+  {| LastLine:
+    bc-number-wrapped({
+      ?(Trace(trace, body), (index, _));
+      rules(
+        LineNumberEntries :+=
+          Entry(Instruction(index), Line(<trace-start-line> trace))
+       );
+      !body
+    <+
+      Fst // ignore other ops
+    })
+  |}
+    
+  /** @internal */
+  trace-start-line =
+    get-annos(?StartLineColumn(line, _));
+    <not(LastLine)> line;
+    rules(LastLine: line)
+
+  sorted-line-number-entries =
+    bagof-LineNumberEntries;
+    
+    // The entries need to be sorted, since they were generated using
+    // a depth-first traversal to count all the inner instructions...
+    qsort({
+      ?(Entry(Instruction(index1), _), Entry(Instruction(index2), _));
+      <lt> (index1, index2)
+    })

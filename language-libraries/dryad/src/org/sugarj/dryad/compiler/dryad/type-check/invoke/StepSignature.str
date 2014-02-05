@@ -1,0 +1,380 @@
+/**
+ * 15.12.2 Compile-Time Step 2: Determine Method Signature
+ *
+ * Locate methods that are accessible and applicable
+ * Descriptor: signature plus return type
+ */
+module dryad/type-check/invoke/StepSignature
+imports
+  dryad/jls/names/AccessControl
+  dryad/jls/types/Subtyping
+  dryad/type-check/invoke/InferringTypeArguments  
+  dryad/jls/conversions/MethodInvocationConversion  
+
+strategies
+
+  /**
+   * @type Expr -> (Method Object, List(Attribute))
+   */
+  determine-method-signature(|type, class, fromclass) =
+    ?invocation
+    
+    ; identify-potentially-applicable-methods(|class, fromclass)
+    ; log(|Debug(), "Potentially applicable methods", <id>)
+
+    ; if ?[] then
+        log(|Notice(), "No potentially applicable methods found for invocation.", invocation)
+      end
+    ; ?[_ | _]
+
+    ; select-applicable-methods(|type, invocation)
+    ; log(|Debug(), "Applicable methods", <id>)
+
+    ; if ?[] then
+        log(|Notice(), "No applicable methods found for invocation.", invocation)
+      end
+    ; ?[_ | _]
+
+    ; select-maximally-specific-methods
+    ; log(|Debug(), "Maximally specific methods", <id>)
+
+    ; if ?[_, _ | _] then
+        log(|Notice(), "Method invocation is ambiguous: multiple maximally specific methods are found.", <id>)
+      ; log(|Notice(), "Picking the first option for now.", <id>)
+      end
+
+    ; ?[<id> | _]
+
+    ; is-chosen-method-appropiate
+
+strategies
+
+  /**
+   * 15.12.2.1: Identify Potentially Applicable Methods.
+   *
+   * @todo Consider static imports (end of section). Are invocations rewritten
+   *       earlier, or should they be handled here?
+   * @type Expression -> List(Method Object)
+   */
+  identify-potentially-applicable-methods(|class, fromclass) =
+    ?Invoke(method, args)
+    
+    ; where(
+        <dryad-tc-name-of-method> method => name
+      ; <length> args => arity
+      ; <dryad-tc-explicit-type-arguments-method; length> method => typearity
+      )
+
+    ; <get-methods(|name)> class
+
+    ; filter(
+        where(get-simple-name => name)
+
+      // Accessible check
+      ; is-accessible-from(|fromclass)
+
+      // Arity of member is less or equal to the arity of the invocation.
+      ; where(<leq> (<get-arity>, arity))
+
+      // - variable arity
+      // - same fixed arity
+      ; where(
+          if is-fixed-arity-method then
+            get-arity => arity
+          else
+            <geq> (arity, <subt> (<get-arity>, 1))
+          end
+        )
+      )
+      
+    // - same number of explicit type parameters      
+    ; if not(!typearity => 0) then
+        filter(
+          where(get-formal-type-parameters; length => typearity)
+        )
+      end
+
+/**
+ * 15.12.2.2, 15.12.2.3, 15.12.2.4 Select Applicable Methods
+ */
+strategies
+
+  /**
+   * Might return an empty list
+   */
+  select-applicable-methods(|type, invocation) =
+   map(!(<id>, <determine-ASU(|type, invocation)>)); (
+   
+       filter({A, S, U:
+         ?(<id>, (A, S, U))
+         ; is-applicable-method-by-subtyping(|A, S, U)
+       })
+       ; ?[_ | _]       
+
+    <+ filter({A, S, U:
+         ?(<id>, (A, S, U))
+         ; is-applicable-method-by-method-invocation-conversion(|A, S, U)
+       })
+       ; ?[_ | _]       
+
+    <+ filter(is-applicable-variable-arity-method)
+    )
+
+/**
+ * 15.12.2.2 Phase 1: Identify Matching Arity Methods Applicable by Subtyping
+ */
+strategies
+
+  /**
+   * Succeeds if this method is applicable by subtyping.
+   *
+   * @param Type: the type on which the invocation occurs.
+   * @param Expr: the method invocation
+   * @type  Method Object -> (Method Object, List(Attribute))
+   */
+  is-applicable-method-by-subtyping(|type, invocation) =
+    ?method
+    ; where(determine-ASU(|type, invocation) => (A, S, U))
+    ; is-applicable-method-by-subtyping(|A, S, U)
+  
+  is-applicable-method-by-subtyping(|A, S, U) =
+    ?method
+    ; where(
+        <zip({Ai, Si : ?(Ai, Si); <is-subtype(|Si)> Ai})> (A, S)
+      )
+    ; !(<id>, <opt-attr-U(![])> U)
+    
+/**
+ * 15.12.2.3 Phase 2: Identify Matching Arity Methods Applicable by
+ *           Method Invocation Conversion
+ */
+strategies
+
+  is-applicable-method-by-method-invocation-conversion(|type, invocation) =
+    ?method
+    ; where(determine-ASU(|type, invocation) => (A, S, U))
+    ; is-applicable-method-by-method-invocation-conversion(|A, S, U)
+
+  /**
+   *
+   */
+  is-applicable-method-by-method-invocation-conversion(|A, S, U) =
+    ?method
+    ; where(
+        <zip({Ai, Si :
+           ?(Ai, Si)
+           ; <method-invocation-conversion(|Si)> Ai
+        })> (A, S) => conversions
+      )
+    ; !(<id>, [Conversions(conversions) | <opt-attr-U(![])> U])
+
+  /** 
+   * Adds an attribute ActualTypeArgs if there are any.
+   */   
+  opt-attr-U(cont) =
+    if ?[] then
+      cont
+    else
+      ![ActualTypeArgs(<id>) | <cont>]
+    end
+
+/**
+ * 15.12.2.4 Phase 3: Identify Applicable Variable Arity Methods
+ */
+strategies
+
+  /**
+   * @todo Who cares.
+   */
+  is-applicable-variable-arity-method =
+    fail
+    
+strategies
+
+  /**
+   * Returns the list of arguments of a method invocation.
+   *
+   * @type Expr -> List(Expr)
+   */
+  get-arguments-of-invocation =
+    ?Invoke(_, <id>)
+    
+strategies
+
+  /**    
+   * @param Type: the type on which the invocation occurs.
+   * @param Expr: the method invocation
+   */    
+  determine-ASU(|type, invocation) =
+    ?method
+    ; <get-arguments-of-invocation> invocation => args
+    ; <map(type-attr)> args => A
+    ; <determine-actual-formal-parameter-types(|type, invocation)> method => (S, U)
+    ; !(A, S, U)
+
+  /**
+   * Determines S1 ... Sn and U1 ... Up as specified in 15.12.2.2
+   *
+   * @returns Tuple (S, U)
+   * @param   Actual method invocation. 
+   * @type    Method Object -> (List(Type), List(Type))
+   */
+  determine-actual-formal-parameter-types(|type, invocation) =
+    ?method
+    ; if get-formal-type-parameters => [_ | _] then
+        <determine-actual-type-arguments(|type, invocation)> method => U
+        ; <get-formal-parameter-types(|type)> method
+        ; apply-type-substitution(|method, U) => S
+        ; !(S, U)
+      else
+        !(<get-formal-parameter-types(|type)> method, [])
+      end
+
+  /**
+   * Determines U1 ... Up as specified in 15.12.2.2    
+   *
+   * @param Actual method invocation.
+   * @param Invoke inference of type arguments.
+   * @type  Method Object -> List(Type)
+   */      
+  determine-actual-type-arguments(|type, invocation) =
+    ?method
+    ; where(
+        !invocation
+        ; ?Invoke(<id>, _)
+        ; dryad-tc-explicit-type-arguments-method => targs
+      )
+    ; if !targs => [] then
+        /**
+         * Infer the type arguments. Inference begins with an initial
+         * set of constaints. This initial set of constraints requires
+         * that the statically known types of the actual arguments can
+         * be converted to the formal parameters types of the method 
+         * declaration by method invocation invocation conversion.
+         */
+        arg-types := <get-arguments-of-invocation; map(type-attr)> invocation
+        ; param-types := <get-formal-parameter-types(|type)> method
+        ; initial-constraints :=
+            <zip(!Constraint(LeftRightConvertible(), <Fst>, <Snd>))> (arg-types, param-types)
+
+        ; table := <infer-type-arguments(|initial-constraints)> method
+
+        ; < get-formal-type-parameters
+          ; map(type-param-to-type-variable(|method))
+          ; map({tv: ?tv; <hashtable-get(|tv)> table; ?[<id>]})
+          > method
+      else
+        !targs
+      end    
+
+/**
+ * 15.12.2.5 Choosing the Most Specific Method
+ */
+strategies
+
+  /**
+   * @todo DRY-71
+   * @type List((Method Object, List(Attribute))) -> List((Method Object, List(Attribute)))
+   */
+  select-maximally-specific-methods =
+    ?methods
+    ; filter({method:
+        ?(method, _)
+      ; where(
+          not(<fetch(?(<id>, _); is-strictly-more-specific(|method))> methods)
+        )
+      })
+
+  /**
+   * Succeeds if m1 is more specific than m2
+   *
+   * @todo Parameterized types
+   * @todo Variable arity methods
+   * @param Method Object
+   * @type  Method Object -> Method Object
+   */
+  is-more-specific(|m2) =
+    ?m1
+    ; where(
+        <get-formal-parameter-types> m1 => params1
+      ; <get-formal-parameter-types> m2 => params2
+      ; <zip({t1, t2: ?(t1, t2); <is-subtype(|t2)> t1})> (params1, params2)
+      )
+
+  /**
+   * Succeeds if m1 is strictly more specific than m2
+   */
+  is-strictly-more-specific(|m2) =
+    ?m1
+    ; where(
+        <is-more-specific(|m2)> m1
+      ; <not(is-more-specific(|m1))> m2
+      )
+
+/**
+ * 15.12.2.6 Method Result Type
+ */
+strategies
+
+  /**
+   * Determines the result type of the chosen method.
+   *
+   * @param Type to which the method is applied
+   * @param Attributes. Must contain information on method invocation 
+   *        conversion and actual type arguments.
+   * @type Method -> Type
+   */
+  determine-result-type(|invtype, attrs) =
+    ?method
+    ; <get-return-type(|invtype)> method
+
+    ; ( ?Void()
+      
+     <+ where(<was-unchecked-conversion-necessary> attrs)
+        ; type-erasure
+        
+     <+ where(<is-generic> method)
+        ; where(<fetch-elem(?ActualTypeArgs(<id>))> attrs => A)
+        ; apply-type-substitution(|method, A)
+        ; capture-conversion
+
+      <+ capture-conversion
+      )
+        
+  /**
+   * @type List(Attribute) -> List(Attribute)
+   */
+  was-unchecked-conversion-necessary =
+    where(
+      fetch(
+        ?Conversions(<id>)
+      ; fetch(
+          ?MethodInvocationConversion(<id>)
+          ; fetch(
+              ?UncheckedConversion(_, _)
+            )
+        )
+      )
+    )
+        
+        
+/**
+ * 15.12.2.6 Method Throws Type
+ */
+strategies
+        
+
+/**
+ * 15.12.2.7 Inferring Type Arguments Based on Actual Arguments
+ *
+ * @todo Implement
+ */
+strategies
+
+/**
+ * 15.12.2.8 Inferring Unresolved Type Arguments
+ *
+ * @todo Implement
+ */
+strategies
+

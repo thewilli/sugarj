@@ -1,0 +1,120 @@
+/**
+ * 5.1.10: Capture Conversion
+ *
+ * First, I wanted to store the upper and lower bound of fresh type variables
+ * in the qualifier of TypeVar. However, these bounds can refer to the type
+ * variables themselves, which can be recursive. To workaround this, the bounds
+ * are now stored in dynamic rules. Unfortunately, the bounds are now not part
+ * of the ATerm after serialization. Maybe there should be a representation
+ * for declaring these fresh type variables.
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/conversions/CaptureConversion
+strategies
+
+  /**
+   * Applies capture conversion if necessary.
+   *
+   * @type Type -> Type
+   */
+  capture-conversion =
+    if must-be-capture-converted then
+      apply-capture-conversion
+    end
+
+  must-be-capture-converted =
+    where(
+      (?ClassType(_, Some(TypeArgs(<id>))) + ?InterfaceType(_, Some(TypeArgs(<id>))))
+      ; fetch(?Wildcard(<id>))
+    )
+    
+strategies
+
+  apply-capture-conversion :
+    ClassType(tn, Some(TypeArgs(args))) -> ClassType(tn, Some(TypeArgs(capturedargs)))
+    where
+      <apply-capture-conversion-helper(|tn)> args => capturedargs
+    
+  apply-capture-conversion :
+    InterfaceType(tn, Some(TypeArgs(args))) -> InterfaceType(tn, Some(TypeArgs(capturedargs)))
+    where
+      <apply-capture-conversion-helper(|tn)> args => capturedargs
+
+  /**
+   * @param TypeName
+   * @type  List(ActualTypeArg) -> List(ActualTypeArg)
+   */
+  apply-capture-conversion-helper(|tn) =
+    ?args
+    ; <lookup-class> tn => class
+    ; <get-formal-type-parameters> class
+      => tparams
+
+    ; <zip(try(capture-wildcard))> (tparams, args)
+    ; where(
+        map(?OpenWildcard(_, _, <id>))
+        => capturedargs
+      )
+    ; where(
+        map(capture-set-open-wildcard-bounds(|class, capturedargs))
+      )
+    ; !capturedargs
+    
+rules
+
+  capture-wildcard :
+    (param, wild@Wildcard(_)) -> OpenWildcard(param, wild, TypeVar(Fresh(CapturedWildcard(wild)), Id(x)))
+    where
+      <newname> "WT" => x
+
+rules
+
+  /**
+   * @param Class Object
+   * @param List(ActualTypeArgument)
+   * @type  OpenWildcard -> OpenWildcard
+   */
+  capture-set-open-wildcard-bounds(|class, capturedargs) =
+    ?OpenWildcard(param, Wildcard(None()), tv@TypeVar(Fresh(_), Id(x)))
+    ; where(
+        <get-upper-bound> param
+        ; apply-type-substitution(|class, capturedargs) => upper-bound
+        
+        ; !Null() => lower-bound
+
+        ; <capture-declare-bounds(|upper-bound, lower-bound)> tv
+      )
+
+/**
+ * Utils to declare upper and lower bounds
+ */
+strategies
+
+  capture-declare-bounds(|upper-bound, lower-bound) =
+      capture-declare-upper-bound(|upper-bound)
+    ; capture-declare-lower-bound(|lower-bound)
+
+  capture-declare-upper-bound(|upper-bound) =
+    ?TypeVar(Fresh(source), Id(x))
+    ; rules(
+        /**
+         * Returns the list of upperbounds of a fresh type variable.
+         *
+         * @todo Return list or intersection type?
+         * @type TypeVar -> List(Type)
+         */
+        FreshTypeVarUpperBound :
+          TypeVar(Fresh(source), Id(x)) -> upper-bound
+      )
+      
+  capture-declare-lower-bound(|lower-bound) =
+    ?TypeVar(Fresh(source), Id(x))      
+    ; rules(               
+        FreshTypeVarLowerBound :
+          TypeVar(Fresh(source), Id(x)) -> Null()
+      )
+
+signature
+  constructors
+    OpenWildcard : TypeParam * ActualTypeArg * ActualTypeArg -> ActualTypeArg

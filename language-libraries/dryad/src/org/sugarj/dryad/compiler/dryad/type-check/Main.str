@@ -1,0 +1,239 @@
+/**
+ * Main strategy of the Dryad type checker
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/type-check/Main
+imports
+  dryad/type-check/-
+  dryad/type-check/primary/-
+  dryad/type-check/stm/-  
+
+  dryad/util/jtree
+  dryad/util/jtree-overlays
+
+  dryad/model/-
+  dryad/model/bytecode-class
+  dryad/model/source-class
+  
+  dryad/source/Attributes
+
+  dryad/jls/conversions/Boxing
+  dryad/jls/conversions/Unboxing
+  dryad/jls/conversions/CaptureConversion
+  dryad/jls/conversions/AssignmentConversion
+  dryad/jls/conversions/NumericPromotions
+  dryad/jls/types/Primitive
+  dryad/jls/types/Reference
+  dryad/jls/types/Reifiable
+  dryad/jls/expressions/AssignmentOperators
+
+strategies
+
+  /**
+   * Annotate type information on a Java compilation unit or fragment of code.
+   *
+   * @type  List(CompilationUnit Object) -> List(CompilationUnit Object)
+   */
+  dryad-type-checker =
+    let
+      fail-s(s) = fail // higher-order strategy
+    in
+      dryad-type-checker(fail-s)
+    end
+  
+  /**
+   * Annotate type information on a Java compilation unit or fragment of code.
+   *
+   * @param extension(rec)  Strategy that may rewrite a (non-Java) term during the traversal.
+   *
+   * @type  List(CompilationUnit Object) -> List(CompilationUnit Object)
+   */
+  dryad-type-checker(extension : (a -> a) -> a) =
+    rec rec(
+       extension(rec)
+    <+ dryad-tc-declare-this-class(all(rec))
+    <+ dryad-tc-declare-params(all(rec))
+    <+ dryad-tc-declare-local-variables(rec)
+    <+ dryad-tc-declare-fields(all(rec))
+    <+ dryad-tc-foreach(rec)
+    <+ apply-to-reference(rec)
+    <+ all-consnil(rec)
+       ; try(dryad-attribute(rec))
+    )
+    
+strategies
+
+  /**
+   * Attach attributes to a term.
+   *
+   * @type t -> t
+   */
+  dryad-attribute(rec) =
+    where(
+      ( dryad-attributes-of
+     <+ dryad-attributes-of(rec)
+     <+ default-dryad-attributes-of(rec)
+      ) => attr
+    )
+    ; if <is-list> attr then
+        !<id> {^attr}
+      else
+        !<id> {attr}
+      end
+
+  /**
+   * Default strategy for producing the attributes of an expression.
+   *
+   * By default, attribute a term only with its type, determined by applying 
+   * the dryad-type-of rule.
+   *
+   * @type t -> List(Attribute)
+   */
+  default-dryad-attributes-of(rec) =
+    ![Type(<dryad-type-of <+ dryad-type-of(rec)>)]
+
+  dryad-type-of(rec) =
+    fail
+
+/**
+ * Provide a library interface to the TypeOf dynamic rule, for client
+ * applications that import Dryad as a library.
+ */
+strategies
+
+  set-TypeOf(|name, value) =
+    rules(TypeOf : name -> value)
+
+  scope-TypeOf(s) =
+    {| TypeOf : s |}
+
+strategies
+
+  dryad-tc-declare-params(continue) =
+    ?MethodDec(MethodDecHead(_, _, _, _, params, _), _)
+    ; {| TypeOf :
+        where(<map(dryad-tc-declare-param)> params)      
+      ; continue
+      |}
+      
+  dryad-tc-declare-params(continue) =      
+    ?ConstrDec(ConstrDecHead(_, _, _, params, _), _)      
+    ; {| TypeOf :
+        where(<map(dryad-tc-declare-param)> params)      
+      ; continue
+      |}
+      
+  dryad-tc-declare-params(continue) =
+    ?Catch(param, _)
+    ; {| TypeOf :
+        where(<dryad-tc-declare-param> param)
+      ; continue
+      |}
+
+  dryad-tc-declare-param =
+    ?Param(_, type, Id(x))
+    ; rules(TypeOf: Id(x) -> type)
+
+strategies
+
+  /**
+   * Handle local vardec statement by declaring the type of the
+   * variables it declares for the tail of the list of statements in
+   * which it occurs.
+   *
+   * @type List(BlockStm) -> List(BlockStm)
+   */
+  dryad-tc-declare-local-variables(rec) =
+    ?[LocalVarDecStm(_) | _]
+    ; {| TypeOf :
+        [ LocalVarDecStm(dryad-tc-declare-local-vardec(rec)) | id]
+        ; [id | rec]
+      |}
+
+  /**
+   * Define the type of a local variable declared in for loop.
+   */      
+  dryad-tc-declare-local-variables(rec) =      
+    ?For(LocalVarDec(_, _, _), _, _, _)
+    ; {| TypeOf :
+        For(dryad-tc-declare-local-vardec(rec), rec, rec, rec)
+      |}
+
+  /**
+   * Util for dryad-tc-declare-local-variables. Don't invoke directly.
+   */
+  dryad-tc-declare-local-vardec(rec) =
+    LocalVarDec(id, ?type, map(dryad-tc-declare-var(|type); rec))
+
+  /**
+   * Declare the type of class fields for a class body.
+   */
+  dryad-tc-declare-fields(continue) =
+    ?ClassBody(_)
+    ; {| TypeOf :
+        ClassBody(map(try(dryad-tc-declare-field-dec(continue))))
+        ; continue
+      |}
+
+  /**
+   * Util for dryad-tc-declare-fields. Don't invoke directly.
+   */
+  dryad-tc-declare-field-dec(rec) =
+    instanceof-JavaSourceField
+    ; apply-to-reference(
+        FieldDec(id, ?type, map(dryad-tc-declare-var(|type)); rec)
+      )
+
+  /**
+   * Declare the type of a variable in dynamic rule 'TypeOf'
+   */
+  dryad-tc-declare-var(|type) =
+    (?VarDec(Id(x)) + ?VarDec(Id(x), _));
+    rules(TypeOf : Id(x) -> type)
+
+strategies
+
+  /**
+   * @todo Handle formal type parameters.
+   * @todo Enums, Annotations.
+   */
+  dryad-tc-declare-this-class(continue) =
+    instanceof-JavaSourceClass
+    ; ?class
+    ; where(get-canonical-name => name)
+    ; where(
+        if <is-interface> class then
+          !InterfaceType(name, None())
+        else
+          !ClassType(name, None())
+        end => type
+      )
+    ; {| ThisType, ThisClass :
+        rules(
+          ThisType  : _ -> type
+          ThisClass : _ -> class
+        )
+        ; apply-to-reference(continue)
+      |}
+
+strategies
+
+  /**
+   * Generic implementation for determining the type of a numeric
+   * binary operator (*, /, %, +, -).
+   *
+   * @type (Expr, Expr) -> Expr
+   */
+  dryad-type-of-num-bin-op =
+    ?(e1, e2);
+
+    where(
+      <type-attr> e1 => t1
+    ; <type-attr> e2 => t2
+    ; <is-convertible-to-numeric-type> t1
+    ; <is-convertible-to-numeric-type> t2
+    )
+
+    ; <binary-numeric-promotion-of-types> (t1, t2)
+

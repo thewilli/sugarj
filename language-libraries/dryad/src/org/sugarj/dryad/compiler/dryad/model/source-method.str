@@ -1,0 +1,193 @@
+/**
+ * Source Method
+ *
+ * @todo   The distinction between methods and abstract methods is annoying. Normalize?
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/model/source-method
+
+/**
+ * Constructors
+ */
+strategies
+
+  /**
+   * Constructs a new source method.
+   *
+   * @type  _ -> Source Method Object
+   */
+  new-source-method(|ast) =
+    <classes_get-class> JavaSourceMethod()
+    ; classes_new-instance
+    ; classes_set-instance-field(|"reference-ast", ast)
+
+/**
+ * AST representation
+ */
+strategies
+
+  get-ast = instanceof-JavaSourceMethod;
+    get-reference-ast
+    
+  get-reference-ast =  instanceof-JavaSourceMethod;
+    classes_get-instance-field(|"reference-ast")  
+    
+  set-reference-ast(|refast) =  instanceof-JavaSourceMethod;
+    classes_set-instance-field(|"reference-ast", refast)
+
+strategies
+
+  /**
+   * Returns the simple name of this method.
+   *
+   * @type Method Object -> String
+   */
+  get-simple-name = instanceof-JavaSourceMethod;
+    get-ast
+    ; (   ?MethodDec(MethodDecHead(_, _, _, Id(<id>), _, _), _)
+       <+ ?AbstractMethodDec(_, _, _, Id(<id>), _, _)
+      )
+      
+strategies
+
+  /**
+   * @type Method Object -> Access Modifier
+   */
+  get-access = instanceof-JavaSourceMethod; ?this;
+    get-modifiers
+    ; ( fetch-elem(?Public() + ?Private() + ?Protected())
+     <+ if <get-declaring-class> this; is-interface then
+          !Public()
+        else
+          !DefaultAccess()
+        end
+      )
+
+  /**
+   * Succeeds if a method is static
+   *
+   * @type Method Object -> Method Object
+   */
+  is-static =  instanceof-JavaSourceMethod; 
+    where(
+      get-modifiers
+      ; fetch(?Static())
+    )
+
+  /**
+   * @type Method Object -> List(Modifier)
+   */
+  get-modifiers = instanceof-JavaSourceMethod;
+    get-reference-ast
+    ; (  ?MethodDec(MethodDecHead(<id>, _, _, _, _, _), _)
+      <+ ?AbstractMethodDec(<id>, _, _, _, _, _)
+      )
+
+strategies
+
+  /**
+   * @todo Deprecated method dec head (array after head)
+   * @type Method Object -> Source Type
+   */
+  get-return-type = instanceof-JavaSourceMethod;
+    get-reference-ast
+    ; (  ?MethodDec(MethodDecHead(_, _, <id>, _, _, _), _)
+      <+ ?AbstractMethodDec(_, _, <id>, _, _, _)
+      )
+
+  /**
+   * Returns a list of exceptions declared to be thrown by this method.
+   *
+   * @type Method Object -> List(Source type)
+   */
+  get-declared-exception-types = instanceof-JavaSourceMethod;
+    get-reference-ast
+    ; (   ?MethodDec(MethodDecHead(_, _, _, _, _, Some(ThrowsDec(<id>))), _)
+    
+       <+ ?MethodDec(MethodDecHead(_, _, _, _, _, None()), _)
+          ; ![]
+          
+       <+ ?AbstractMethodDec(_, _, _, _, _, Some(ThrowsDec(<id>)))
+       
+       <+ ?AbstractMethodDec(_, _, _, _, _, None())
+          ; ![]
+      )
+
+  /**
+   * Returns the arity (number of arguments) of this method
+   */
+  get-arity = instanceof-JavaSourceMethod;
+    get-ast
+    ; (  ?MethodDec(MethodDecHead(_, _, _, _, <length>, _), _)
+      <+ ?AbstractMethodDec(_, _, _, _, <length>, _)
+      )
+
+  /**
+   * Succeeds if this method takes a variable number of arguments.
+   */
+  is-variable-arity-method = instanceof-JavaSourceMethod;
+    where(
+      get-ast
+      ; ( ?MethodDec(MethodDecHead(_, _, _, _, <id>, _), _)
+        + ?AbstractMethodDec(_, _, _, _, <id>, _)
+        )
+      ; fetch(is-variable-arity-param)
+    )
+  /**
+   * Returns the formal parameters types of a method as source types.
+   *
+   * @todo Handle VarArityParam. What is its type?
+   * @type Method -> List(Source Type)
+   */
+  get-formal-parameter-types = instanceof-JavaSourceMethod;
+    get-ast
+    ; ( ?MethodDec(MethodDecHead(_, _, _, _, <id>, _), _)
+      + ?AbstractMethodDec(_, _, _, _, <id>, _)
+      )
+    ; map(get-type-of-param)
+
+  /**
+   * Succeeds if this FormalParam has a variable arity.
+   *
+   * @type FormalParam -> ?
+   */
+  is-variable-arity-param =
+    ?VarArityParam(_, _, _)
+    
+strategies
+
+  /**
+   * @type SourceClass Object -> List(TypeParam)
+   */
+  get-formal-type-parameters =  instanceof-JavaSourceMethod;
+    get-reference-ast
+    ; ( ?MethodDec(MethodDecHead(_, Some(TypeParams(<id>)), _, _, _, _), _)
+     <+ ?MethodDec(MethodDecHead(_, None(), _, _, _, _), _)
+        ; ![]
+     <+ ?AbstractMethodDec(_, Some(TypeParams(<id>)), _, _, _, _)
+     <+ ?AbstractMethodDec(_, None(), _, _, _, _)
+        ; ![]
+      )
+
+/**
+ * Stratego class support for source methods
+ */
+signature
+  constructors
+    JavaSourceMethod : ClassName
+ 
+strategies
+    
+  /**
+   * Succeeds if the current term is an instance of Java source method
+   */
+  instanceof-JavaSourceMethod =
+    classes_instanceof(|JavaSourceMethod())
+
+  /**
+   * Succeeds if the current term is an instance of a Java method.
+   *
+   * This alternative declares a JavaSourceMethod to be a JavaMethod.
+   */
+  instanceof-JavaMethod =
+    classes_instanceof(|JavaSourceMethod())

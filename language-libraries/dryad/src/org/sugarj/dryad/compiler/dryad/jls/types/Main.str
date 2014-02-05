@@ -1,0 +1,17 @@
+/**
+ * Types
+ *
+ * @author Martin Bravenboer <martin@cs.uu.nl>
+ */
+module dryad/jls/types/Main
+imports
+  dryad/jls/types/Erasure
+  dryad/jls/types/Lub
+  dryad/jls/types/Parameterized
+  dryad/jls/types/Primitive  
+  dryad/jls/types/Raw  
+  dryad/jls/types/Reference  
+  dryad/jls/types/Reifiable  
+  dryad/jls/types/Subtyping  
+
+

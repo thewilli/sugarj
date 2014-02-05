@@ -1,0 +1,60 @@
+/**
+ * 5.1.7: Boxing Conversion
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/conversions/Boxing
+signature
+  constructors
+    /**
+     * @param From
+     * @param To
+     */
+    BoxingConversion : Type * Type -> BoxingConversion
+    
+strategies
+
+  boxing-conversion =
+    !BoxingConversion(<id>, <boxing-conversion-of-type>)
+    
+strategies
+
+  boxing-conversion-of-type :
+    Boolean() -> RefTypeBoolean()
+
+  boxing-conversion-of-type :
+    Byte() -> RefTypeByte()
+
+  boxing-conversion-of-type :
+    Short() -> RefTypeShort()
+
+  boxing-conversion-of-type :
+    Int() -> RefTypeInteger()
+
+  boxing-conversion-of-type :
+    Long() -> RefTypeLong()
+
+  boxing-conversion-of-type :
+    Char() -> RefTypeCharacter()
+
+  boxing-conversion-of-type :
+    Float() -> RefTypeFloat()
+
+  boxing-conversion-of-type :
+    Double() -> RefTypeDouble()
+
+strategies
+    
+  /**
+   * Returns the types involved in this conversion.
+   */
+  types-of-conversion :
+    BoxingConversion(from, to) -> [from, to]        
+
+  /**
+   * Returns the result type of this conversion.
+   *
+   * @type Conversion -> Type
+   */
+  result-of-conversion =
+    ?BoxingConversion(_, <id>)

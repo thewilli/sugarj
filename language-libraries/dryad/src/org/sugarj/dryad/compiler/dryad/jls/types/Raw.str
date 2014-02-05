@@ -1,0 +1,22 @@
+/**
+ * 4.8: Raw Types
+ *
+ * @todo Make raw types explicit?
+ * @todo Implement second case of raw types (sounds complicated)
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/types/Raw
+strategies
+
+  /**
+   * @todo This implementation does not check if the type declaration is generic.
+   */
+  is-raw-type =
+    ?ClassType(_, None())
+
+  is-raw-type =
+    ?InterfaceType(_, None())
+
+  is-raw-type =
+    ?ClassOrInterfaceType(_, None())

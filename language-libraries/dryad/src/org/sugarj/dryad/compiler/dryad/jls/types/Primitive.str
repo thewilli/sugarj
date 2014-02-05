@@ -1,0 +1,26 @@
+/**
+ * 4.2: Primitive Types and Values
+ *
+ * @author Martin Bravenboer
+ */
+module dryad/jls/types/Primitive
+strategies
+
+  is-primitive-type =
+      is-numeric-type
+    + ?Boolean()
+
+  is-numeric-type =
+      is-integral-type
+    + is-floating-point-type
+
+  is-integral-type =
+      ?Byte()
+    + ?Short()
+    + ?Int()
+    + ?Long()
+    + ?Char()
+
+  is-floating-point-type =
+      ?Float()
+    + ?Double()
