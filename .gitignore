@@ -28,3 +28,5 @@ deployment/update-site/plugins/
 
 analysis-auto.generated.str
 build.generated.xml
+case-studies/jasmin
+language-libraries/jasmin

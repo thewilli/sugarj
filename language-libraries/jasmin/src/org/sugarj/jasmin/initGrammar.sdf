@@ -1,3 +1,0 @@
-module org/sugarj/jasmin/initGrammar
-imports org/sugarj/languages/SugarJasmin
-        org/sugarj/stdlib/Common
