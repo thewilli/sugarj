@@ -2,9 +2,10 @@ module org/sugarj/languages/SugarDryad
 imports
 	org/sugarj/languages/Dryad
 	org/sugarj/languages/Sugar
+	org/sugarj/languages/Custom
 	libjava-front
 	org/sugarj/dryad/compiler/dryad
-	//org/sugarj/dryad/compiler/dryad-compiler
+	org/sugarj/dryad/compiler/dryad-compiler
 
 signature
  constructors
@@ -19,37 +20,3 @@ signature
 	
 	CompilationUnit		: List(SugarModuleImport) * DryadFile -> CompilationUnit
 	CompilationUnit		: List(SugarModuleImport) * SugarModuleDec * ExtensionBody -> SugarCompilationUnit
-
-
-rules
-	replCalc : Id("Calculator") -> Id("foo")
-
-strategies
-	
-	external STRJVM_callstatic_string_stringstring(|a,b,c,d,e)
-	
-	jdebug(what) = 
-		where(<concat-strings>["JDEBUG: ",<what>," - "] => str);
-		debug(!str)
-		
-	willispecial =
-		jdebug(!"foo2") ; 
-		//testa ;
-		jdebug(!"bar2")
-		
-	xwillispecial = try(outermost(replCalc))
-		
-	/*
-	testa = 
-		jdebug(!"ensure import observable: ") ;
-		ensure-import-observable-classes;
-		jdebug(!"ensure import observable complete: ") ;
-		as-list(map( // unassemble imported classfiles
-      		if(is-ClassFile, bc-unasm(dryad-compiler-error))
-    	));
-    	topdown(try(trace-terms-to-annos));
-    	bc-unasm;
-    	as-list;
-    	map(define-compilation-unit)
-    	//; jdebug(!"end of testa")
-    	*/

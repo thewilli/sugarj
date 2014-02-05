@@ -1,0 +1,34 @@
+module org/sugarj/languages/Custom
+
+//rules
+//	replCalc : Id("Calculator") -> Id("foo")
+
+strategies
+	
+	external STRJVM_callstatic_string_stringstring(|a,b,c,d,e)
+	
+	jdebug(what) = 
+		where(<concat-strings>["JDEBUG: ",<what>," - "] => str);
+		debug(!str)
+		
+	willi =
+		jdebug(!"foo2") ; 
+		//testa ;
+		jdebug(!"bar2")
+		
+//xwillispecial = try(outermost(replCalc))
+		
+	/*
+	testa = 
+		jdebug(!"ensure import observable: ") ;
+		ensure-import-observable-classes;
+		jdebug(!"ensure import observable complete: ") ;
+		as-list(map( // unassemble imported classfiles
+      		if(is-ClassFile, bc-unasm(dryad-compiler-error))
+    	));
+    	topdown(try(trace-terms-to-annos));
+    	bc-unasm;
+    	as-list;
+    	map(define-compilation-unit)
+    	//; jdebug(!"end of testa")
+    	*/

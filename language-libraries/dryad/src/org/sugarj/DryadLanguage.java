@@ -7,10 +7,18 @@ import static org.sugarj.common.ATermCommands.isApplication;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.path.Path;
 
+//BEGIN OF COMMON TASKS
+
+//TODO Remove hardcoded paths from Dryad/DryadCompiler code
+//TODO move .tbl files from target project into base source
+//TODO what about StrategoRenamed.sdf?
+//TODO: Sugar syntax
+//END OF COMMON TASKS
+
 public class DryadLanguage extends AbstractBaseLanguage {
-  
+
   private static DryadLanguage instance = new DryadLanguage();
-  
+
   public static DryadLanguage getInstance() {
     return instance;
   }
@@ -77,36 +85,37 @@ public class DryadLanguage extends AbstractBaseLanguage {
 
   @Override
   public boolean isExtensionDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"DryadExtension"))
+    if (isApplication(decl, "DryadExtension"))
       return true;
     return false;
   }
-      
+
   @Override
   public boolean isImportDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"DryadImport"))
+    // FIXME: Handle imports (can be either Java- or Bytecode-based)
+    if (isApplication(decl, "DryadImport"))
       return true;
     return false;
   }
 
   @Override
   public boolean isBaseDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"DryadBody") || isNamespaceDec(decl))
+    if (isApplication(decl, "DryadBody") || isNamespaceDec(decl))
       return true;
     return false;
   }
 
   @Override
   public boolean isPlainDecl(IStrategoTerm decl) {
-    if(isApplication(decl,"PlainDec"))
+    if (isApplication(decl, "PlainDec"))
       return true;
     return false;
   }
-  
+
   public boolean isNamespaceDec(IStrategoTerm decl) {
     return isApplication(decl, "SugarModule");
   }
-  
+
   @Override
   public List<Path> getPackagedGrammars() {
     List<Path> grammars = new LinkedList<Path>(super.getPackagedGrammars());

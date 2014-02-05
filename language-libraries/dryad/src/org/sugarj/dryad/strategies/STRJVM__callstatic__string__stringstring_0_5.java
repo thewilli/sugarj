@@ -16,6 +16,8 @@ import str.classtree.ATerm2Class;
 import str.classtree.Class2ATerm;
 
 
+//TODO: Clean code of whole file
+
 public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 	
 	public static STRJVM__callstatic__string__stringstring_0_5 instance = new STRJVM__callstatic__string__stringstring_0_5();
@@ -28,7 +30,8 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 	
 	private static String runExt(IStrategoTerm t1, IStrategoTerm t2){
 		try{
-		  //FIXME: Paths
+		  //TODO: Add error handling
+		  //FIXME: Change hardcoded paths
 		File file = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/class2aterm.jar");
 		File file2 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/bcel-5.2.jar");
 		File file3 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/aterm-java-1.8.2.jar");
@@ -112,7 +115,6 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 			context.getIOAgent().printError("Var " + i + ": " + t.toString());
 		}*/
 		
-		// TODO Auto-generated method stub
 		 
 		 return factory.makeString("UNSUPPORTED");
 		//return super.invoke(context, current, t1, t2, t3, t4, t5);

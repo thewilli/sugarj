@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.strategoxt.lang.Context;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
@@ -81,7 +80,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   @Override
   public void processModuleImport(IStrategoTerm toplevelDecl) throws IOException {
-    //(No Jasmin-related imports to handle)
+    //(No Dryad-related imports to handle)
   }
   
   private void processNamespaceDecl(IStrategoTerm toplevelDecl) throws IOException {
@@ -93,7 +92,6 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   @Override
   public List<String> processBaseDecl(IStrategoTerm toplevelDecl) throws IOException {
-    
     //Term can be either a base- (pure Jasmin) or namespace ( = SugarModule ) declaration here
     if(((DryadLanguage)getLanguage()).isNamespaceDec(toplevelDecl)){
       processNamespaceDecl(toplevelDecl);
@@ -161,8 +159,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
     }
 
   @Override
-  public List<Path> compile(List<Path> generatedSourceFiles, Path targetDir, List<Path> classpath) throws IOException, SourceCodeException {
-    //FIXME
+  public List<Path> compile(List<Path> generatedSourceFiles, Path targetDir, List<Path> classpath) throws IOException, SourceCodeException {    //FIXME: Fix compilation
     //IStrategoTerm target = this.getInterpreter().getCompiledContext().invokeStrategy("asdf",this.getInterpreter())
     LinkedList<Path> outputFiles = new LinkedList<Path>();
     String outputDirWithSuffix = targetDir.getAbsolutePath();
@@ -178,10 +175,11 @@ public class DryadProcessor extends AbstractBaseProcessor {
       //String fileContent = readFile(compileFile.getAbsolutePath(), Charset.defaultCharset());
       //IStrategoTerm parsedContent = getInterpreter().getCompiledContext().getFactory().parseFromString(fileContent);
       IStrategoTerm parsedContent = getInterpreter().current();
-      //FIXME
+      //FIXME fix this
       parsedContent = getInterpreter().getFactory().parseFromString("CompilationUnit(None(),[],[ClassDec(ClassDecHead([],Id(\"Calculator\"),None(),None(),None()),ClassBody([]))])");
-      parsedContent = getInterpreter().getCompiledContext().invokeStrategy("willispecial", parsedContent);
-      String x = "5";
+      parsedContent = getInterpreter().getCompiledContext().invokeStrategy("willi", parsedContent);
+      String remove = "me"; //FIXME remove
+      //TODO: Write content (strategy-based)
       }catch(Exception ex){
         System.out.println(ex.getMessage());
       }
