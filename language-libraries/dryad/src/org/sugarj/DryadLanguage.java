@@ -12,7 +12,8 @@ import org.sugarj.common.path.Path;
 //TODO Remove hardcoded paths from Dryad/DryadCompiler code
 //TODO move .tbl files from target project into base source
 //TODO what about StrategoRenamed.sdf?
-//TODO: Sugar syntax
+//TODO Sugar syntax
+//TODO Remove Jasmin parts (2x) from repository
 //END OF COMMON TASKS
 
 public class DryadLanguage extends AbstractBaseLanguage {
