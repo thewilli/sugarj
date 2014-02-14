@@ -3,14 +3,22 @@ package org.sugarj;
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
+import org.strategoxt.HybridInterpreter;
+import org.strategoxt.lang.InteropRegisterer;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
@@ -158,6 +166,41 @@ public class DryadProcessor extends AbstractBaseProcessor {
       return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }
 
+  
+  private Object getFieldValue(Object o, String fieldName){
+    try{
+      Field field = o.getClass().getDeclaredField(fieldName);
+      field.setAccessible(true);
+      return field.get(o);
+    }catch(Exception ex){
+      return null;
+    }
+  }
+  
+  private Object getMethodValue(Object o, String methodName){
+    try{
+      Method method = o.getClass().getDeclaredMethod(methodName, null);
+      method.setAccessible(true);
+      return method.invoke(o, null);
+    }catch(Exception ex){
+      return null;
+    }
+  }
+  
+  private void registerStrategies(){
+   try {
+       HybridInterpreter interpreter = getInterpreter();
+       InteropRegisterer registerer = new org.sugarj.dryad.strategies.InteropRegisterer();
+       interpreter.getCompiledContext().setFactory((ITermFactory)getFieldValue(interpreter, "recordingFactory"));
+       registerer.registerLazy(interpreter.getContext(), interpreter.getCompiledContext(), ClassLoader.getSystemClassLoader());
+       interpreter.getCompiledContext().addConstructors((Collection<IStrategoConstructor>) getMethodValue(getFieldValue(interpreter, "recordingFactory"), "getAndClearConstructorRecord"));
+       interpreter.getCompiledContext().setFactory((ITermFactory)getMethodValue(getFieldValue(interpreter, "recordingFactory"), "getWrappedFactory"));
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+  
   @Override
   public List<Path> compile(List<Path> generatedSourceFiles, Path targetDir, List<Path> classpath) throws IOException, SourceCodeException {    //FIXME: Fix compilation
     //IStrategoTerm target = this.getInterpreter().getCompiledContext().invokeStrategy("asdf",this.getInterpreter())
@@ -176,6 +219,10 @@ public class DryadProcessor extends AbstractBaseProcessor {
       //IStrategoTerm parsedContent = getInterpreter().getCompiledContext().getFactory().parseFromString(fileContent);
       IStrategoTerm parsedContent = getInterpreter().current();
       //FIXME fix this
+      
+      registerStrategies();
+      //getInterpreter().loadJars(new java.net.URL("file:///Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/include/testlang-java.jar"));
+      
       parsedContent = getInterpreter().getFactory().parseFromString("CompilationUnit(None(),[],[ClassDec(ClassDecHead([],Id(\"Calculator\"),None(),None(),None()),ClassBody([]))])");
       parsedContent = getInterpreter().getCompiledContext().invokeStrategy("willi", parsedContent);
       String remove = "me"; //FIXME remove
