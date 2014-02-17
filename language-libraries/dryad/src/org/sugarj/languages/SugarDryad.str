@@ -4,6 +4,7 @@ imports
 	org/sugarj/languages/Sugar
 	org/sugarj/languages/Custom
 	libjava-front
+	libstratego-lib
 	org/sugarj/dryad/compiler/dryad
 	org/sugarj/dryad/compiler/dryad-compiler
 
