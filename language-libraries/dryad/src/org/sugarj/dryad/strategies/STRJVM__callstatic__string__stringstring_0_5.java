@@ -7,6 +7,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
+import org.sugarj.dryad.Activator;
 
 
 //TODO: Clean code of whole file
@@ -44,7 +45,13 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 			Class params[] = new Class[2];
 			params[0] = String.class;
 			params[1] = String.class;
-			Object o = clazz.getMethod("disasm_from_jar",params).invoke(null,convertString(t1), convertString(t2));
+			Object o = 
+			    clazz.getMethod("disasm_from_jar",params)
+			      .invoke(
+			           null,
+			           convertString(t1).replace("/plugin-root", Activator.getPluginPath("/ext")),
+			           convertString(t2)
+			      );
 			return o.toString();
 		}catch(InvocationTargetException ex){
 			Throwable e = ex.getCause();
