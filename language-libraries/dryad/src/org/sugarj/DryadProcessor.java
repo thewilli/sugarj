@@ -1,24 +1,17 @@
 package org.sugarj;
 
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
+
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoTerm;
-import org.spoofax.interpreter.terms.ITermFactory;
-import org.strategoxt.HybridInterpreter;
-import org.strategoxt.lang.InteropRegisterer;
 import org.sugarj.common.ATermCommands;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
@@ -27,6 +20,8 @@ import org.sugarj.common.errors.SourceCodeException;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+import org.sugarj.dryad.Activator;
+import org.sugarj.dryad.strategies.DryadStrategyRegisterer;
 
 public class DryadProcessor extends AbstractBaseProcessor {
 
@@ -37,7 +32,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
   //source code parts currently processed
   private List<String> body = new LinkedList<String>();
   //Pretty-print table
-  private IStrategoTerm ppTable;
+  //private IStrategoTerm ppTable;
   //Name of module
   private String moduleName;
   //Name of namespace
@@ -49,15 +44,8 @@ public class DryadProcessor extends AbstractBaseProcessor {
    * @return string representation of term
    */
   private String prettyPrint(IStrategoTerm term) {
-    if (ppTable == null){ 
-      try {
-        ppTable = ATermCommands.readPrettyPrintTable(getLanguage().ensureFile("org/sugarj/languages/Dryad.pp").getAbsolutePath());
-      } catch (Exception e) {
-        ATermCommands.setErrorMessage(term, "generating Dryad parse table failed");
-        return null;
-      } 
-    }
-    return ATermCommands.prettyPrint(ppTable, term, interp);
+    //TODO: Output ATerm representation?
+    return "x"; //not required anymore as compilation works on the ATerm itself
   }
   
   @Override
@@ -68,6 +56,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
   @Override
   public void init(RelativePath sourceFile, Environment environment) {
     //Entry point: Processing of new file
+    environment.addToIncludePath(new AbsolutePath(Activator.getPluginPath("/ext")));
     this.outFile = 
         environment.createOutPath(
             FileCommands.dropExtension(sourceFile.getRelativePath()) + "." + DryadLanguage.getInstance().getBaseFileExtension()
@@ -129,12 +118,12 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   @Override
   public String getModulePathOfImport(IStrategoTerm decl) {
-    return prettyPrint(getApplicationSubterm(decl, "JasminImport", 0));
+    return prettyPrint(getApplicationSubterm(decl, "DryadImport", 0));
   }
 
   @Override
   public boolean isModuleExternallyResolvable(String relModulePath) {
-    //(No Jasmin-related imports to handle)
+    //(No Dryad-related imports to handle)
     return false;
   }
 
@@ -149,7 +138,8 @@ public class DryadProcessor extends AbstractBaseProcessor {
   }
 
   @Override
-  public String getGeneratedSource() {    if(body.isEmpty())
+  public String getGeneratedSource() {
+    if(body.isEmpty())
       return "";
     return StringCommands.printListSeparated(body, "\n");
   }
@@ -166,72 +156,50 @@ public class DryadProcessor extends AbstractBaseProcessor {
       return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }
 
-  
-  private Object getFieldValue(Object o, String fieldName){
-    try{
-      Field field = o.getClass().getDeclaredField(fieldName);
-      field.setAccessible(true);
-      return field.get(o);
-    }catch(Exception ex){
-      return null;
-    }
-  }
-  
-  private Object getMethodValue(Object o, String methodName){
-    try{
-      Method method = o.getClass().getDeclaredMethod(methodName, null);
-      method.setAccessible(true);
-      return method.invoke(o, null);
-    }catch(Exception ex){
-      return null;
-    }
-  }
-  
-  private void registerStrategies(){
-   try {
-       HybridInterpreter interpreter = getInterpreter();
-       InteropRegisterer registerer = new org.sugarj.dryad.strategies.InteropRegisterer();
-       interpreter.getCompiledContext().setFactory((ITermFactory)getFieldValue(interpreter, "recordingFactory"));
-       registerer.registerLazy(interpreter.getContext(), interpreter.getCompiledContext(), ClassLoader.getSystemClassLoader());
-       interpreter.getCompiledContext().addConstructors((Collection<IStrategoConstructor>) getMethodValue(getFieldValue(interpreter, "recordingFactory"), "getAndClearConstructorRecord"));
-       interpreter.getCompiledContext().setFactory((ITermFactory)getMethodValue(getFieldValue(interpreter, "recordingFactory"), "getWrappedFactory"));
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-  }
-  
   @Override
-  public List<Path> compile(List<Path> generatedSourceFiles, Path targetDir, List<Path> classpath) throws IOException, SourceCodeException {    //FIXME: Fix compilation
-    //IStrategoTerm target = this.getInterpreter().getCompiledContext().invokeStrategy("asdf",this.getInterpreter())
+  public List<Path> compile(List<Path> generatedSourceFiles, Path targetDir, List<Path> classpath) throws IOException, SourceCodeException {
+    //create list of generated files
     LinkedList<Path> outputFiles = new LinkedList<Path>();
+    //Ensure Java-based strategies are registered
+    DryadStrategyRegisterer.registerStrategies(getInterpreter());
+    //check amount of files to compile
+    if(generatedSourceFiles.size() == 0)
+      return outputFiles; //nothing to do
+    else if(generatedSourceFiles.size() > 1)
+      throw new IOException("compiling of more than one file at a time not supported (yet)");
+    
+    //retrieve content of file to compile
+    IStrategoTerm sourceTerm = getInterpreter().current();
+    //check term for validity
+    if(sourceTerm == null){
+      throw new IOException("Nothing to compile. Parse error? Check console output");
+    }
+    //get content of "DryadBody" Application
+    sourceTerm = sourceTerm.getSubterm(0);
+    //remove all annotations (dryad won't compile it otherwise)
+    sourceTerm = getInterpreter().getFactory().parseFromString(sourceTerm.toString().replaceAll("\\{[^\\}]+\\}", ""));
+    
+    //build outpput filename
     String outputDirWithSuffix = targetDir.getAbsolutePath();
     if(!outputDirWithSuffix.endsWith("/") && !outputDirWithSuffix.endsWith(File.separator))
       outputDirWithSuffix += File.separator;
-    //String compilerArgs[] = new String[3];
-    //compilerArgs[0] = "-d";
-    //compilerArgs[1] = targetDir.getAbsolutePath();
-    for(Path compileFile : generatedSourceFiles){
-      String targetFile = outputDirWithSuffix + FileCommands.dropExtension(FileCommands.fileName(compileFile)) + DryadLanguage.getInstance().getBinaryFileExtension();
-      try{
-      //FIXME: Use actual file content to handle several compilations at once
-      //String fileContent = readFile(compileFile.getAbsolutePath(), Charset.defaultCharset());
-      //IStrategoTerm parsedContent = getInterpreter().getCompiledContext().getFactory().parseFromString(fileContent);
-      IStrategoTerm parsedContent = getInterpreter().current();
-      //FIXME fix this
-      
-      registerStrategies();
-      //getInterpreter().loadJars(new java.net.URL("file:///Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/include/testlang-java.jar"));
-      
-      parsedContent = getInterpreter().getFactory().parseFromString("CompilationUnit(None(),[],[ClassDec(ClassDecHead([],Id(\"Calculator\"),None(),None(),None()),ClassBody([]))])");
-      parsedContent = getInterpreter().getCompiledContext().invokeStrategy("willi", parsedContent);
-      String remove = "me"; //FIXME remove
-      //TODO: Write content (strategy-based)
-      }catch(Exception ex){
-        System.out.println(ex.getMessage());
-      }
+    String targetFile = 
+        outputDirWithSuffix
+        + FileCommands.dropExtension(FileCommands.fileName(generatedSourceFiles.get(0)))
+        + DryadLanguage.getInstance().getBinaryFileExtension();
+    
+    try{
+      //start compilation and pass the arguments [filename,classContent] to the "compileClass" strategy
+      IStrategoTerm[] termArgs = new IStrategoTerm[2];
+      termArgs[0] = getInterpreter().getFactory().makeString(targetFile);
+      termArgs[1] = sourceTerm;
+      //invoke strategy
+      getInterpreter().getCompiledContext().invokeStrategy("compileClass", getInterpreter().getFactory().makeList(termArgs));
+      //add generated class to output list of file was created
       if(FileCommands.fileExists(new AbsolutePath(targetFile)))
         outputFiles.add(new AbsolutePath(targetFile));
+    }catch(Exception ex){
+      throw new IOException(ex.getMessage());
     }
     return outputFiles;
   }

@@ -1,34 +1,34 @@
 module org/sugarj/languages/Custom
 
-//rules
-//	replCalc : Id("Calculator") -> Id("foo")
-
 strategies
 	
+	//needed by dryad/dryad-compiler
 	external STRJVM_callstatic_string_stringstring(|a,b,c,d,e)
+	//write compiled class to binary Java Class
+	external WriteClassFile(|path)
 	
 	jdebug(what) = 
 		where(<concat-strings>["JDEBUG: ",<what>," - "] => str);
 		debug(!str)
-		
-	willi =
-		jdebug(!"foo2") ; 
-		//testa ;
-		jdebug(!"bar2")
-		
-//xwillispecial = try(outermost(replCalc))
-		
-	/*
-	testa = 
-		jdebug(!"ensure import observable: ") ;
-		ensure-import-observable-classes;
-		jdebug(!"ensure import observable complete: ") ;
-		as-list(map( // unassemble imported classfiles
+	
+	compileClass() = id
+		; jdebug(!"compileClass called")
+		; ?[path,content]
+		; !content
+		; jdebug(!"content bound")
+		; ensure-import-observable-classes
+		; as-list(map( // unassemble imported classfiles
       		if(is-ClassFile, bc-unasm(dryad-compiler-error))
-    	));
-    	topdown(try(trace-terms-to-annos));
-    	bc-unasm;
-    	as-list;
-    	map(define-compilation-unit)
-    	//; jdebug(!"end of testa")
-    	*/
+    	))
+    	; topdown(try(trace-terms-to-annos))
+    	; bc-unasm
+    	; as-list
+    	; map(define-compilation-unit)
+    	; dryad-reclassify
+    	; map(dryad-type-checker-mixed; get-ast)
+    	; as-list
+   		; dryad-emit(dryad-compiler-error)
+   		; jdebug(!"Compilation succeeded!")
+		; WriteClassFile(|path)    
+		; jdebug(!"Class file written")
+		; jdebug(!"Finished")

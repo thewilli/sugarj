@@ -1,19 +1,12 @@
 package org.sugarj.dryad.strategies;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.net.URLClassLoader;
-
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
-
-import str.classtree.ATerm2Class;
-import str.classtree.Class2ATerm;
 
 
 //TODO: Clean code of whole file
@@ -71,11 +64,14 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 		
 	}
 	
+	/*
 	private static void addSoftwareLibrary(File file) throws Exception {
 	    Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
 	    method.setAccessible(true);
 	    method.invoke(ClassLoader.getSystemClassLoader(), new Object[]{file.toURI().toURL()});
-	}
+	}*/
+		
+	
 	
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm current,
