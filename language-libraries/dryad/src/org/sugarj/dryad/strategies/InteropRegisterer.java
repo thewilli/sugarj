@@ -11,7 +11,8 @@ public class InteropRegisterer extends JavaInteropRegisterer {
   public InteropRegisterer() {
     super(new Strategy[] { 
         STRJVM__callstatic__string__stringstring_0_5.instance,
-        WriteClassFile_0_1.instance
+        WriteClassFile_0_1.instance,
+        ResolveResource_0_0.instance
     });
   }
 }

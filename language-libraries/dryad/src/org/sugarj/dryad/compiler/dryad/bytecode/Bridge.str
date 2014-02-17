@@ -86,15 +86,15 @@ strategies
 
   parse-class-signature =
     //parse-signature(|"ClassSignature.tbl")
-    parse-signature(|"/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/trans/ClassSignature.tbl")
+    parse-signature(|<ResolveResource>"ClassSignature.tbl")
 
   parse-method-signature =
     //parse-signature(|"MethodSignature.tbl")
-    parse-signature(|"/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/trans/MethodSignature.tbl")
+    parse-signature(|<ResolveResource>"MethodSignature.tbl")
     
   parse-field-signature =
     //parse-signature(|"FieldSignature.tbl")
-    parse-signature(|"/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/trans/FieldSignature.tbl")
+    parse-signature(|<ResolveResource>"FieldSignature.tbl")
 
   parse-signature(|tbl) =
     jdebug(<concat-strings> ["parse-signature (",tbl,")"]);

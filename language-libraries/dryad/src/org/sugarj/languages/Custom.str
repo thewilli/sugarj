@@ -4,8 +4,11 @@ strategies
 	
 	//needed by dryad/dryad-compiler
 	external STRJVM_callstatic_string_stringstring(|a,b,c,d,e)
+	//retrieve absolute file name for a ressource bundled with the Dryad plugin
+	external ResolveResource(|)
 	//write compiled class to binary Java Class
 	external WriteClassFile(|path)
+	
 	
 	jdebug(what) = 
 		where(<concat-strings>["JDEBUG: ",<what>," - "] => str);
@@ -32,3 +35,4 @@ strategies
 		; WriteClassFile(|path)    
 		; jdebug(!"Class file written")
 		; jdebug(!"Finished")
+		

@@ -40,8 +40,7 @@ strategies
     ; if boot := <get-config> BootObservableClasses() then
         <conc> (<id>, boot)
       else
-        //<conc> (<id>, [<xtc-find> "rt.classes"])
-        <conc> (<id>, [<id> "/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/lib/rt.classes"])
+        <conc> (<id>, [<ResolveResource>"rt.classes"])
       end
     ; jdebug(!"get-observable-classes end")
 

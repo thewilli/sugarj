@@ -1,6 +1,7 @@
 package org.sugarj.dryad.strategies;
 
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.Context;
 import org.strategoxt.lang.Strategy;
 
@@ -11,10 +12,10 @@ public class WriteClassFile_0_1 extends Strategy{
 	
 	@Override
 	public IStrategoTerm invoke(Context context, IStrategoTerm current, IStrategoTerm t1) {
-	  //ITermFactory factory = context.getFactory();
+	  ITermFactory factory = context.getFactory();
 	  //factory.makeString(arg0)
 	  //context.getIOAgent().printError(error)
-	  return null;
+	  return factory.makeInt(0);
 	}
 	
 }
