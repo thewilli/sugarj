@@ -46,6 +46,7 @@ strategies
       )
     ; jdebug(!"strjvm-callstatic2: ")
     ; STRJVM_callstatic_string_stringstring(|jvm,class,method,arg1,arg2)
+    ; jdebug(!"strjvm-callstatic2-result")
     //; fail
     //; prim("STRJVM_callstatic_string_stringstring", jvm, class, method, arg1, arg2)
     

@@ -5,7 +5,7 @@
  *
  * @author Martin Bravenboer <martin@cs.uu.nl>
  */
-module org/sugarj/dryad/compiler/dryad/model/class
+module dryad/model/class
 imports
   org/sugarj/dryad/compiler/dryad/model/member
   org/sugarj/dryad/compiler/dryad/model/repository
@@ -108,6 +108,7 @@ strategies
    * @type Class Object -> Class Object
    */
   get-superclass =
+    jdebug(!"get-superclass") ;
     get-superclass-as-type
     ; lookup-class
 

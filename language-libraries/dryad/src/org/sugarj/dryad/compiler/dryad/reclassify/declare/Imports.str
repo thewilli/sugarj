@@ -95,7 +95,9 @@ strategies
    * @type TypeName -> TypeName
    */
   declare-type-helper =
+  	jdebug(!"!!!declare-type-helper!!!");
     ?TypeName(qualifier, Id(x));
+    jdebug(!"ok");
 
     rules(
       ReclassifySimpleInScopeTypeName :

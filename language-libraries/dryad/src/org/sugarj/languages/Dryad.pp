@@ -656,5 +656,6 @@
    EndTrace.1:parameterized-sort                         -- _1 _2,
    Empty                                                 -- ,
    Labeled                                               -- _1 KW[":"] _2,
-   Labeled.1:parameterized-sort                          -- _1 _2
+   Labeled.1:parameterized-sort                          -- _1 _2,
+   Chars -- _1
 ]

@@ -22,16 +22,22 @@ strategies
   /**
    * Reclassification of type declaration bodies
    */
-  dryad-reclassify-bodies =
-    instanceof-JavaSourceClass  
-    ; declare-type(
-        declare-class-members(
-          apply-to-reference(dryad-reclassify-bodies-helper)
-        )
-      )
+    dryad-reclassify-bodies =
+	    jdebug(!"dryad-reclassify-bodies1");
+	    instanceof-JavaSourceClass  
+	    ;jdebug(!"dryad-reclassify-bodies2")
+	    ; declare-type(
+	        declare-class-members(
+	          apply-to-reference(dryad-reclassify-bodies-helper)
+	        )
+	      )
+	    ;jdebug(!"dryad-reclassify-bodies3")
+
 
   dryad-reclassify-bodies-helper =
+    jdebug(!"dryad-reclassify-bodies-helper1");
     rec rec(
+        jdebug(!"dryad-reclassify-bodies-helper2");
        // do not reclassify member classes
        instanceof-JavaSourceClass
        
@@ -73,7 +79,10 @@ strategies
        ; Reclassify-QualifiedPackageOrTypeName(rec)
 
     <+ ?TypeName(_)
+       ; jdebug(!"dryad-reclassify-bodies-helper3")
        ; QualifySimpleInScopeTypeName
+       ; jdebug(!"dryad-reclassify-bodies-helper4")
+       
 
     <+ ClassOrInterfaceType(rec, rec)
        ; dryad-reclassify-type            
@@ -91,6 +100,7 @@ strategies
 
     <+ all-consnil(rec)
     )
+    
     
 rules
 

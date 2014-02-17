@@ -35,6 +35,7 @@ strategies
       )
 
   get-observable-classes = 
+    jdebug(!"get-observable-classes start");
     (<get-config> ObservableClasses() <+ ![])
     ; if boot := <get-config> BootObservableClasses() then
         <conc> (<id>, boot)
@@ -42,18 +43,23 @@ strategies
         //<conc> (<id>, [<xtc-find> "rt.classes"])
         <conc> (<id>, [<id> "/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/lib/rt.classes"])
       end
+    ; jdebug(!"get-observable-classes end")
 
   import-observable-classes =
     where(
-      jdebug(!"import-observable-classes: ") ;
-      get-observable-classes
+      jdebug(!"import-observable-classes: ")
+      ; get-observable-classes
+      ; jdebug(!"import-observable-classes2: ")
       ; map(import-observable-classes-entry)
+      //; jdebug(!"import-observable-classes3: ") 
     )
 
   import-observable-classes-entry =
+    jdebug(!"import-observable-classes-entry") ;
     if has-extension(|"classes") then
+      jdebug(!"import classes");
       ReadFromFile
-      ; import-repository
+      ; import-repository 
       <+ log(|Error(), "Could not import Dryad repository", <id>)
     else
       if has-extension(|"jar") then

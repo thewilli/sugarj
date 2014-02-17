@@ -112,7 +112,7 @@ strategies
            ; rules(ParseTable: tbl -> opentbl)
       )
 
-  desugar-signature =
+   desugar-signature =
     jdebug(!"desugar-signature 1");
     alltd(
       ( ?ClassSignature(_, _, _)
@@ -120,6 +120,7 @@ strategies
       + ?FieldSignature(_)
       )
       ; topdown(repeat(DesugarSignature))
+      ; jdebug(!"desugar-signature 1b")
     )
     ; jdebug(!"desugar-signature 2")
 
