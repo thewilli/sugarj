@@ -1,5 +1,10 @@
 package org.sugarj.dryad;
 
+import java.io.IOException;
+import java.net.URL;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 import org.sugarj.DryadLanguage;
@@ -17,6 +22,27 @@ public class Activator extends AbstractUIPlugin {
 	private static Activator plugin;
 	
 	/**
+	 * Retrieve a plugin-internal path to a file or folder
+	 * @param item path to retrieve
+	 * @return null if not found or path as String
+	 */
+	public static String getPluginPath(String item){
+	  URL fileUrl = FileLocator.find(
+	      Platform.getBundle(PLUGIN_ID),
+	      new org.eclipse.core.runtime.Path(item),
+	      null
+	  );
+	  if(fileUrl == null)
+	    return null;
+	  try {
+	    //return resulting path (strip 'file:')
+      return FileLocator.toFileURL(fileUrl).toString().substring(5);
+    } catch (IOException e) {
+     return null;
+    }
+	}
+	
+	/**
 	 * The constructor
 	 */
 	public Activator() {
@@ -31,7 +57,7 @@ public class Activator extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
