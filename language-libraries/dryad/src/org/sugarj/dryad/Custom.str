@@ -1,4 +1,4 @@
-module org/sugarj/languages/Custom
+module org/sugarj/dryad/Custom
 
 strategies
 	
@@ -16,8 +16,7 @@ strategies
 	
 	compileClass() = id
 		; jdebug(!"compileClass called")
-		; ?[path,content]
-		; !content
+		; ?[path,<id>]
 		; ensure-import-observable-classes
 		; as-list(map( // unassemble imported classfiles
       		if(is-ClassFile, bc-unasm(dryad-compiler-error))
@@ -31,5 +30,6 @@ strategies
     	; as-list
    		; dryad-emit(dryad-compiler-error)
    		; jdebug(!"Compilation succeeded!")
+   		; ?[<id>]
 		; WriteClassFile(|path)    
 		; jdebug(!"Class file written")

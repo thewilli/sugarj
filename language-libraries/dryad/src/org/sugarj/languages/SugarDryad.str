@@ -2,7 +2,7 @@ module org/sugarj/languages/SugarDryad
 imports
 	org/sugarj/languages/Dryad
 	org/sugarj/languages/Sugar
-	org/sugarj/languages/Custom
+	org/sugarj/dryad/Custom
 	libjava-front
 	libstratego-lib
 	org/sugarj/dryad/compiler/dryad
