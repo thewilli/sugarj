@@ -196,10 +196,14 @@ public class DryadProcessor extends AbstractBaseProcessor {
     if(termArgs[1] == null)
       throw new IOException("Could not parse file: " + inputFile.getAbsolutePath());
     //invoke strategy
-    IStrategoInt result =
-        (IStrategoInt)getInterpreter().getCompiledContext().invokeStrategy("compileClass", getInterpreter().getFactory().makeList(termArgs));
-    if(result.intValue() != 0)
-      throw new IOException("Compiling failed with error code: " + result.intValue());
+    IStrategoTerm result =
+        getInterpreter().getCompiledContext().invokeStrategy("compileClass", getInterpreter().getFactory().makeList(termArgs));
+    if(result.getTermType() == IStrategoTerm.INT){
+    if(((IStrategoInt)result).intValue() != 0)
+      throw new IOException("Compiling failed with error code: " + ((IStrategoInt)result).intValue());
+    }else{
+      throw new IOException("Compilation failed: " + result.toString());
+    }
     if(FileCommands.fileExists(new AbsolutePath(targetFile)))
       return targetFile; //compiling succeeded
     else
