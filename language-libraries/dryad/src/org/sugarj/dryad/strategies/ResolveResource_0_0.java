@@ -8,6 +8,11 @@ import org.strategoxt.lang.Strategy;
 import org.sugarj.dryad.Activator;
 
 
+/**
+ * Java-based Strategy which resolves ressource file names to a full path
+ * @author Willi Eggeling
+ *
+ */
 public class ResolveResource_0_0 extends Strategy{
 	
 	public static ResolveResource_0_0 instance = new ResolveResource_0_0();
