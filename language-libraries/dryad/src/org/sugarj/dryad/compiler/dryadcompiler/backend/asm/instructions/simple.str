@@ -20,7 +20,6 @@ strategies
    * @type (List(Type), RichInstruction) -> List(Type)
    */
   bc-stack-effect =
-    jdebug(!"bc-stack-effect");
     // Unreachable ops have no effect, unless they don't exist
     (Unreachable, id);
     !Unreachable
@@ -41,7 +40,6 @@ strategies
           map(Any); ![Any | stacktail]
         end
       <+
-        jdebug(!"bc-input-error call 2");
         bc-input-error(|stack, byte, inputs);
         bc-asm-abort
 
@@ -66,7 +64,6 @@ strategies
         words-to-stack
       <+
         badstack := <try(stack-to-words; try(take(|inputs)); words-to-stack)> stack;
-        jdebug(!"bc-input-error call 3");
         bc-input-error(|badstack, byte, inputs);
         bc-asm-abort
     in    

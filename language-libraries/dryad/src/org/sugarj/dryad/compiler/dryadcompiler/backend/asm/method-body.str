@@ -48,7 +48,6 @@ strategies
    * @internal Call bc-asm instead for rule scoping and error reporting.
    */
   bc-asm-instructions =
-    jdebug(!"bc-asm-instructions");
     bc-verify-labels;
     bc-verify-local-assignment;
     bc-verify-final-locals;

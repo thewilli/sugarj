@@ -113,11 +113,9 @@ strategies
     scope-TypeOf(s)
 
   bc-local-type =
-    jdebug(!"bc-local-type 1");
     !Id(<strip-annos>);
     TypeOf;
-    (source-type-to-bytecode-type + Any + Null);
-    jdebug(!"bc-local-type 2")
+    (source-type-to-bytecode-type + Any + Null)
 
   bc-local-pos = // (not shared with Dryad)
     strip-annos;

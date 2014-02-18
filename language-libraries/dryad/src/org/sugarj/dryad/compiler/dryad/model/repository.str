@@ -102,11 +102,8 @@ strategies
    */
   lookup-class =
     ?TypeName(pkg@PackageName(_), Id(simplename))
-    ; jdebug(!"lookup-class: ")
     ; <lookup-package> pkg
-    ; jdebug(!"lookup-class2: ")
     ; get-toplevel-class(|simplename)
-    ; jdebug(!"lookup-class3: ")
     
   /**
    * Looks up the class object for the given TypeName.
@@ -160,23 +157,17 @@ strategies
    * @type MethodName -> Method Object
    */
   lookup-method =
-    jdebug(!"lookup-method 0");
     ?MethodName(tn@TypeName(_, _), Id(x), param-types, return-type)
-    ; jdebug(!"lookup-method 1: ")
     ; <lookup-class> tn
     ; get-declared-methods(|x)
-    ; jdebug(!"lookup-method 2: ")
-    ; where(!param-types; jdebug(!"exp param-types"))
-    ; where(!return-type; jdebug(!"exp ret.   type"))
-    
+    ; where(!param-types)
+    ; where(!return-type)
     ; retain-all(
-        where(get-formal-parameter-types; jdebug(!"got param-types") => param-types)
-      ; where(get-return-type ; jdebug(!"got ret.   type") => return-type)
+        where(get-formal-parameter-types => param-types)
+      ; where(get-return-type => return-type)
     )
-    ; jdebug(!"lookup-method 3: ")
     ; ?[<id>]
     
-
 /**
  * Lookup constructors
  */

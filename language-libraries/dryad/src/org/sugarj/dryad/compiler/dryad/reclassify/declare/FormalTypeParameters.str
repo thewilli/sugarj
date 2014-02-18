@@ -11,16 +11,11 @@ strategies
    * @type SourceClass Object, SourceMethod Object, SourceConstructor Object
    */    
   declare-formal-type-parameters(cont) =
-    jdebug(!"!!!declare-formal-type-parameters");
     where(get-formal-type-parameters => params)
-    ; jdebug(!"!!!declare-formal-type-parameters2")
-    //; jdebug(!params)
     ; if not(?[]) then
         where(get-name => qualifier)
     
       ; {|  ReclassifySimpleInScopeTypeName, QualifySimpleInScopeTypeName:
-          jdebug(!"!!!declare-formal-type-parameters3");
-          //jdebug(!params);
           where(<map(declare-type-param-helper(|qualifier))> params)
           ; cont
         |}
@@ -32,8 +27,6 @@ strategies
    * @todo Can PackageOrTypeName occur as a type variable?
    */
   declare-type-param-helper(|qualifier) =
-    jdebug(!"!!!declare-type-param-helper");
-    jdebug(!qualifier);
     ?TypeParam(Id(x), _);
 
     rules(

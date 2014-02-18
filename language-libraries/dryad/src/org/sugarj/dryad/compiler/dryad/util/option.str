@@ -35,28 +35,21 @@ strategies
       )
 
   get-observable-classes = 
-    jdebug(!"get-observable-classes start");
     (<get-config> ObservableClasses() <+ ![])
     ; if boot := <get-config> BootObservableClasses() then
         <conc> (<id>, boot)
       else
         <conc> (<id>, [<ResolveResource>"rt.classes"])
       end
-    ; jdebug(!"get-observable-classes end")
 
   import-observable-classes =
     where(
-      jdebug(!"import-observable-classes: ")
-      ; get-observable-classes
-      ; jdebug(!"import-observable-classes2: ")
+        get-observable-classes
       ; map(import-observable-classes-entry)
-      //; jdebug(!"import-observable-classes3: ") 
     )
 
   import-observable-classes-entry =
-    jdebug(!"import-observable-classes-entry") ;
     if has-extension(|"classes") then
-      jdebug(!"import classes");
       ReadFromFile
       ; import-repository 
       <+ log(|Error(), "Could not import Dryad repository", <id>)

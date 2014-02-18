@@ -27,7 +27,7 @@ strategies
     ?this
     ; if instanceof-JavaSourceClass then
         dryad-maybe-reclassify(
-          if-verbose4(where(get-canonical-name; jdebug(!"reclassify class: ")))
+          if-verbose4(where(get-canonical-name))
           ; if <is-nested-class> this then
               where(
                 get-enclosing-class

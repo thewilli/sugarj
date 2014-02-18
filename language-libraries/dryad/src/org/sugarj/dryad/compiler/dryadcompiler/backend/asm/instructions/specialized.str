@@ -26,7 +26,6 @@ strategies
    *
    */
   bc-specialize-instruction =
-    jdebug(!"bc-specialize-instruction");
     (is-list => stack, ?byte);
     !byte;
     
@@ -40,25 +39,16 @@ strategies
        */
       op(returned |inputs, i, l, d, f, a) =
         // Zero-ary operators get their operator selected on its return type
-        jdebug(!"op1-1");
         !inputs => 0;
-        jdebug(!"op1-2");
         returned;
-        jdebug(!"op1-3");
-        !([<id> | stack], <bc-type-switch(|byte, i, l, d, f, a)>);
-        jdebug(!"op1-4")
+        !([<id> | stack], <bc-type-switch(|byte, i, l, d, f, a)>)
       <+
-        jdebug(!"op2-1");
         // Normal n-ary operator. Take inputs, confirm input types are equal:
         <split-at(|inputs)> stack => (<id>, stack');
-        jdebug(!"op2-2");
         bc-unify-types-list => type; // get equally typed operands
-        jdebug(!"op2-3");
         !( [<returned> type | stack']
-         , <bc-type-switch(|byte, i, l, d, f, a)> type);
-         jdebug(!"op2-4")
+         , <bc-type-switch(|byte, i, l, d, f, a)> type)
       <+
-        jdebug(!"bc-input-error call 4"); 
         bc-input-error(|stack, byte, inputs);
         bc-asm-abort
 
@@ -68,7 +58,6 @@ strategies
         !( <conc> (<effect>, stack')
          , <type; bc-type-switch(|byte, b, s, c, i, l, d, f, a)>)
       <+
-        jdebug(!"bc-input-error call 5");
         bc-input-error(|stack, byte, inputs);
         bc-asm-abort
     in
@@ -94,7 +83,6 @@ strategies
           case ?[_, _, _, _]:    !([a, b, a | tail], DUP2_X2)
         end 
       else
-        jdebug("!bc-input-error call 6");
         bc-input-error(|stack, <id>, 2)
       end
         

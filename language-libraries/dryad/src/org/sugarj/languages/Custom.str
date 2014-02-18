@@ -18,7 +18,6 @@ strategies
 		; jdebug(!"compileClass called")
 		; ?[path,content]
 		; !content
-		; jdebug(!"content bound")
 		; ensure-import-observable-classes
 		; as-list(map( // unassemble imported classfiles
       		if(is-ClassFile, bc-unasm(dryad-compiler-error))
@@ -34,5 +33,3 @@ strategies
    		; jdebug(!"Compilation succeeded!")
 		; WriteClassFile(|path)    
 		; jdebug(!"Class file written")
-		; jdebug(!"Finished")
-		

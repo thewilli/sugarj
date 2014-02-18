@@ -108,7 +108,6 @@ strategies
    * @type Class Object -> Class Object
    */
   get-superclass =
-    jdebug(!"get-superclass") ;
     get-superclass-as-type
     ; lookup-class
 

@@ -16,26 +16,20 @@ imports
 strategies
 
   read-class-file =
-    jdebug(!"read-class-file") ;
     ?Jar(jarpath, filepath)
-    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
     ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)    
     ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm_from_jar")> [jarpath, filepath]
     ; parse-signatures
     
   read-class-file =
-    jdebug(!"read-class-file 2") ;
     (?ClassFile(path) + ?FILE(path))
-    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
     ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
     ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm")> [path, "off"]
     ; parse-signatures
     
   read-class-file-disasm = 
-    jdebug(!"read-class-file-disasm: ") ;
     (?ClassFile(path) + ?FILE(path))
     ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
-    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
     ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm")> [path, "on"]
     ; parse-signatures
     
@@ -46,7 +40,6 @@ strategies
    * @type ClassFile -> FILE
    */
   write-class-file:
-    //jdebug(!"write-class-file: ") ;
     classfile @ ClassFile(_, _, _, ThisClass(name), _, _, _, _, _) -> FILE(output)
     where
       path         := <add-extension> (<string-replace(|".", "/")> name, "class")
@@ -62,10 +55,7 @@ strategies
     where
       write-to
     ; xtc-transform(!"baffle", !["-ws"]) => FILE(input)
-    
-    //; where(get-jvm(|[<xtc-find> "class2aterm.jar"]) => jvm)
-    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
-    
+    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)    
     ; <strjvm-callstatic(|jvm, "str/classtree/ATerm2Class", "asm")> [input, path]
 
 strategies  
@@ -85,19 +75,15 @@ strategies
     ))
 
   parse-class-signature =
-    //parse-signature(|"ClassSignature.tbl")
     parse-signature(|<ResolveResource>"ClassSignature.tbl")
 
   parse-method-signature =
-    //parse-signature(|"MethodSignature.tbl")
     parse-signature(|<ResolveResource>"MethodSignature.tbl")
     
   parse-field-signature =
-    //parse-signature(|"FieldSignature.tbl")
     parse-signature(|<ResolveResource>"FieldSignature.tbl")
 
   parse-signature(|tbl) =
-    jdebug(<concat-strings> ["parse-signature (",tbl,")"]);
     where(<get-signature-parse-table> tbl => opentbl)
     ; (parse-string(|opentbl) <+ report-parse-error; fail)
     ; desugar-signature
@@ -113,17 +99,13 @@ strategies
       )
 
    desugar-signature =
-    jdebug(!"desugar-signature 1");
     alltd(
       ( ?ClassSignature(_, _, _)
       + ?MethodSignature(_, _, _, _)
       + ?FieldSignature(_)
       )
       ; topdown(repeat(DesugarSignature))
-      ; jdebug(!"desugar-signature 1b")
     )
-    ; jdebug(!"desugar-signature 2")
-
     
   DesugarSignature :
     MethodSignature(Some(t1), t2, t3, t4) -> MethodSignature(t1, t2, t3, t4)

@@ -242,7 +242,6 @@ strategies
     ; read-class-file
     ; classtree-to-reference-ast(|this)
     <+ get-simple-name
-       ; jdebug(!"error: could not read class ")
        ; fail
     )
 

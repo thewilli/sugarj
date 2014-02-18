@@ -16,7 +16,6 @@ strategies
    */
   strjvm-create(|classpath) = 
     !SYMJVM("jvm")
-    ; jdebug(!"Pseudo-JVM created")
     /*let classpath-option =
           <separate-by(|":")> classpath
           ; !["-Djava.class.path=" | <id>]
@@ -33,7 +32,7 @@ strategies
         Debug()
       , <concat-strings> ["Invoking JVM: ", class, ".", method, "(", arg1, ")"]
       )
-    ; jdebug(!"strjvm-callstatic1: ")
+    ; jdebug(!"strjvm-callstatic (not implemented): ")
     ; fail
     //; prim("STRJVM_callstatic_string_string", jvm, class, method, arg1)
     //; <STRJVM_callstatic_string_string> (jvm, class, method, arg1)
@@ -44,9 +43,6 @@ strategies
         Debug()
       , <concat-strings> ["Invoking JVM: ", class, ".", method, "(", arg1, ",", arg2, ")"]
       )
-    ; jdebug(!"strjvm-callstatic2: ")
     ; STRJVM_callstatic_string_stringstring(|jvm,class,method,arg1,arg2)
-    ; jdebug(!"strjvm-callstatic2-result")
-    //; fail
     //; prim("STRJVM_callstatic_string_stringstring", jvm, class, method, arg1, arg2)
     

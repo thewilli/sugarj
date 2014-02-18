@@ -37,7 +37,6 @@ strategies
 
   /** @internal */
   dryad-compiler-internal-jvm =
-    jdebug(!"dryad-compiler-internal-jvm: ") ;
     DryadCompilerJVM
   <+
     dir := <new-temp-dir>;

@@ -42,7 +42,6 @@ strategies
     where(bc-get-invoked(id, id, id, id))
 
   is-rich-bc-instruction =
-    jdebug(!"is-rich-bc-instruction");
     ( Label(is-string) + Final(is-string) + where(bc-get-jump-target)
     + LOAD(id) + STORE(id) + ALOAD + ASTORE + NEWARRAY(id) + MULTIANEWARRAY(id, id)
     + is-bc-invoke + MULTIANEWARRAY(id, id) + JavaExpr(id) + JavaStm(id)

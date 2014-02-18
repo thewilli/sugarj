@@ -15,7 +15,6 @@ strategies
 
   /** Emit the various variants of invocations. */
   emit-java(emit) =
-     jdebug(!"emit-java invokes: ");
      emit-java-super-invoke(emit)
   <+ emit-java-interface-invoke(emit)
   <+ emit-java-instance-invoke(emit)
@@ -45,13 +44,9 @@ strategies
        invokevirtual <emit> class.~name(~*<emit> argtypes : <emit> returned)
     ]|
     where 
-          jdebug(!"emit-java-instance-invoke 0");
           test(declaring-class-attr => ClassType(class, _));
-          jdebug(!"emit-java-instance-invoke 1:");
           compile-time-declaration-attr => MethodName(_, Id(name), argtypes, returned);
-          jdebug(!"emit-java-instance-invoke 2:");
           not(lookup-method; is-static);
-          jdebug(!"emit-java-instance-invoke 3:");
           object := <get-invoked-object> invoke; // x.invoke() or just invoke()
           args' := <emit-converted-args(emit|args)> invoke
 
@@ -62,15 +57,12 @@ strategies
        invokestatic <emit> class.~name(~*<emit> argtypes : <emit> returned)
     ]|
     where compile-time-declaration-attr => MethodName(class, Id(name), argtypes, returned);
-          jdebug(!"emit-java-static-invoke 1:");
           lookup-method; is-static;
-          jdebug(!"emit-java-static-invoke 2:");
           if <get-invoked-object> invoke => target; not(This + QThis(id)) then
             object := [ <emit> target, POP ] // Emit instance, to ensure verification
           else
             object := []
           end;
-          jdebug(!"emit-java-static-invoke 3:");
           args' := <emit-converted-args(emit|args)> invoke
 
   /** Emit regular class instantiation. */

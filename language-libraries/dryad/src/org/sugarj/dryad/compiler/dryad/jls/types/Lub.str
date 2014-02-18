@@ -87,7 +87,6 @@ strategies
   lub-CandidateInvocation(|supertypes) =
     ?g
     ; <lub-Inv(|supertypes)> g
-    // ; jdebug(!"Inv: ------------- ")
     ; lub-lci
 
   /**
@@ -95,7 +94,6 @@ strategies
    */
   lub-Candidate(|supertypes) =
     ?w
-    // ; jdebug(!"Candidate: ------------- ")
     ; if (?ClassType(tn, _) + ?InterfaceType(tn, _))
          ; <lookup-class> tn
          ; is-generic

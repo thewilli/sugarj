@@ -78,7 +78,6 @@ strategies
           option-lub =
               <try(boxing-conversion-of-type)> s1 => t1
             ; <try(boxing-conversion-of-type)> s2 => t2
-            ; jdebug(!"Invoking lub")
             ; <lub> [t1, t2]
             ; capture-conversion
 

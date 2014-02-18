@@ -9,7 +9,6 @@ strategies
    * ambiguous constructs.
    */
   check-ambnames =
-    jdebug(!"check-ambnames") ;
     if oncetd(is-ambiguous-construct; ?amb) then
       where( <maybe-exit(|"Ambiguous construct cannot be reclassified: ")>amb )
     end
