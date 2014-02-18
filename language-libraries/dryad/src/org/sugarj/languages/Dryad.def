@@ -319,15 +319,17 @@ imports languages/java-15/classes/ClassDeclarations
 
 module languages/java-15/packages/PackageDeclarations
 imports languages/java-15/names/Main languages/java-15/interfaces/Annotations
-
+		org/sugarj/stdlib/Common
 exports
   sorts PackageDec
 
   context-free syntax
     Anno* "package" PackageName ";" -> PackageDec {cons("PackageDec")}
+    PackageDec -> ToplevelDeclaration {cons("DryadJavaPackage")}
 
 module languages/java-15/packages/ImportDeclarations
 imports languages/java-15/lexical/Identifiers languages/java-15/names/Main
+		org/sugarj/stdlib/Common
 
 exports
   sorts ImportDec
@@ -337,6 +339,8 @@ exports
     "import" PackageName "." "*" ";"       -> ImportDec {cons("TypeImportOnDemandDec")}
     "import" "static" TypeName "." Id ";"  -> ImportDec {cons("StaticImportDec")}
     "import" "static" TypeName "." "*" ";" -> ImportDec {cons("StaticImportOnDemandDec")}
+    
+    ImportDec -> ToplevelDeclaration {cons("DryadJavaImport")}
 
 module languages/java-15/interfaces/AnnotationTypes
 imports languages/java-15/lexical/Identifiers
@@ -762,6 +766,7 @@ exports
 module languages/java-15/packages/TypeDeclarations
 imports languages/java-15/classes/ClassDeclarations
         languages/java-15/interfaces/InterfaceDeclarations
+        org/sugarj/stdlib/Common
 
 exports
   sorts TypeDec
@@ -770,6 +775,8 @@ exports
     ClassDec     -> TypeDec 
     InterfaceDec -> TypeDec 
     ";"          -> TypeDec {cons("Semicolon")}
+    
+    TypeDec -> ToplevelDeclaration {cons("DryadJavaType")}
 
 module languages/java-15/packages/CompilationUnits
 imports languages/java-15/packages/PackageDeclarations
@@ -1896,4 +1903,5 @@ exports
     EmptyJavaLabel -/- ~[\}]
 
 module org/sugarj/languages/Dryad
-imports Java-Bytecode
+ imports
+	Java-Bytecode

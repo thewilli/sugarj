@@ -6,21 +6,10 @@ imports org/sugarj/languages/Dryad[CompilationUnit => DryadCompilationUnit]
         org/sugarj/languages/EditorServices
         org/sugarj/languages/Sugar
 
+
 exports
   context-free syntax
 	
-	".sugarmod" QualifiedName -> SugarModuleDec
-	
-	".sugar" ExtensionElem+ ".end sugar" -> ExtensionBody
-	
-	".import" Id -> SugarModuleImport
-	
-	SugarModuleDec			-> ToplevelDeclaration {cons("SugarModule")}
-	DryadCompilationUnit	-> ToplevelDeclaration {cons("DryadBody")}
-    ExtensionBody			-> ToplevelDeclaration {cons("DryadExtension")}
-    SugarModuleImport		-> ToplevelDeclaration {cons("DryadImport")}
-    
-    SugarModuleImport* DryadCompilationUnit	-> CompilationUnit {cons("CompilationUnit")}
-	SugarModuleImport* SugarModuleDec ExtensionBody -> SugarCompilationUnit {cons("CompilationUnit")}
+    DryadCompilationUnit	-> CompilationUnit {cons("CompilationUnit")}
 	
 	

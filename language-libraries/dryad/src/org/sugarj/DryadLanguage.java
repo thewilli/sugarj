@@ -9,8 +9,6 @@ import org.sugarj.common.path.Path;
 
 //BEGIN OF COMMON TASKS
 
-//TODO Remove hardcoded paths from Dryad/DryadCompiler code
-//TODO move .tbl files from target project into base source
 //TODO what about StrategoRenamed.sdf?
 //TODO Sugar syntax
 //END OF COMMON TASKS
@@ -93,27 +91,29 @@ public class DryadLanguage extends AbstractBaseLanguage {
   @Override
   public boolean isImportDecl(IStrategoTerm decl) {
     // FIXME: Handle imports (can be either Java- or Bytecode-based)
-    if (isApplication(decl, "DryadImport"))
+    if(isApplication(decl, "DryadJavaImport"))
       return true;
-    return false;
+    else
+      return false;
   }
 
   @Override
   public boolean isBaseDecl(IStrategoTerm decl) {
-    if (isApplication(decl, "DryadBody") || isNamespaceDec(decl))
+    if (isApplication(decl, "DryadJavaType") || isNamespaceDec(decl))
       return true;
     return false;
   }
 
   @Override
   public boolean isPlainDecl(IStrategoTerm decl) {
+    //TODO: ever used?
     if (isApplication(decl, "PlainDec"))
       return true;
     return false;
   }
 
   public boolean isNamespaceDec(IStrategoTerm decl) {
-    return isApplication(decl, "SugarModule");
+    return isApplication(decl, "DryadJavaPackage");
   }
 
   @Override
