@@ -64,7 +64,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   @Override
   public void processModuleImport(IStrategoTerm toplevelDecl) throws IOException {
-    //TODO No Dryad-related imports to handle? Add to some kind of dynamic rt.classes?
+    moduleImports.add(toplevelDecl.getSubterm(0));
   }
  
   private void processNamespaceDecl(IStrategoTerm toplevelDecl) throws IOException {
@@ -119,7 +119,6 @@ public class DryadProcessor extends AbstractBaseProcessor {
   public String getModulePathOfImport(IStrategoTerm decl) {
     IStrategoAppl importTerm = (IStrategoAppl)decl.getSubterm(0);
     //Add to list of imports for compilation
-    moduleImports.add(importTerm);
     String path = null;
     if(importTerm.getName().equals("TypeImportOnDemandDec")){
       //import some.type.*;
@@ -141,9 +140,13 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   @Override
   public boolean isModuleExternallyResolvable(String relModulePath) {
-    //FIXME: Handle Java Imports?
-    //(No Dryad-related imports to handle)
-    return false;
+    if (relModulePath.endsWith("*"))
+      return true;
+    try {
+      return getClass().getClassLoader().loadClass(relModulePath.replace('/', '.')) != null;
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
   }
 
   @Override
