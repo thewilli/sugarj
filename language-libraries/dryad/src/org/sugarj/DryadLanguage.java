@@ -43,7 +43,7 @@ public class DryadLanguage extends AbstractBaseLanguage {
 
   @Override
   public String getBinaryFileExtension() {
-    return ".class";
+    return "class";
   }
 
   @Override
