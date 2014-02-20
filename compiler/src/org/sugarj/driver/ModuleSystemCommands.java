@@ -36,7 +36,7 @@ public class ModuleSystemCommands {
      */
     public static RelativePath importBinFile(String modulePath, Environment environment, AbstractBaseProcessor baseProcessor, Result driverResult) throws IOException {
       String ext = baseProcessor.getLanguage().getBinaryFileExtension();
-      if (ext != null)
+      if (ext == null)
         // language is interpreted
         ext = baseProcessor.getLanguage().getBaseFileExtension();
       RelativePath clazz = searchFile(modulePath, ext, environment, driverResult);
