@@ -30,10 +30,12 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   private static final long serialVersionUID = 8526963341981176061L;
 
+  //delimiter for module names
+  //TODO: What to use here?
+  private static String MODULE_DELMIMITER = "/";
+  
   //target output file
   private Path outFile;
-  //Name of module
-  private String moduleName;
   //Name of namespace
   private String namespace;
   //content of file, hold for output ("pretty-printing")
@@ -73,7 +75,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
     //build namespace out of term fragments
     for(IStrategoTerm subId : namespaceParts.getAllSubterms()){
       if(namespace.length() > 0)
-        namespace += ".";
+        namespace += MODULE_DELMIMITER;
       namespace += ((StrategoString)subId.getSubterm(0)).stringValue();
     }
     //Store package description for compilation
@@ -111,7 +113,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
       return getTermInputPath((IStrategoAppl)term.getSubterm(0));
     return
         getTermInputPath((IStrategoAppl)term.getSubterm(0)) 
-        + "."
+        + MODULE_DELMIMITER
         + getTermInputPath((IStrategoAppl)term.getSubterm(1));
   }
 
@@ -125,10 +127,10 @@ public class DryadProcessor extends AbstractBaseProcessor {
       path = "";
       for(IStrategoTerm term : importTerm.getSubterm(0).getSubterm(0).getAllSubterms()){
         if(path.length() > 0)
-          path += ".";
+          path += MODULE_DELMIMITER;
         path += ((IStrategoString) term.getSubterm(0)).stringValue();
       }
-      path += ".*";
+      path += MODULE_DELMIMITER + "*";
     }else if(importTerm.getName().equals("TypeImportDec")){
       //import some.type;
       path = getTermInputPath((IStrategoAppl)importTerm.getSubterm(0));      
@@ -151,13 +153,12 @@ public class DryadProcessor extends AbstractBaseProcessor {
 
   @Override
   public String getExtensionName(IStrategoTerm decl) throws IOException {
-    return moduleName;
+    return ((StrategoString)decl.getSubterm(0)).stringValue();
   }
 
   @Override
   public IStrategoTerm getExtensionBody(IStrategoTerm decl) {
-    //FIXME
-    return getApplicationSubterm(decl, "DryadExtension", 0);
+    return getApplicationSubterm(decl, "DryadExtension", 1);
   }
 
   @Override
