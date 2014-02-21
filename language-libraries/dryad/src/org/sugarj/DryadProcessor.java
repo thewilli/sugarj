@@ -192,7 +192,7 @@ public class DryadProcessor extends AbstractBaseProcessor {
     String targetFile = 
         outputDir
         + FileCommands.dropExtension(FileCommands.fileName(inputFile))
-        + DryadLanguage.getInstance().getBinaryFileExtension();
+        + "." + DryadLanguage.getInstance().getBinaryFileExtension();
     String fileContent = readFile(inputFile.getAbsolutePath(),Charset.defaultCharset());
     IStrategoTerm[] termArgs = new IStrategoTerm[2];
     termArgs[0] = getInterpreter().getFactory().makeString(targetFile);

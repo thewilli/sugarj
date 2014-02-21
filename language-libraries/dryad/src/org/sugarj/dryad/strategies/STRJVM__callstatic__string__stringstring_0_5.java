@@ -3,6 +3,8 @@ package org.sugarj.dryad.strategies;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
 import org.strategoxt.lang.Context;
@@ -22,30 +24,36 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 		return result;
 	}
 	
-	private static String runExt(IStrategoTerm t1, IStrategoTerm t2){
+	 @SuppressWarnings("deprecation")
+	  private java.net.URL getDepURL(String dep){
+	    try{
+	    return new File(Activator.getPluginPath(dep)).toURL();
+	    }catch(Exception ex){
+	      return null;
+	    }
+	  }
+	
+	private String runExt(IStrategoTerm t1, IStrategoTerm t2){
 		try{
-		  //TODO: Add error handling
-		  //FIXME: Change hardcoded paths
-		File file = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/class2aterm.jar");
-		File file2 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/bcel-5.2.jar");
-		File file3 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/aterm-java-1.8.2.jar");
-		File file4 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/jjtraveler.jar");
-		File file5 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/shared-objects.jar");
-		File file6 = new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/IntermediateLanguage-1.0.jar");
+		    //TODO: Add error handling
 		
-		@SuppressWarnings("deprecation")
-		ClassLoader loader = URLClassLoader.newInstance(
-			    new java.net.URL[] {file5.toURL(),file6.toURL(), file4.toURL(),file2.toURL(), file3.toURL(),file.toURL() },
-			    STRJVM__callstatic__string__stringstring_0_5.class.getClassLoader()
-			);
+		    ArrayList<java.net.URL> deps = new ArrayList<java.net.URL>();
+        deps.add(getDepURL("/ext/aterm2class/aterm.jar"));
+        deps.add(getDepURL("/ext/aterm2class/aterm-java-1.8.2.jar"));
+        deps.add(getDepURL("/ext/aterm2class/bcel-5.2.jar"));
+        deps.add(getDepURL("/ext/aterm2class/IntermediateLanguage-1.0.jar"));
+        deps.add(getDepURL("/ext/aterm2class/jjtraveler.jar"));
+        deps.add(getDepURL("/ext/aterm2class/shared-objects.jar"));
+        deps.add(getDepURL("/ext/aterm2class/aterm2class.jar"));
+        
+	      URLClassLoader loader = URLClassLoader.newInstance(deps.toArray(new java.net.URL[0]),ClassLoader.getSystemClassLoader());
+		 
 			
-			Class<?> clazz = Class.forName("str.classtree.Class2ATerm", true, loader);
-			//Class<? extends Runnable> runClass = clazz.asSubclass(Runnable.class);
-			@SuppressWarnings("rawtypes")
-			Class params[] = new Class[2];
-			params[0] = String.class;
-			params[1] = String.class;
-			Object o = 
+	      Class<?> clazz = Class.forName("str.classtree.Class2ATerm", true, loader);
+  			Class<?> params[] = new Class[2];
+  			params[0] = String.class;
+  			params[1] = String.class;
+  			Object o = 
 			    clazz.getMethod("disasm_from_jar",params)
 			      .invoke(
 			           null,
@@ -87,7 +95,7 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 		
 		ITermFactory factory = context.getFactory();
 		
-		context.getIOAgent().printError("STRJVM__callstatic__string__stringstring_0_5 called");
+		//context.getIOAgent().printError("STRJVM__callstatic__string__stringstring_0_5 called");
 		String className = convertString(tclass);
 		String methodName = convertString(tmethod);
 		if(className.equals("str/classtree/Class2ATerm")){
@@ -95,9 +103,7 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 				try {
 
 					String result = runExt(targ1, targ2);
-					//addSoftwareLibrary(new File("/Users/wje/work/SugarJasmin/2nd-try/eclipse-workspace/SpoofaxTest1/ext/class2aterm.jar"));
-					//String result = Class2ATerm.disasm_from_jar(convertString(targ1),convertString(targ2));
-					context.getIOAgent().printError("Result: " + result);
+					//context.getIOAgent().printError("Result: " + result);
 					return factory.parseFromString(result);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -110,17 +116,8 @@ public class STRJVM__callstatic__string__stringstring_0_5 extends Strategy{
 		}else{
 			context.getIOAgent().printError("class '" + className + "' not supported");
 		}
-		
-		/*
-		int i = 0;
-		for (IStrategoTerm t : new IStrategoTerm[]{strjvm,t2,t3,t4,t5}){
-			i++;
-			context.getIOAgent().printError("Var " + i + ": " + t.toString());
-		}*/
-		
-		 
+
 		 return factory.makeString("UNSUPPORTED");
-		//return super.invoke(context, current, t1, t2, t3, t4, t5);
 	}
 	
 

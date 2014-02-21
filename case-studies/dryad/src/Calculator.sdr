@@ -1,8 +1,11 @@
+import syso;
+
 class Calculator {
-   //int x;
-      //public static void main(String[] args) {
-     //System.out.println("Hello, Java world");
-     //    // bytecode instruction in an expresion
-     // System.out.println(`ldc "Hello Java+bytecode world!");
-   //}
+	String x;
+  public static void main(String[] args) {
+    System.out.println("Hello world!");
+    syso("Hallo Syso!!");
+    System.out.println("Hello, Java world");
+    System.out.println(`ldc "Hello Java+bytecode world!");
+  }
 }
