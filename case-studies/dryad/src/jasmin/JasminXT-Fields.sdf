@@ -1,0 +1,25 @@
+module jasmin/JasminXT-Fields
+imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers jasmin/lexical/JasminXT-Strings
+        jasmin/lexical/JasminXT-Descriptors jasmin/lexical/JasminXT-Signatures
+
+exports
+  context-free syntax
+    ".field" FieldAccess* FieldName FieldDescriptor FieldSignatureSpec InitialValue       -> Field              {cons("JBCField")}
+    ".field" FieldAccess* FieldName FieldDescriptor InitialValue FieldExt* ".end" "field" -> Field              {cons("JBCExtField")}
+    ".signature" FieldSignature                                                           -> FieldExt           {cons("JBCSignature")}
+    ".deprecated"                                                                         -> FieldExt           {cons("JBCDeprecated")}
+    "signature" FieldSignature                                                            -> FieldSignatureSpec {cons("FieldSig")}
+                                                                                          -> FieldSignatureSpec {cons("None")}
+    "=" Constant                                                                          -> InitialValue       {cons("InitVal")}
+                                                                                          -> InitialValue       {cons("None")}
+    "public"                                                                              -> FieldAccess        {cons("PUBLIC")}
+    "private"                                                                             -> FieldAccess        {cons("PRIVATE")}
+    "protected"                                                                           -> FieldAccess        {cons("PROTECTED")}
+    "static"                                                                              -> FieldAccess        {cons("STATIC")}
+    "final"                                                                               -> FieldAccess        {cons("FINAL")}
+    "volatile"                                                                            -> FieldAccess        {cons("VOLATILE")}
+    "transient"                                                                           -> FieldAccess        {cons("TRANSIENT")}
+
+  lexical restrictions
+    ".field" ".end" ".signature" ".deprecated" "signature" "public" "private"
+    "protected" "static" "final" "volatile" "transient" -/- ~[\ \t]

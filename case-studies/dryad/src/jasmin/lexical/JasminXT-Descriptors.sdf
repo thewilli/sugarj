@@ -1,0 +1,27 @@
+
+module jasmin/lexical/JasminXT-Descriptors
+imports jasmin/lexical/JasminXT-Names
+
+exports
+  context-free syntax
+    FieldType  -> FieldDescriptor     {cons("JBCFieldDesc")}
+    FieldType  -> ParameterDescriptor 
+    FieldType  -> ReturnDescriptor    
+    "V"        -> ReturnDescriptor    {cons("Void")}
+    BaseType   -> FieldType           
+    ObjectType -> FieldType           
+    ArrayType  -> FieldType           
+    "B"        -> BaseType            {cons("Byte")}
+    "C"        -> BaseType            {cons("Char")}
+    "D"        -> BaseType            {cons("Double")}
+    "F"        -> BaseType            {cons("Float")}
+    "I"        -> BaseType            {cons("Int")}
+    "J"        -> BaseType            {cons("Long")}
+    "S"        -> BaseType            {cons("Short")}
+    "Z"        -> BaseType            {cons("Boolean")}
+    FieldType  -> ComponentType       
+
+  syntax
+    "(" <ParameterDescriptor-CF>* ")" <ReturnDescriptor-CF> -> <MethodDescriptor-CF> {cons("JBCMethodDesc")}
+    "L" <ClassRef-CF> ";"                                   -> <ObjectType-CF>       {cons("Reference")}
+    "[" <ComponentType-CF>                                  -> <ArrayType-CF>        {cons("Array")}

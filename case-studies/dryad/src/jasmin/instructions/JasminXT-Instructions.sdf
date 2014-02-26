@@ -1,0 +1,13 @@
+module jasmin/instructions/JasminXT-Instructions
+imports jasmin/instructions/JasminXT-LoadStore jasmin/instructions/JasminXT-Arithmetic
+        jasmin/instructions/JasminXT-Conversion jasmin/instructions/JasminXT-Objects
+        jasmin/instructions/JasminXT-Stack jasmin/instructions/JasminXT-Control
+        jasmin/instructions/JasminXT-Methods jasmin/instructions/JasminXT-Exceptions
+        jasmin/instructions/JasminXT-Synchronisation
+
+exports
+  context-free syntax
+    "nop"               -> Instruction   {cons("NOP")}
+    "breakpoint"        -> Instruction   {cons("BREAKPOINT")}
+    Int ":" Instruction -> PCInstruction {cons("PC")}
+    Instruction         -> PCInstruction 

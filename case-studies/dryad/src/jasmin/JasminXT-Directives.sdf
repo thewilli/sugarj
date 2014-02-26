@@ -1,0 +1,15 @@
+module jasmin/JasminXT-Directives
+imports jasmin/lexical/JasminXT-Numbers jasmin/lexical/JasminXT-Descriptors
+
+exports
+  context-free syntax
+    ".limit" "stack" Int                                                  -> Directive {cons("JBCLimitStack")}
+    ".limit" "locals" Int                                                 -> Directive {cons("JBCLimitLocals")}
+    ".line" Int                                                           -> Directive {cons("JBCLine")}
+    ".throws" ClassRef                                                    -> Directive {cons("JBCThrows")}
+    ".catch" ClassRef "from" LabelRef "to" LabelRef "using" LabelRef      -> Directive {cons("JBCCatch")}
+    ".var" Int "is" VarName FieldDescriptor "from" LabelRef "to" LabelRef -> Directive {cons("JBCVarDecl")}
+
+  lexical restrictions
+    ".limit" "stack" "locals" ".line" ".throws" ".catch" "from" "to" "using"
+    ".var" "is" "from" "to" -/- ~[\ \t]

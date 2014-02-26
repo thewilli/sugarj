@@ -1,0 +1,7 @@
+module jasmin/Jasmin
+imports jasmin/lexical/JasminXT-Whitespace jasmin/JasminXT-Header jasmin/JasminXT-Fields
+        jasmin/JasminXT-Methods
+
+exports
+  context-free syntax
+    JasminHeader Field* Method* -> JasminFile {cons("JBCFile")}
