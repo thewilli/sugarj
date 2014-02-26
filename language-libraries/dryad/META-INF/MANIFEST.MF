@@ -7,9 +7,9 @@ Bundle-Activator: org.sugarj.dryad.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.sugarj.common,
- org.sugarj.languagelib,
  org.spoofax.terms,
- org.strategoxt.strj
+ org.strategoxt.strj,
+ org.sugarj.baselang;bundle-version="1.2.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: org.sugarj
