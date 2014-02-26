@@ -17,26 +17,26 @@ exports
     QualifiedName -> ClassName  
     Identifier    -> FieldName  
     Identifier    -> MethodName 
-    "<init>"      -> MethodName {cons("Init")}
+    "<init>"      -> MethodName {cons("DJ_Init")}
     SQIdentifier  -> VarName    
 
   context-free syntax
-    ClassName  -> ClassRef {cons("CRef")}
-    Int        -> VarRef   {cons("VarNum")}
-    LabelName  -> LabelRef {cons("LabelRef")}
-    FieldName  -> FRef     {cons("FRef")}
-    MethodName -> MRef     {cons("MRef")}
+    ClassName  -> ClassRef {cons("DJ_CRef")}
+    Int        -> VarRef   {cons("DJ_VarNum")}
+    LabelName  -> LabelRef {cons("DJ_LabelRef")}
+    FieldName  -> FRef     {cons("DJ_FRef")}
+    MethodName -> MRef     {cons("DJ_MRef")}
 
   syntax
-    <ClassRef-CF> "/" <FRef-CF> <LAYOUT?-CF> <FieldDescriptor-CF> -> <FieldRef-CF>  {cons("JBCFieldRef")}
-    <ClassRef-CF> "/" <MRef-CF> <MethodDescriptor-CF>             -> <MethodRef-CF> {cons("JBCMethodRef")}
+    <ClassRef-CF> "/" <FRef-CF> <LAYOUT?-CF> <FieldDescriptor-CF> -> <FieldRef-CF>  {cons("DJ_JBCFieldRef")}
+    <ClassRef-CF> "/" <MRef-CF> <MethodDescriptor-CF>             -> <MethodRef-CF> {cons("DJ_JBCMethodRef")}
 
   context-free syntax
-    "byte"    -> BaseTypeName {cons("ByteName")}
-    "char"    -> BaseTypeName {cons("CharName")}
-    "double"  -> BaseTypeName {cons("DoubleName")}
-    "float"   -> BaseTypeName {cons("FloatName")}
-    "int"     -> BaseTypeName {cons("IntName")}
-    "long"    -> BaseTypeName {cons("LongName")}
-    "short"   -> BaseTypeName {cons("ShortName")}
-    "boolean" -> BaseTypeName {cons("BooleanName")}
+    "byte"    -> BaseTypeName {cons("DJ_ByteName")}
+    "char"    -> BaseTypeName {cons("DJ_CharName")}
+    "double"  -> BaseTypeName {cons("DJ_DoubleName")}
+    "float"   -> BaseTypeName {cons("DJ_FloatName")}
+    "int"     -> BaseTypeName {cons("DJ_IntName")}
+    "long"    -> BaseTypeName {cons("DJ_LongName")}
+    "short"   -> BaseTypeName {cons("DJ_ShortName")}
+    "boolean" -> BaseTypeName {cons("DJ_BooleanName")}

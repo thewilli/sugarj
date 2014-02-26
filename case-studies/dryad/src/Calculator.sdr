@@ -9,3 +9,4 @@ class Calculator {
     System.out.println(`ldc "Hello Java+bytecode world!");
   }
 }
+

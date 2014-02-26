@@ -6,17 +6,13 @@ import jasmin.DryadJasminSyntax;
 
 sugar DryadJasmin{
 	signature constructors
-		JBCFile : A * B * C -> D
+		DJ_JBCFile : Header * Fields * Methods -> DJJasminFile
 	context-free syntax
 		DJJasminFile -> ToplevelDeclaration {cons("DryadJavaType")}
 	rules
 		desugar-jasmin : 
-			JBCFile(_,_,_) ->
-				CompilationUnit(
-					None,
-					[],
-					[
-						ClassDec(
+			DJ_JBCFile(_,_,_) ->
+				ClassDec(
 							ClassDecHead(
 								[],
 								Id("Test2"),
@@ -46,8 +42,8 @@ sugar DryadJasmin{
 								]
 							)
 						)
-					]
-				)
+						where jdebug(!"desugar-jasmin")
+					
 		desugarings
 			desugar-jasmin		
 }

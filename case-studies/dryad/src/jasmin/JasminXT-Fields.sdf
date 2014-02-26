@@ -4,21 +4,21 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers jasmin/lex
 
 exports
   context-free syntax
-    ".field" FieldAccess* FieldName FieldDescriptor FieldSignatureSpec InitialValue       -> Field              {cons("JBCField")}
-    ".field" FieldAccess* FieldName FieldDescriptor InitialValue FieldExt* ".end" "field" -> Field              {cons("JBCExtField")}
-    ".signature" FieldSignature                                                           -> FieldExt           {cons("JBCSignature")}
-    ".deprecated"                                                                         -> FieldExt           {cons("JBCDeprecated")}
-    "signature" FieldSignature                                                            -> FieldSignatureSpec {cons("FieldSig")}
-                                                                                          -> FieldSignatureSpec {cons("None")}
-    "=" Constant                                                                          -> InitialValue       {cons("InitVal")}
-                                                                                          -> InitialValue       {cons("None")}
-    "public"                                                                              -> FieldAccess        {cons("PUBLIC")}
-    "private"                                                                             -> FieldAccess        {cons("PRIVATE")}
-    "protected"                                                                           -> FieldAccess        {cons("PROTECTED")}
-    "static"                                                                              -> FieldAccess        {cons("STATIC")}
-    "final"                                                                               -> FieldAccess        {cons("FINAL")}
-    "volatile"                                                                            -> FieldAccess        {cons("VOLATILE")}
-    "transient"                                                                           -> FieldAccess        {cons("TRANSIENT")}
+    ".field" FieldAccess* FieldName FieldDescriptor FieldSignatureSpec InitialValue       -> Field              {cons("DJ_JBCField")}
+    ".field" FieldAccess* FieldName FieldDescriptor InitialValue FieldExt* ".end" "field" -> Field              {cons("DJ_JBCExtField")}
+    ".signature" FieldSignature                                                           -> FieldExt           {cons("DJ_JBCSignature")}
+    ".deprecated"                                                                         -> FieldExt           {cons("DJ_JBCDeprecated")}
+    "signature" FieldSignature                                                            -> FieldSignatureSpec {cons("DJ_FieldSig")}
+                                                                                          -> FieldSignatureSpec {cons("DJ_None")}
+    "=" Constant                                                                          -> InitialValue       {cons("DJ_InitVal")}
+                                                                                          -> InitialValue       {cons("DJ_None")}
+    "public"                                                                              -> FieldAccess        {cons("DJ_PUBLIC")}
+    "private"                                                                             -> FieldAccess        {cons("DJ_PRIVATE")}
+    "protected"                                                                           -> FieldAccess        {cons("DJ_PROTECTED")}
+    "static"                                                                              -> FieldAccess        {cons("DJ_STATIC")}
+    "final"                                                                               -> FieldAccess        {cons("DJ_FINAL")}
+    "volatile"                                                                            -> FieldAccess        {cons("DJ_VOLATILE")}
+    "transient"                                                                           -> FieldAccess        {cons("DJ_TRANSIENT")}
 
   lexical restrictions
     ".field" ".end" ".signature" ".deprecated" "signature" "public" "private"

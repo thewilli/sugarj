@@ -4,4 +4,4 @@ imports jasmin/lexical/JasminXT-Whitespace jasmin/JasminXT-Header jasmin/JasminX
 
 exports
   context-free syntax
-    JasminHeader Field* Method* -> JasminFile {cons("JBCFile")}
+    JasminHeader Field* Method* -> JasminFile {cons("DJ_JBCFile")}

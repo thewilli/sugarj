@@ -3,50 +3,50 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers
 
 exports
   context-free syntax
-    "iadd"               -> Instruction {cons("IADD")}
-    "iand"               -> Instruction {cons("IAND")}
-    "idiv"               -> Instruction {cons("IDIV")}
-    "imul"               -> Instruction {cons("IMUL")}
-    "ineg"               -> Instruction {cons("INEG")}
-    "ior"                -> Instruction {cons("IOR")}
-    "irem"               -> Instruction {cons("IREM")}
-    "ishl"               -> Instruction {cons("ISHL")}
-    "ishr"               -> Instruction {cons("ISHR")}
-    "isub"               -> Instruction {cons("ISUB")}
-    "iushr"              -> Instruction {cons("IUSHR")}
-    "ixor"               -> Instruction {cons("IXOR")}
-    "ladd"               -> Instruction {cons("LADD")}
-    "land"               -> Instruction {cons("LAND")}
-    "ldiv"               -> Instruction {cons("LDIV")}
-    "lmul"               -> Instruction {cons("LMUL")}
-    "lneg"               -> Instruction {cons("LNEG")}
-    "lor"                -> Instruction {cons("LOR")}
-    "lrem"               -> Instruction {cons("LREM")}
-    "lshl"               -> Instruction {cons("LSHL")}
-    "lshr"               -> Instruction {cons("LSHR")}
-    "lsub"               -> Instruction {cons("LSUB")}
-    "lushr"              -> Instruction {cons("LUSHR")}
-    "lxor"               -> Instruction {cons("LXOR")}
-    "fadd"               -> Instruction {cons("FADD")}
-    "fdiv"               -> Instruction {cons("FDIV")}
-    "fmul"               -> Instruction {cons("FMUL")}
-    "fneg"               -> Instruction {cons("FNEG")}
-    "frem"               -> Instruction {cons("FREM")}
-    "fsub"               -> Instruction {cons("FSUB")}
-    "dadd"               -> Instruction {cons("DADD")}
-    "ddiv"               -> Instruction {cons("DDIV")}
-    "dmul"               -> Instruction {cons("DMUL")}
-    "dneg"               -> Instruction {cons("DNEG")}
-    "drem"               -> Instruction {cons("DREM")}
-    "dsub"               -> Instruction {cons("DSUB")}
-    "iinc" VarRef Amount -> Instruction {cons("IINC")}
+    "iadd"               -> Instruction {cons("DJ_IADD")}
+    "iand"               -> Instruction {cons("DJ_IAND")}
+    "idiv"               -> Instruction {cons("DJ_IDIV")}
+    "imul"               -> Instruction {cons("DJ_IMUL")}
+    "ineg"               -> Instruction {cons("DJ_INEG")}
+    "ior"                -> Instruction {cons("DJ_IOR")}
+    "irem"               -> Instruction {cons("DJ_IREM")}
+    "ishl"               -> Instruction {cons("DJ_ISHL")}
+    "ishr"               -> Instruction {cons("DJ_ISHR")}
+    "isub"               -> Instruction {cons("DJ_ISUB")}
+    "iushr"              -> Instruction {cons("DJ_IUSHR")}
+    "ixor"               -> Instruction {cons("DJ_IXOR")}
+    "ladd"               -> Instruction {cons("DJ_LADD")}
+    "land"               -> Instruction {cons("DJ_LAND")}
+    "ldiv"               -> Instruction {cons("DJ_LDIV")}
+    "lmul"               -> Instruction {cons("DJ_LMUL")}
+    "lneg"               -> Instruction {cons("DJ_LNEG")}
+    "lor"                -> Instruction {cons("DJ_LOR")}
+    "lrem"               -> Instruction {cons("DJ_LREM")}
+    "lshl"               -> Instruction {cons("DJ_LSHL")}
+    "lshr"               -> Instruction {cons("DJ_LSHR")}
+    "lsub"               -> Instruction {cons("DJ_LSUB")}
+    "lushr"              -> Instruction {cons("DJ_LUSHR")}
+    "lxor"               -> Instruction {cons("DJ_LXOR")}
+    "fadd"               -> Instruction {cons("DJ_FADD")}
+    "fdiv"               -> Instruction {cons("DJ_FDIV")}
+    "fmul"               -> Instruction {cons("DJ_FMUL")}
+    "fneg"               -> Instruction {cons("DJ_FNEG")}
+    "frem"               -> Instruction {cons("DJ_FREM")}
+    "fsub"               -> Instruction {cons("DJ_FSUB")}
+    "dadd"               -> Instruction {cons("DJ_DADD")}
+    "ddiv"               -> Instruction {cons("DJ_DDIV")}
+    "dmul"               -> Instruction {cons("DJ_DMUL")}
+    "dneg"               -> Instruction {cons("DJ_DNEG")}
+    "drem"               -> Instruction {cons("DJ_DREM")}
+    "dsub"               -> Instruction {cons("DJ_DSUB")}
+    "iinc" VarRef Amount -> Instruction {cons("DJ_IINC")}
     Int                  -> Amount      
-    "-" Int              -> Amount      {cons("Neg")}
-    "fcmpg"              -> Instruction {cons("FCMPG")}
-    "fcmpl"              -> Instruction {cons("FCMPL")}
-    "dcmpg"              -> Instruction {cons("DCMPG")}
-    "dcmpl"              -> Instruction {cons("DCMPL")}
-    "lcmp"               -> Instruction {cons("LCMP")}
+    "-" Int              -> Amount      {cons("DJ_Neg")}
+    "fcmpg"              -> Instruction {cons("DJ_FCMPG")}
+    "fcmpl"              -> Instruction {cons("DJ_FCMPL")}
+    "dcmpg"              -> Instruction {cons("DJ_DCMPG")}
+    "dcmpl"              -> Instruction {cons("DJ_DCMPL")}
+    "lcmp"               -> Instruction {cons("DJ_LCMP")}
 
   lexical restrictions
     "iinc" -/- ~[\ \t]

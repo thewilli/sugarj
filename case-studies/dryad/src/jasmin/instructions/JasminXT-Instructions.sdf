@@ -7,7 +7,7 @@ imports jasmin/instructions/JasminXT-LoadStore jasmin/instructions/JasminXT-Arit
 
 exports
   context-free syntax
-    "nop"               -> Instruction   {cons("NOP")}
-    "breakpoint"        -> Instruction   {cons("BREAKPOINT")}
-    Int ":" Instruction -> PCInstruction {cons("PC")}
+    "nop"               -> Instruction   {cons("DJ_NOP")}
+    "breakpoint"        -> Instruction   {cons("DJ_BREAKPOINT")}
+    Int ":" Instruction -> PCInstruction {cons("DJ_PC")}
     Instruction         -> PCInstruction 

@@ -1,12 +1,12 @@
 module jasmin/instructions/JasminXT-Stack
 exports
   context-free syntax
-    "pop"     -> Instruction {cons("POP")}
-    "pop2"    -> Instruction {cons("POP2")}
-    "dup"     -> Instruction {cons("DUP")}
-    "dup2"    -> Instruction {cons("DUP2")}
-    "dup_x1"  -> Instruction {cons("DUP_X1")}
-    "dup2_x1" -> Instruction {cons("DUP2_X1")}
-    "dup_x2"  -> Instruction {cons("DUP_X2")}
-    "dup2_x2" -> Instruction {cons("DUP2_X2")}
-    "swap"    -> Instruction {cons("SWAP")}
+    "pop"     -> Instruction {cons("DJ_POP")}
+    "pop2"    -> Instruction {cons("DJ_POP2")}
+    "dup"     -> Instruction {cons("DJ_DUP")}
+    "dup2"    -> Instruction {cons("DJ_DUP2")}
+    "dup_x1"  -> Instruction {cons("DJ_DUP_X1")}
+    "dup2_x1" -> Instruction {cons("DJ_DUP2_X1")}
+    "dup_x2"  -> Instruction {cons("DJ_DUP_X2")}
+    "dup2_x2" -> Instruction {cons("DJ_DUP2_X2")}
+    "swap"    -> Instruction {cons("DJ_SWAP")}

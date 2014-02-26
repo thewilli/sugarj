@@ -1,4 +1,4 @@
 module jasmin/instructions/JasminXT-Exceptions
 exports
   context-free syntax
-    "athrow" -> Instruction {cons("ATHROW")}
+    "athrow" -> Instruction {cons("DJ_ATHROW")}

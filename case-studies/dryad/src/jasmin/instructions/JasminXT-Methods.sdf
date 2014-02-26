@@ -3,17 +3,17 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Descriptors
 
 exports
   context-free syntax
-    "invokespecial" MethodRef       -> Instruction {cons("INVOKESPECIAL")}
-    "invokenonvirtual" MethodRef    -> Instruction {cons("INVOKENONVIRTUAL")}
-    "invokevirtual" MethodRef       -> Instruction {cons("INVOKEVIRTUAL")}
-    "invokestatic" MethodRef        -> Instruction {cons("INVOKESTATIC")}
-    "invokeinterface" MethodRef Int -> Instruction {cons("INVOKEINTERFACE")}
-    "return"                        -> Instruction {cons("RETURN")}
-    "ireturn"                       -> Instruction {cons("IRETURN")}
-    "lreturn"                       -> Instruction {cons("LRETURN")}
-    "freturn"                       -> Instruction {cons("FRETURN")}
-    "dreturn"                       -> Instruction {cons("DRETURN")}
-    "areturn"                       -> Instruction {cons("ARETURN")}
+    "invokespecial" MethodRef       -> Instruction {cons("DJ_INVOKESPECIAL")}
+    "invokenonvirtual" MethodRef    -> Instruction {cons("DJ_INVOKENONVIRTUAL")}
+    "invokevirtual" MethodRef       -> Instruction {cons("DJ_INVOKEVIRTUAL")}
+    "invokestatic" MethodRef        -> Instruction {cons("DJ_INVOKESTATIC")}
+    "invokeinterface" MethodRef Int -> Instruction {cons("DJ_INVOKEINTERFACE")}
+    "return"                        -> Instruction {cons("DJ_RETURN")}
+    "ireturn"                       -> Instruction {cons("DJ_IRETURN")}
+    "lreturn"                       -> Instruction {cons("DJ_LRETURN")}
+    "freturn"                       -> Instruction {cons("DJ_FRETURN")}
+    "dreturn"                       -> Instruction {cons("DJ_DRETURN")}
+    "areturn"                       -> Instruction {cons("DJ_ARETURN")}
 
   lexical restrictions
     "invokespecial" "invokenonvirtual" "invokevirtual" "invokestatic"

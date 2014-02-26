@@ -4,34 +4,34 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers
 
 exports
   context-free syntax
-    "new" ClassRef                 -> Instruction {cons("NEW")}
-    "newarray" BaseTypeName        -> Instruction {cons("NEWARRAY")}
-    "anewarray" ClassRef           -> Instruction {cons("ANEWARRAY")}
-    "anewarray" ArrayType          -> Instruction {cons("ANEWARRAY")}
-    "multianewarray" ArrayType Int -> Instruction {cons("MULTIANEWARRAY")}
-    "getfield" FieldRef            -> Instruction {cons("GETFIELD")}
-    "putfield" FieldRef            -> Instruction {cons("PUTFIELD")}
-    "getstatic" FieldRef           -> Instruction {cons("GETSTATIC")}
-    "putstatic" FieldRef           -> Instruction {cons("PUTSTATIC")}
-    "iaload"                       -> Instruction {cons("IALOAD")}
-    "laload"                       -> Instruction {cons("LALOAD")}
-    "baload"                       -> Instruction {cons("BALOAD")}
-    "caload"                       -> Instruction {cons("CALOAD")}
-    "saload"                       -> Instruction {cons("SALOAD")}
-    "faload"                       -> Instruction {cons("FALOAD")}
-    "daload"                       -> Instruction {cons("DALOAD")}
-    "aaload"                       -> Instruction {cons("AALOAD")}
-    "iastore"                      -> Instruction {cons("IASTORE")}
-    "lastore"                      -> Instruction {cons("LASTORE")}
-    "bastore"                      -> Instruction {cons("BASTORE")}
-    "castore"                      -> Instruction {cons("CASTORE")}
-    "sastore"                      -> Instruction {cons("SASTORE")}
-    "fastore"                      -> Instruction {cons("FASTORE")}
-    "dastore"                      -> Instruction {cons("DASTORE")}
-    "aastore"                      -> Instruction {cons("AASTORE")}
-    "arraylength"                  -> Instruction {cons("ARRAYLENGTH")}
-    "checkcast" ClassRef           -> Instruction {cons("CHECKCAST")}
-    "instanceof" ClassRef          -> Instruction {cons("INSTANCEOF")}
+    "new" ClassRef                 -> Instruction {cons("DJ_NEW")}
+    "newarray" BaseTypeName        -> Instruction {cons("DJ_NEWARRAY")}
+    "anewarray" ClassRef           -> Instruction {cons("DJ_ANEWARRAY")}
+    "anewarray" ArrayType          -> Instruction {cons("DJ_ANEWARRAY")}
+    "multianewarray" ArrayType Int -> Instruction {cons("DJ_MULTIANEWARRAY")}
+    "getfield" FieldRef            -> Instruction {cons("DJ_GETFIELD")}
+    "putfield" FieldRef            -> Instruction {cons("DJ_PUTFIELD")}
+    "getstatic" FieldRef           -> Instruction {cons("DJ_GETSTATIC")}
+    "putstatic" FieldRef           -> Instruction {cons("DJ_PUTSTATIC")}
+    "iaload"                       -> Instruction {cons("DJ_IALOAD")}
+    "laload"                       -> Instruction {cons("DJ_LALOAD")}
+    "baload"                       -> Instruction {cons("DJ_BALOAD")}
+    "caload"                       -> Instruction {cons("DJ_CALOAD")}
+    "saload"                       -> Instruction {cons("DJ_SALOAD")}
+    "faload"                       -> Instruction {cons("DJ_FALOAD")}
+    "daload"                       -> Instruction {cons("DJ_DALOAD")}
+    "aaload"                       -> Instruction {cons("DJ_AALOAD")}
+    "iastore"                      -> Instruction {cons("DJ_IASTORE")}
+    "lastore"                      -> Instruction {cons("DJ_LASTORE")}
+    "bastore"                      -> Instruction {cons("DJ_BASTORE")}
+    "castore"                      -> Instruction {cons("DJ_CASTORE")}
+    "sastore"                      -> Instruction {cons("DJ_SASTORE")}
+    "fastore"                      -> Instruction {cons("DJ_FASTORE")}
+    "dastore"                      -> Instruction {cons("DJ_DASTORE")}
+    "aastore"                      -> Instruction {cons("DJ_AASTORE")}
+    "arraylength"                  -> Instruction {cons("DJ_ARRAYLENGTH")}
+    "checkcast" ClassRef           -> Instruction {cons("DJ_CHECKCAST")}
+    "instanceof" ClassRef          -> Instruction {cons("DJ_INSTANCEOF")}
 
   lexical restrictions
     "new" "newarray" "anewarray" "multianewarray" "getfield" "putfield"

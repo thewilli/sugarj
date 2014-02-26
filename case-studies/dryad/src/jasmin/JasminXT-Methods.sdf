@@ -5,21 +5,21 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers jasmin/lex
 
 exports
   context-free syntax
-    ".method" MethodAccess* MethodName MethodDescriptor Statement* ".end" "method" -> Method       {cons("JBCMethod"), scope(Label)}
-    "public"                                                                       -> MethodAccess {cons("PUBLIC")}
-    "private"                                                                      -> MethodAccess {cons("PRIVATE")}
-    "protected"                                                                    -> MethodAccess {cons("PROTECTED")}
-    "static"                                                                       -> MethodAccess {cons("STATIC")}
-    "final"                                                                        -> MethodAccess {cons("FINAL")}
-    "synchronized"                                                                 -> MethodAccess {cons("SYNCHRONIZED")}
-    "native"                                                                       -> MethodAccess {cons("NATIVE")}
-    "abstract"                                                                     -> MethodAccess {cons("ABSTRACT")}
+    ".method" MethodAccess* MethodName MethodDescriptor Statement* ".end" "method" -> Method       {cons("DJ_JBCMethod"), scope(Label)}
+    "public"                                                                       -> MethodAccess {cons("DJ_PUBLIC")}
+    "private"                                                                      -> MethodAccess {cons("DJ_PRIVATE")}
+    "protected"                                                                    -> MethodAccess {cons("DJ_PROTECTED")}
+    "static"                                                                       -> MethodAccess {cons("DJ_STATIC")}
+    "final"                                                                        -> MethodAccess {cons("DJ_FINAL")}
+    "synchronized"                                                                 -> MethodAccess {cons("DJ_SYNCHRONIZED")}
+    "native"                                                                       -> MethodAccess {cons("DJ_NATIVE")}
+    "abstract"                                                                     -> MethodAccess {cons("DJ_ABSTRACT")}
 
   context-free syntax
     PCInstruction -> Statement 
     Directive     -> Statement 
     Label         -> Statement 
-    LabelName ":" -> Label     {cons("JBCLabel")}
+    LabelName ":" -> Label     {cons("DJ_JBCLabel")}
 
   lexical restrictions
     ".method" ".end" "public" "private" "protected" "static" "final"

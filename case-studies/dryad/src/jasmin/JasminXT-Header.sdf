@@ -4,35 +4,35 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers jasmin/lex
 
 exports
   context-free syntax
-    BytecodeSpec SourceSpec ClassSpec SuperSpec ImplementsSpec* SignatureSpec EnclosingSpec DeprecatedSpec -> JasminHeader {cons("JBCHeader")}
+    BytecodeSpec SourceSpec ClassSpec SuperSpec ImplementsSpec* SignatureSpec EnclosingSpec DeprecatedSpec -> JasminHeader {cons("DJ_JBCHeader")}
 
   context-free syntax
-    ".bytecode" MajorVersion MinorVersion -> BytecodeSpec {cons("JBCVersion")}
-                                          -> BytecodeSpec {cons("None")}
-    Int                                   -> MajorVersion {cons("Major")}
-    "." Int                               -> MinorVersion {cons("Minor")}
-                                          -> MinorVersion {cons("None")}
-    ".source" String                      -> SourceSpec   {cons("JBCSource")}
-                                          -> SourceSpec   {cons("None")}
+    ".bytecode" MajorVersion MinorVersion -> BytecodeSpec {cons("DJ_JBCVersion")}
+                                          -> BytecodeSpec {cons("DJ_None")}
+    Int                                   -> MajorVersion {cons("DJ_Major")}
+    "." Int                               -> MinorVersion {cons("DJ_Minor")}
+                                          -> MinorVersion {cons("DJ_None")}
+    ".source" String                      -> SourceSpec   {cons("DJ_JBCSource")}
+                                          -> SourceSpec   {cons("DJ_None")}
 
   context-free syntax
-    ".class" ClassAccess* ClassName     -> ClassSpec      {cons("JBCClass")}
-    ".interface" ClassAccess* ClassName -> ClassSpec      {cons("JBCInterface")}
-    "public"                            -> ClassAccess    {cons("PUBLIC")}
-    "final"                             -> ClassAccess    {cons("FINAL")}
-    "interface"                         -> ClassAccess    {cons("INTERFACE")}
-    "abstract"                          -> ClassAccess    {cons("ABSTRACT")}
-    "super"                             -> ClassAccess    {cons("SUPER")}
-    ".super" ClassName                  -> SuperSpec      {cons("JBCSuper")}
-    ".implements" ClassName             -> ImplementsSpec {cons("JBCImplements")}
+    ".class" ClassAccess* ClassName     -> ClassSpec      {cons("DJ_JBCClass")}
+    ".interface" ClassAccess* ClassName -> ClassSpec      {cons("DJ_JBCInterface")}
+    "public"                            -> ClassAccess    {cons("DJ_PUBLIC")}
+    "final"                             -> ClassAccess    {cons("DJ_FINAL")}
+    "interface"                         -> ClassAccess    {cons("DJ_INTERFACE")}
+    "abstract"                          -> ClassAccess    {cons("DJ_ABSTRACT")}
+    "super"                             -> ClassAccess    {cons("DJ_SUPER")}
+    ".super" ClassName                  -> SuperSpec      {cons("DJ_JBCSuper")}
+    ".implements" ClassName             -> ImplementsSpec {cons("DJ_JBCImplements")}
 
   context-free syntax
-    ".signature" ClassSignature            -> SignatureSpec  {cons("JBCSignature")}
-                                           -> SignatureSpec  {cons("None")}
-    ".enclosing" "method" MethodDescriptor -> EnclosingSpec  {cons("JBCEnclosing")}
-                                           -> EnclosingSpec  {cons("None")}
-    ".deprecated"                          -> DeprecatedSpec {cons("JBCDeprecated")}
-                                           -> DeprecatedSpec {cons("None")}
+    ".signature" ClassSignature            -> SignatureSpec  {cons("DJ_JBCSignature")}
+                                           -> SignatureSpec  {cons("DJ_None")}
+    ".enclosing" "method" MethodDescriptor -> EnclosingSpec  {cons("DJ_JBCEnclosing")}
+                                           -> EnclosingSpec  {cons("DJ_None")}
+    ".deprecated"                          -> DeprecatedSpec {cons("DJ_JBCDeprecated")}
+                                           -> DeprecatedSpec {cons("DJ_None")}
 
   lexical restrictions
     ".bytecode" ".source" ".class" ".interface" "public" "final" "interface"
