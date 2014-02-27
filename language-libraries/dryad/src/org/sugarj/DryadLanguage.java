@@ -28,7 +28,7 @@ public class DryadLanguage extends AbstractBaseLanguage {
 
   @Override
   public String getVersion() {
-    return "dryad-0.1";
+    return "dryad-0.2";
   }
 
   @Override
@@ -99,7 +99,7 @@ public class DryadLanguage extends AbstractBaseLanguage {
 
   @Override
   public boolean isBaseDecl(IStrategoTerm decl) {
-    if (isApplication(decl, "DryadJavaType") || isNamespaceDec(decl))
+    if (isApplication(decl, "DryadJavaType") || isApplication(decl, "DryadBCType") || isNamespaceDec(decl))
       return true;
     return false;
   }

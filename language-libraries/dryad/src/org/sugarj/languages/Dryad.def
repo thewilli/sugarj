@@ -1716,6 +1716,8 @@ exports
     "classfile" Id "as" AccessFlags Id "." Id                                                                                     -> NamedInnerClass     {ast("InnerClass(InnerClass(Some(<1>)), OuterClass(Some(<3>)), InnerName(Some(<4>)), <2>)")}
     NamedInnerClass                                                                                                               -> InnerClass          
 
+	ClassFile -> ToplevelDeclaration {cons("DryadBCType")}
+
 
 module Bytecode-Flags
 exports

@@ -167,7 +167,10 @@ public class DryadProcessor extends AbstractBaseProcessor {
   public String getGeneratedSource() {
     if(moduleTypes.size() == 0)
       return ""; //no types found
-    
+    if(moduleTypes.get(0).getTermType() == IStrategoTerm.APPL){
+    	if(((IStrategoAppl)moduleTypes.get(0)).getName().equals("ClassFile"))
+    		return moduleTypes.get(0).toString(); //BC Classfile
+    }
     IStrategoTerm classResult = getInterpreter().getFactory().makeAppl(
       getInterpreter().getFactory().makeConstructor("CompilationUnit",3),
       modulePackage,
