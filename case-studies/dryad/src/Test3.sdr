@@ -1,0 +1,9 @@
+classfile public Test3 extends java.lang.Object
+	methods
+		public static main (java.lang.String[] : void) [
+			getstatic java.lang.System.out : java.io.PrintStream
+			ldc "Hello Test3"
+			invokevirtual java.io.PrintStream.println(java.lang.String : void)
+			return
+		]
+
