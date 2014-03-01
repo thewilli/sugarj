@@ -1,0 +1,328 @@
+package jasmin;
+
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+
+sugar DryadJasminSignature{
+
+	signature
+	  constructors
+	    DJ_JBCFile          : DJJasminHeader * List(DJField) * List(DJMethod) -> DJJasminFile
+	    DJ_JBCLabel         : DJLabelName -> DJLabel
+	                        : DJLabel -> DJStatement
+	                        : DJDirective -> DJStatement
+	                        : DJPCInstruction -> DJStatement
+	    ABSTRACT            : DJMethodAccess
+	    NATIVE              : DJMethodAccess
+	    SYNCHRONIZED        : DJMethodAccess
+	    FINAL               : DJMethodAccess
+	    STATIC              : DJMethodAccess
+	    PROTECTED           : DJMethodAccess
+	    DJ_PRIVATE          : DJMethodAccess
+	    PUBLIC              : DJMethodAccess
+	    DJ_JBCMethod        : List(DJMethodAccess) * DJMethodName * DJMethodDescriptor * List(DJStatement) -> DJMethod
+	    DJ_JBCVarDecl       : DJInt * DJVarName * DJFieldDescriptor * DJLabelRef * DJLabelRef -> DJDirective
+	    DJ_JBCCatch         : DJClassRef * DJLabelRef * DJLabelRef * DJLabelRef -> DJDirective
+	    DJ_JBCThrows        : DJClassRef -> DJDirective
+	    DJ_JBCLine          : DJInt -> DJDirective
+	    DJ_JBCLimitLocals   : DJInt -> DJDirective
+	    DJ_JBCLimitStack    : DJInt -> DJDirective
+	                        : DJInstruction -> DJPCInstruction
+	    DJ_PC               : DJInt * DJInstruction -> DJPCInstruction
+	    DJ_NPAIR            : DJInt * DJLabelRef -> DJLookupEntry
+	    DJ_Jump             : DJLabelRef -> DJTableEntry
+	                        : DJRelOffset -> DJTarget
+	                        : DJLabelRef -> DJTarget
+	    DJ_RelativeBwd      : DJInt -> DJRelOffset
+	    DJ_RelativeFwd      : DJInt -> DJRelOffset
+	    DJ_Neg              : DJInt -> DJAmount
+	                        : DJInt -> DJAmount
+	    DJ_BREAKPOINT       : DJInstruction
+	    DJ_NOP              : DJInstruction
+	    DJ_MONITOREXIT      : DJInstruction
+	    DJ_MONITORENTER     : DJInstruction
+	    DJ_ATHROW           : DJInstruction
+	    DJ_ARETURN          : DJInstruction
+	    DJ_DRETURN          : DJInstruction
+	    DJ_FRETURN          : DJInstruction
+	    DJ_LRETURN          : DJInstruction
+	    DJ_IRETURN          : DJInstruction
+	    DJ_RETURN           : DJInstruction
+	    DJ_INVOKEINTERFACE  : DJMethodRef * DJInt -> DJInstruction
+	    DJ_INVOKESTATIC     : DJMethodRef -> DJInstruction
+	    DJ_INVOKEVIRTUAL    : DJMethodRef -> DJInstruction
+	    DJ_INVOKENONVIRTUAL : DJMethodRef -> DJInstruction
+	    DJ_INVOKESPECIAL    : DJMethodRef -> DJInstruction
+	    DJ_GOTO_W           : DJLabelRef -> DJInstruction
+	    DJ_GOTO             : DJLabelRef -> DJInstruction
+	    DJ_Lookup           : List(DJLookupEntry) * DJLabelRef -> DJInstruction
+	    DJ_Table            : DJInt * List(DJTableEntry) * DJLabelRef -> DJInstruction
+	    DJ_IF_ACMPNE        : DJTarget -> DJInstruction
+	    DJ_IF_ACMPEQ        : DJTarget -> DJInstruction
+	    DJ_IF_ICMPGE        : DJTarget -> DJInstruction
+	    DJ_IF_ICMPGT        : DJTarget -> DJInstruction
+	    DJ_IF_ICMPNE        : DJTarget -> DJInstruction
+	    DJ_IF_ICMPLE        : DJTarget -> DJInstruction
+	    DJ_IF_ICMPLT        : DJTarget -> DJInstruction
+	    DJ_IF_ICMPEQ        : DJTarget -> DJInstruction
+	    DJ_IFNONNULL        : DJTarget -> DJInstruction
+	    DJ_IFNULL           : DJTarget -> DJInstruction
+	    DJ_IFGE             : DJTarget -> DJInstruction
+	    DJ_IFGT             : DJTarget -> DJInstruction
+	    DJ_IFNE             : DJTarget -> DJInstruction
+	    DJ_IFLE             : DJTarget -> DJInstruction
+	    DJ_IFLT             : DJTarget -> DJInstruction
+	    DJ_IFEQ             : DJTarget -> DJInstruction
+	    DJ_SWAP             : DJInstruction
+	    DJ_DUP2_X2          : DJInstruction
+	    DJ_DUP_X2           : DJInstruction
+	    DJ_DUP2_X1          : DJInstruction
+	    DJ_DUP_X1           : DJInstruction
+	    DJ_DUP2             : DJInstruction
+	    DJ_DUP              : DJInstruction
+	    DJ_POP2             : DJInstruction
+	    DJ_POP              : DJInstruction
+	    DJ_INSTANCEOF       : DJClassRef -> DJInstruction
+	    DJ_CHECKCAST        : DJClassRef -> DJInstruction
+	    DJ_ARRAYLENGTH      : DJInstruction
+	    DJ_AASTORE          : DJInstruction
+	    DJ_DASTORE          : DJInstruction
+	    DJ_FASTORE          : DJInstruction
+	    DJ_SASTORE          : DJInstruction
+	    DJ_CASTORE          : DJInstruction
+	    DJ_BASTORE          : DJInstruction
+	    DJ_LASTORE          : DJInstruction
+	    DJ_IASTORE          : DJInstruction
+	    DJ_AALOAD           : DJInstruction
+	    DJ_DALOAD           : DJInstruction
+	    DJ_FALOAD           : DJInstruction
+	    DJ_SALOAD           : DJInstruction
+	    DJ_CALOAD           : DJInstruction
+	    DJ_BALOAD           : DJInstruction
+	    DJ_LALOAD           : DJInstruction
+	    DJ_IALOAD           : DJInstruction
+	    DJ_PUTSTATIC        : DJFieldRef -> DJInstruction
+	    DJ_GETSTATIC        : DJFieldRef -> DJInstruction
+	    DJ_PUTFIELD         : DJFieldRef -> DJInstruction
+	    DJ_GETFIELD         : DJFieldRef -> DJInstruction
+	    DJ_MULTIANEWARRAY   : DJArrayType * DJInt -> DJInstruction
+	    DJ_ANEWARRAY        : DJArrayType -> DJInstruction
+	    DJ_ANEWARRAY        : DJClassRef -> DJInstruction
+	    DJ_NEWARRAY         : DJBaseTypeName -> DJInstruction
+	    DJ_NEW              : DJClassRef -> DJInstruction
+	    DJ_D2F              : DJInstruction
+	    DJ_D2L              : DJInstruction
+	    DJ_D2I              : DJInstruction
+	    DJ_F2L              : DJInstruction
+	    DJ_F2I              : DJInstruction
+	    DJ_L2I              : DJInstruction
+	    DJ_I2C              : DJInstruction
+	    DJ_I2S              : DJInstruction
+	    DJ_I2B              : DJInstruction
+	    DJ_F2D              : DJInstruction
+	    DJ_L2D              : DJInstruction
+	    DJ_L2F              : DJInstruction
+	    DJ_I2D              : DJInstruction
+	    DJ_I2F              : DJInstruction
+	    DJ_I2L              : DJInstruction
+	    DJ_LCMP             : DJInstruction
+	    DJ_DCMPL            : DJInstruction
+	    DJ_DCMPG            : DJInstruction
+	    DJ_FCMPL            : DJInstruction
+	    DJ_FCMPG            : DJInstruction
+	    DJ_IINC             : DJVarRef * DJAmount -> DJInstruction
+	    DJ_DSUB             : DJInstruction
+	    DJ_DREM             : DJInstruction
+	    DJ_DNEG             : DJInstruction
+	    DJ_DMUL             : DJInstruction
+	    DJ_DDIV             : DJInstruction
+	    DJ_DADD             : DJInstruction
+	    DJ_FSUB             : DJInstruction
+	    DJ_FREM             : DJInstruction
+	    DJ_FNEG             : DJInstruction
+	    DJ_FMUL             : DJInstruction
+	    DJ_FDIV             : DJInstruction
+	    DJ_FADD             : DJInstruction
+	    DJ_LXOR             : DJInstruction
+	    DJ_LUSHR            : DJInstruction
+	    DJ_LSUB             : DJInstruction
+	    DJ_LSHR             : DJInstruction
+	    DJ_LSHL             : DJInstruction
+	    DJ_LREM             : DJInstruction
+	    DJ_LOR              : DJInstruction
+	    DJ_LNEG             : DJInstruction
+	    DJ_LMUL             : DJInstruction
+	    DJ_LDIV             : DJInstruction
+	    DJ_LAND             : DJInstruction
+	    DJ_LADD             : DJInstruction
+	    DJ_IXOR             : DJInstruction
+	    DJ_IUSHR            : DJInstruction
+	    DJ_ISUB             : DJInstruction
+	    DJ_ISHR             : DJInstruction
+	    DJ_ISHL             : DJInstruction
+	    DJ_IREM             : DJInstruction
+	    DJ_IOR              : DJInstruction
+	    DJ_INEG             : DJInstruction
+	    DJ_IMUL             : DJInstruction
+	    DJ_IDIV             : DJInstruction
+	    DJ_IAND             : DJInstruction
+	    DJ_IADD             : DJInstruction
+	    DJ_DSTORE_3         : DJInstruction
+	    DJ_DSTORE_2         : DJInstruction
+	    DJ_DSTORE_1         : DJInstruction
+	    DJ_DSTORE_0         : DJInstruction
+	    DJ_FSTORE_3         : DJInstruction
+	    DJ_FSTORE_2         : DJInstruction
+	    DJ_FSTORE_1         : DJInstruction
+	    DJ_FSTORE_0         : DJInstruction
+	    DJ_LSTORE_3         : DJInstruction
+	    DJ_LSTORE_2         : DJInstruction
+	    DJ_LSTORE_1         : DJInstruction
+	    DJ_LSTORE_0         : DJInstruction
+	    DJ_ASTORE_3         : DJInstruction
+	    DJ_ASTORE_2         : DJInstruction
+	    DJ_ASTORE_1         : DJInstruction
+	    DJ_ASTORE_0         : DJInstruction
+	    DJ_ISTORE_3         : DJInstruction
+	    DJ_ISTORE_2         : DJInstruction
+	    DJ_ISTORE_1         : DJInstruction
+	    DJ_ISTORE_0         : DJInstruction
+	    DJ_ASTORE           : DJVarRef -> DJInstruction
+	    DJ_DSTORE           : DJVarRef -> DJInstruction
+	    DJ_FSTORE           : DJVarRef -> DJInstruction
+	    DJ_LSTORE           : DJVarRef -> DJInstruction
+	    DJ_ISTORE           : DJVarRef -> DJInstruction
+	    DJ_FLOAD_3          : DJInstruction
+	    DJ_FLOAD_2          : DJInstruction
+	    DJ_FLOAD_1          : DJInstruction
+	    DJ_FLOAD_0          : DJInstruction
+	    DJ_DLOAD_3          : DJInstruction
+	    DJ_DLOAD_2          : DJInstruction
+	    DJ_DLOAD_1          : DJInstruction
+	    DJ_DLOAD_0          : DJInstruction
+	    DJ_LLOAD_3          : DJInstruction
+	    DJ_LLOAD_2          : DJInstruction
+	    DJ_LLOAD_1          : DJInstruction
+	    DJ_LLOAD_0          : DJInstruction
+	    DJ_ALOAD_3          : DJInstruction
+	    DJ_ALOAD_2          : DJInstruction
+	    DJ_ALOAD_1          : DJInstruction
+	    DJ_ALOAD_0          : DJInstruction
+	    DJ_ILOAD_3          : DJInstruction
+	    DJ_ILOAD_2          : DJInstruction
+	    DJ_ILOAD_1          : DJInstruction
+	    DJ_ILOAD_0          : DJInstruction
+	    DJ_ALOAD            : DJVarRef -> DJInstruction
+	    DJ_DLOAD            : DJVarRef -> DJInstruction
+	    DJ_FLOAD            : DJVarRef -> DJInstruction
+	    DJ_LLOAD            : DJVarRef -> DJInstruction
+	    DJ_ILOAD            : DJVarRef -> DJInstruction
+	    DJ_LDC2_W           : DJConstant -> DJInstruction
+	    DJ_LDC              : DJConstant -> DJInstruction
+	    DJ_ACONST_NULL      : DJInstruction
+	    DJ_DCONST_1         : DJInstruction
+	    DJ_DCONST_0         : DJInstruction
+	    DJ_FCONST_2         : DJInstruction
+	    DJ_FCONST_1         : DJInstruction
+	    DJ_FCONST_0         : DJInstruction
+	    DJ_LCONST_1         : DJInstruction
+	    DJ_LCONST_0         : DJInstruction
+	    DJ_ICONST_5         : DJInstruction
+	    DJ_ICONST_4         : DJInstruction
+	    DJ_ICONST_3         : DJInstruction
+	    DJ_ICONST_2         : DJInstruction
+	    DJ_ICONST_1         : DJInstruction
+	    DJ_ICONST_0         : DJInstruction
+	    DJ_ICONST_M1        : DJInstruction
+	    DJ_SIPUSH           : DJInt -> DJInstruction
+	    DJ_BIPUSH           : DJInt -> DJInstruction
+	    TRANSIENT           : DJFieldAccess
+	    VOLATILE            : DJFieldAccess
+	    FINAL               : DJFieldAccess
+	    STATIC              : DJFieldAccess
+	    PROTECTED           : DJFieldAccess
+	    DJ_PRIVATE          : DJFieldAccess
+	    PUBLIC              : DJFieldAccess
+	    None                : DJInitialValue
+	    DJ_InitVal          : DJConstant -> DJInitialValue
+	    None                : DJFieldSignatureSpec
+	    DJ_FieldSig         : DJFieldSignature -> DJFieldSignatureSpec
+	    DJ_JBCDeprecated    : DJFieldExt
+	    DJ_JBCSignature     : DJFieldSignature -> DJFieldExt
+	    DJ_JBCExtField      : List(DJFieldAccess) * DJFieldName * DJFieldDescriptor * DJInitialValue * List(DJFieldExt) -> DJField
+	    DJ_JBCField         : List(DJFieldAccess) * DJFieldName * DJFieldDescriptor * DJFieldSignatureSpec * DJInitialValue -> DJField
+	    None                : DJDeprecatedSpec
+	    DJ_JBCDeprecated    : DJDeprecatedSpec
+	    None                : DJEnclosingSpec
+	    DJ_JBCEnclosing     : DJMethodDescriptor -> DJEnclosingSpec
+	    None                : DJSignatureSpec
+	    DJ_JBCSignature     : DJClassSignature -> DJSignatureSpec
+	    DJ_JBCImplements    : DJClassName -> DJImplementsSpec
+	    DJ_JBCSuper         : DJClassName -> DJSuperSpec
+	    DJ_SUPER            : DJClassAccess
+	    ABSTRACT            : DJClassAccess
+	    DJ_INTERFACE        : DJClassAccess
+	    FINAL               : DJClassAccess
+	    PUBLIC              : DJClassAccess
+	    DJ_JBCInterface     : List(DJClassAccess) * DJClassName -> DJClassSpec
+	    DJ_JBCClass         : List(DJClassAccess) * DJClassName -> DJClassSpec
+	    None                : DJSourceSpec
+	    DJ_JBCSource        : DJString -> DJSourceSpec
+	    None                : DJMinorVersion
+	    DJ_Minor            : DJInt -> DJMinorVersion
+	    DJ_Major            : DJInt -> DJMajorVersion
+	    None                : DJBytecodeSpec
+	    DJ_JBCVersion       : DJMajorVersion * DJMinorVersion -> DJBytecodeSpec
+	    DJ_JBCHeader        : DJBytecodeSpec * DJSourceSpec * DJClassSpec * DJSuperSpec * List(DJImplementsSpec) * DJSignatureSpec * DJEnclosingSpec * DJDeprecatedSpec -> DJJasminHeader
+	    DJ_BooleanName      : DJBaseTypeName
+	    DJ_ShortName        : DJBaseTypeName
+	    DJ_LongName         : DJBaseTypeName
+	    DJ_IntName          : DJBaseTypeName
+	    DJ_FloatName        : DJBaseTypeName
+	    DJ_DoubleName       : DJBaseTypeName
+	    DJ_CharName         : DJBaseTypeName
+	    DJ_ByteName         : DJBaseTypeName
+	                        : String -> DJFieldSignature
+	                        : String -> DJClassSignature
+	                        : String -> DJString
+	    DJ_JBCMethodRef     : DJClassRef * DJMRef * DJMethodDescriptor -> DJMethodRef
+	    DJ_JBCFieldRef      : DJClassRef * DJFRef * DJFieldDescriptor -> DJFieldRef
+	    DJ_MRef             : DJMethodName -> DJMRef
+	    DJ_FRef             : DJFieldName -> DJFRef
+	    DJ_Absolute         : DJInt -> DJLabelRef
+	    DJ_LabelRef         : DJLabelName -> DJLabelRef
+	    DJ_VarNum           : DJInt -> DJVarRef
+	    DJ_CRef             : DJClassName -> DJClassRef
+	                        : DJSQIdentifier -> DJVarName
+	    DJ_Init             : DJMethodName
+	                        : DJIdentifier -> DJMethodName
+	                        : DJIdentifier -> DJFieldName
+	                        : DJQualifiedName -> DJClassName
+	                        : String -> DJLabelName
+	                        : String -> DJQualifiedName
+	                        : String -> DJSQIdentifier
+	                        : String -> DJIdentifier
+	    DJ_Array            : DJComponentType -> DJArrayType
+	    DJ_Reference        : DJClassRef -> DJObjectType
+	    DJ_JBCMethodDesc    : List(DJParameterDescriptor) * DJReturnDescriptor -> DJMethodDescriptor
+	                        : DJFieldType -> DJComponentType
+	    Boolean             : DJBaseType
+	    Short               : DJBaseType
+	    Long                : DJBaseType
+	    Int                 : DJBaseType
+	    Float               : DJBaseType
+	    Double              : DJBaseType
+	    Char                : DJBaseType
+	    Byte                : DJBaseType
+	                        : DJArrayType -> DJFieldType
+	                        : DJObjectType -> DJFieldType
+	                        : DJBaseType -> DJFieldType
+	    Void                : DJReturnDescriptor
+	                        : DJFieldType -> DJReturnDescriptor
+	                        : DJFieldType -> DJParameterDescriptor
+	    DJ_JBCFieldDesc     : DJFieldType -> DJFieldDescriptor
+	                        : DJString -> DJConstant
+	                        : DJInt -> DJConstant
+	                        : String -> DJInt
+	
+}

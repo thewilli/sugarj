@@ -53,8 +53,6 @@ public class DryadProcessor extends AbstractBaseProcessor {
   public void init(RelativePath sourceFile, Environment environment) {
     //Entry point: Processing of new file
     environment.addToIncludePath(new AbsolutePath(Activator.getPluginPath("/ext")));
-    //add base source dir to include paths
-    environment.addToIncludePath(environment.getSourcePath().get(0));
     //create output file (which holds the built file content later)
     this.outFile = 
         environment.createOutPath(
