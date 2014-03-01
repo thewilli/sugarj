@@ -1856,10 +1856,10 @@ imports Bytecode languages/java/JavaMix[Java]
 
 hiddens
   context-free start-symbols
-    CompilationUnit BlockStm[[Java]] Expr[[Java]] Method InstructionList
+    CompilationUnit Method InstructionList
 
 exports
-  sorts CompilationUnit MakeEmpty EmptyJavaLabel
+  sorts CompilationUnit MakeEmpty EmptyJavaLabel Expr[[Java]] BlockStm[[Java]] Instruction
 
   context-free syntax
     "`" "[" InstructionList "]"     -> Expr[[Java]]            {cons("BytecodeExpr")}
