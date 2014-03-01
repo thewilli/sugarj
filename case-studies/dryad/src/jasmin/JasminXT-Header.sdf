@@ -8,31 +8,31 @@ exports
 
   context-free syntax
     ".bytecode" MajorVersion MinorVersion -> BytecodeSpec {cons("DJ_JBCVersion")}
-                                          -> BytecodeSpec {cons("DJ_None")}
+                                          -> BytecodeSpec {cons("None")}
     Int                                   -> MajorVersion {cons("DJ_Major")}
     "." Int                               -> MinorVersion {cons("DJ_Minor")}
-                                          -> MinorVersion {cons("DJ_None")}
+                                          -> MinorVersion {cons("None")}
     ".source" String                      -> SourceSpec   {cons("DJ_JBCSource")}
-                                          -> SourceSpec   {cons("DJ_None")}
+                                          -> SourceSpec   {cons("None")}
 
   context-free syntax
     ".class" ClassAccess* ClassName     -> ClassSpec      {cons("DJ_JBCClass")}
     ".interface" ClassAccess* ClassName -> ClassSpec      {cons("DJ_JBCInterface")}
-    "public"                            -> ClassAccess    {cons("DJ_PUBLIC")}
-    "final"                             -> ClassAccess    {cons("DJ_FINAL")}
+    "public"                            -> ClassAccess    {cons("PUBLIC")}
+    "final"                             -> ClassAccess    {cons("FINAL")}
     "interface"                         -> ClassAccess    {cons("DJ_INTERFACE")}
-    "abstract"                          -> ClassAccess    {cons("DJ_ABSTRACT")}
+    "abstract"                          -> ClassAccess    {cons("ABSTRACT")}
     "super"                             -> ClassAccess    {cons("DJ_SUPER")}
     ".super" ClassName                  -> SuperSpec      {cons("DJ_JBCSuper")}
     ".implements" ClassName             -> ImplementsSpec {cons("DJ_JBCImplements")}
 
   context-free syntax
     ".signature" ClassSignature            -> SignatureSpec  {cons("DJ_JBCSignature")}
-                                           -> SignatureSpec  {cons("DJ_None")}
+                                           -> SignatureSpec  {cons("None")}
     ".enclosing" "method" MethodDescriptor -> EnclosingSpec  {cons("DJ_JBCEnclosing")}
-                                           -> EnclosingSpec  {cons("DJ_None")}
+                                           -> EnclosingSpec  {cons("None")}
     ".deprecated"                          -> DeprecatedSpec {cons("DJ_JBCDeprecated")}
-                                           -> DeprecatedSpec {cons("DJ_None")}
+                                           -> DeprecatedSpec {cons("None")}
 
   lexical restrictions
     ".bytecode" ".source" ".class" ".interface" "public" "final" "interface"

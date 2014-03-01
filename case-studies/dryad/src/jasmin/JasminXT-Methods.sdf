@@ -6,14 +6,14 @@ imports jasmin/lexical/JasminXT-Names jasmin/lexical/JasminXT-Numbers jasmin/lex
 exports
   context-free syntax
     ".method" MethodAccess* MethodName MethodDescriptor Statement* ".end" "method" -> Method       {cons("DJ_JBCMethod"), scope(Label)}
-    "public"                                                                       -> MethodAccess {cons("DJ_PUBLIC")}
+    "public"                                                                       -> MethodAccess {cons("PUBLIC")}
     "private"                                                                      -> MethodAccess {cons("DJ_PRIVATE")}
-    "protected"                                                                    -> MethodAccess {cons("DJ_PROTECTED")}
-    "static"                                                                       -> MethodAccess {cons("DJ_STATIC")}
-    "final"                                                                        -> MethodAccess {cons("DJ_FINAL")}
-    "synchronized"                                                                 -> MethodAccess {cons("DJ_SYNCHRONIZED")}
-    "native"                                                                       -> MethodAccess {cons("DJ_NATIVE")}
-    "abstract"                                                                     -> MethodAccess {cons("DJ_ABSTRACT")}
+    "protected"                                                                    -> MethodAccess {cons("PROTECTED")}
+    "static"                                                                       -> MethodAccess {cons("STATIC")}
+    "final"                                                                        -> MethodAccess {cons("FINAL")}
+    "synchronized"                                                                 -> MethodAccess {cons("SYNCHRONIZED")}
+    "native"                                                                       -> MethodAccess {cons("NATIVE")}
+    "abstract"                                                                     -> MethodAccess {cons("ABSTRACT")}
 
   context-free syntax
     PCInstruction -> Statement 

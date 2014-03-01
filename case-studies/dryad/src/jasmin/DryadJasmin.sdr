@@ -2,48 +2,12 @@ package jasmin;
 
 import org.sugarj.languages.Dryad;
 import org.sugarj.languages.SugarDryad;
-import jasmin.DryadJasminSyntax;
+import jasmin.DryadJasminSignature;
 
 sugar DryadJasmin{
-	signature constructors
-		DJ_JBCFile : Header * Fields * Methods -> DJJasminFile
-	context-free syntax
-		DJJasminFile -> ToplevelDeclaration {cons("DryadJavaType")}
-	rules
-		desugar-jasmin : 
-			DJ_JBCFile(_,_,_) ->
-				ClassDec(
-							ClassDecHead(
-								[],
-								Id("Test2"),
-								None,
-								None,
-								None
-							),
-							ClassBody(
-								[
-									MethodDec(
-										MethodDecHead(
-											[Public,Static],
-											None,
-											Void,
-											Id("main"),
-											[
-												Param(
-													[],
-													ArrayType(ClassOrInterfaceType(TypeName(Id("String")),None))
-													,Id("args")
-												)
-											],
-											None
-										),
-										Block([ExprStm(Invoke(Method(MethodName(AmbName(AmbName(Id("System")),Id("out")),Id("println"))),[Lit(String([Chars("Hallo Test2!")]))]))])
-									)
-								]
-							)
-						)
-						where jdebug(!"desugar-jasmin")
-					
-		desugarings
-			desugar-jasmin		
+	
+rules
+	testrule : _ -> <fail> where
+		id ; id
+		
 }

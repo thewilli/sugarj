@@ -7,18 +7,18 @@ exports
     FieldType  -> FieldDescriptor     {cons("DJ_JBCFieldDesc")}
     FieldType  -> ParameterDescriptor 
     FieldType  -> ReturnDescriptor    
-    "V"        -> ReturnDescriptor    {cons("DJ_Void")}
+    "V"        -> ReturnDescriptor    {cons("Void")}
     BaseType   -> FieldType           
     ObjectType -> FieldType           
     ArrayType  -> FieldType           
-    "B"        -> BaseType            {cons("DJ_Byte")}
-    "C"        -> BaseType            {cons("DJ_Char")}
-    "D"        -> BaseType            {cons("DJ_Double")}
-    "F"        -> BaseType            {cons("DJ_Float")}
-    "I"        -> BaseType            {cons("DJ_Int")}
-    "J"        -> BaseType            {cons("DJ_Long")}
-    "S"        -> BaseType            {cons("DJ_Short")}
-    "Z"        -> BaseType            {cons("DJ_Boolean")}
+    "B"        -> BaseType            {cons("Byte")}
+    "C"        -> BaseType            {cons("Char")}
+    "D"        -> BaseType            {cons("Double")}
+    "F"        -> BaseType            {cons("Float")}
+    "I"        -> BaseType            {cons("Int")}
+    "J"        -> BaseType            {cons("Long")}
+    "S"        -> BaseType            {cons("Short")}
+    "Z"        -> BaseType            {cons("Boolean")}
     FieldType  -> ComponentType       
 
   syntax
