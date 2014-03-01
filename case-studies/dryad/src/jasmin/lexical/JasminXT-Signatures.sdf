@@ -1,7 +1,0 @@
-module jasmin/lexical/JasminXT-Signatures
-imports jasmin/lexical/JasminXT-Strings jasmin/lexical/JasminXT-Descriptors
-
-exports
-  lexical syntax
-    String -> ClassSignature 
-    String -> FieldSignature 
