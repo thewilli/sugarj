@@ -155,7 +155,7 @@ AbstractBaseProcessor {
 	 * @throws SourceCodeException Invalid Source Code input
 	 * @throws IOException IO or other problem occured
 	 */
-	public List<Path> parseCompileStrategyResult(IStrategoTerm result, Exception ex) throws SourceCodeException, IOException{
+	public List<Path> handleCompileStrategyResult(IStrategoTerm result, Exception ex) throws SourceCodeException, IOException{
 		return new ArrayList<Path>();
 	}
 
@@ -204,7 +204,7 @@ AbstractBaseProcessor {
 			ex = e;
 		}
 		//Parse result
-		List<Path> paths = parseCompileStrategyResult(result, ex);
+		List<Path> paths = handleCompileStrategyResult(result, ex);
 		//ensure list is not null
 		if(paths == null)
 			paths = new ArrayList<Path>();

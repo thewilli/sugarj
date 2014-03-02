@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoAppl;
-import org.spoofax.interpreter.terms.IStrategoInt;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.terms.StrategoConstructor;
@@ -21,8 +20,6 @@ import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.dryad.Activator;
 import org.sugarj.dryad.strategies.ResolveResource_0_0;
-import org.sugarj.dryad.strategies.STRJVM__callstatic__string__stringstring_0_5;
-import org.sugarj.dryad.strategies.WriteClassFile_0_1;
 
 /**
  * Processor of SugarDryad
@@ -52,8 +49,6 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		//add required Java-Strategies
 		ArrayList<Strategy> strategies = new ArrayList<Strategy>();
 		strategies.add(ResolveResource_0_0.instance);
-		strategies.add(STRJVM__callstatic__string__stringstring_0_5.instance);
-		strategies.add(WriteClassFile_0_1.instance);
 		return strategies;
 	}
 
@@ -207,18 +202,14 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	}
 	
 	@Override
-	public List<Path> parseCompileStrategyResult(IStrategoTerm result,
+	public List<Path> handleCompileStrategyResult(IStrategoTerm result,
 			Exception ex) throws SourceCodeException, IOException {
 		if(ex != null){ 
 			//error occured
 			throw new IOException("Compilation failed: " + ex.getMessage());
 		}
-		if(result.getTermType() == IStrategoTerm.INT){
-			//result is a status code provided by the compile strategy
-			if(((IStrategoInt)result).intValue() != 0)
-				throw new IOException("Compiling failed with error code: " + ((IStrategoInt)result).intValue());
-		}else{
-			//unknown result
+		if(result.getTermType() != IStrategoTerm.APPL || !((IStrategoAppl)result).getName().equals("Null")){
+			//compilation did not succeed
 			throw new IOException("Compilation failed: " + result.toString());
 		}
 		return new ArrayList<Path>();
