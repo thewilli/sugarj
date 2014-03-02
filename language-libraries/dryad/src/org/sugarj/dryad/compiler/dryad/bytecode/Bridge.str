@@ -18,17 +18,25 @@ signature constructors
 
 strategies
 
+  //retrieve a list of .jar files which are required for calls to class2aterm and aterm2class
   getJars = id
+    //create list auf .jar names
     ; !["aterm.jar","aterm-java-1.8.2.jar","bcel-5.2.jar","IntermediateLanguage-1.0.jar","jjtraveler.jar","shared-objects.jar","aterm2class.jar"]
+    //add folder prefix
     ; map(\x -> <concat-strings>["aterm2class/",x]\)
+    //retrieve full path
     ; map(ResolveResource)
 
-
+  //replace for jvm calls
   strjvm-callstatic-new(|class,method) = id
+    //ensure argument term is a list of terms
     ; as-list
+    //wrap string values with Constructor String()
     ; map(try(\x -> String(x) where is-string\))
+    //get result
     ; CallJavaStatic(|<getJars>,class,method)
-    ; ?Result(String(<id>))
+    //fetch result and parse as term
+    ; ?Result(String(<read-from-string>))
 
   read-class-file =
     ?Jar(jarpath, filepath)

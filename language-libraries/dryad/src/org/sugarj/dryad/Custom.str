@@ -1,18 +1,40 @@
 module org/sugarj/dryad/Custom
 
+signature constructors
+  	Result : A -> B    
+	String : A -> B
+	Null : A
+	
 strategies
 	
-	//needed by dryad/dryad-compiler
-	external STRJVM_callstatic_string_stringstring(|a,b,c,d,e)
+	//external definitions for Java-based strategies
+	
 	//execute static Java methods
 	external CallJavaStatic(|jars,classname,methodname)
 	//retrieve source path (of project when compiling)
 	external GetSourcePath(|)
 	//retrieve absolute file name for a ressource bundled with the Dryad plugin
 	external ResolveResource(|)
-	//write compiled class to binary Java Class
-	external WriteClassFile(|path)
 	
+	//retrieve a list of .jar files which are required for calls to class2aterm and aterm2class
+  	getJars = id
+	    //create list auf .jar names
+    	; !["aterm.jar","aterm-java-1.8.2.jar","bcel-5.2.jar","IntermediateLanguage-1.0.jar","jjtraveler.jar","shared-objects.jar","aterm2class.jar"]
+	    //add folder prefix
+	    ; map(\x -> <concat-strings>["aterm2class/",x]\)
+	    //retrieve full path
+	    ; map(ResolveResource)
+
+	  //replace for jvm calls
+	strjvm-callstatic-new(|class,method) = id
+		//ensure argument term is a list of terms
+		; as-list
+		//wrap string values with Constructor String()
+		; map(try(\x -> String(x) where is-string\))
+		//get result
+		; CallJavaStatic(|<getJars>,class,method)
+		//fetch result and parse as term (if term)
+		; ?Result(String(<read-from-string>)) +> id
 	
 	jdebug(what) = 
 		where(<concat-strings>["JDEBUG: ",<what>," - "] => str);
@@ -35,5 +57,7 @@ strategies
    		; dryad-emit(dryad-compiler-error)
    		; jdebug(!"Compilation succeeded!")
    		; ?[<id>]
-		; WriteClassFile(|path)    
+   		; ![<write-to-string>,path]
+   		; strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport")
+		; (?Result(Null()) ; !0) +> !1
 		; jdebug(!"Class file written")

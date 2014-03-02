@@ -23,6 +23,7 @@ public class CallJavaStatic_0_3 extends Strategy{
 	
 	public static CallJavaStatic_0_3 instance = new CallJavaStatic_0_3();
 	
+	//TODO: Add comments
 	private static List<URL> generateDepList(IStrategoTerm jars){
 		if(jars.getTermType() != IStrategoTerm.LIST)
 			throw new IllegalArgumentException("invalid argument: jars");
@@ -71,6 +72,7 @@ public class CallJavaStatic_0_3 extends Strategy{
 		for(int i = 0; i < params.getSubtermCount(); i++){
 			IStrategoAppl param = (IStrategoAppl) params.getSubterm(i);
 			if(param.getName().equals("String")){
+				//FIXME: Handle Null() input
 				if(param.getSubterm(0).getTermType() != IStrategoTerm.STRING)
 					throw new java.lang.IllegalArgumentException("invalid argument parameter value");
 				paramValues[i] = asString(param.getSubterm(0));

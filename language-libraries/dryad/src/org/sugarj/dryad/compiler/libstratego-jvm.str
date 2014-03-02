@@ -43,6 +43,7 @@ strategies
         Debug()
       , <concat-strings> ["Invoking JVM: ", class, ".", method, "(", arg1, ",", arg2, ")"]
       )
-    ; STRJVM_callstatic_string_stringstring(|jvm,class,method,arg1,arg2)
+    ; fail
+    //; STRJVM_callstatic_string_stringstring(|jvm,class,method,arg1,arg2)
     //; prim("STRJVM_callstatic_string_stringstring", jvm, class, method, arg1, arg2)
     
