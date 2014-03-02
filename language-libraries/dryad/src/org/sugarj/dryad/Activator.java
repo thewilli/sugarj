@@ -33,7 +33,7 @@ public class Activator extends AbstractUIPlugin {
 	      null
 	  );
 	  if(fileUrl == null)
-	    return null;
+	    return null; //not found
 	  try {
 	    //return resulting path (strip 'file:')
       return FileLocator.toFileURL(fileUrl).toString().substring(5);
