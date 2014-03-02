@@ -7,11 +7,11 @@ import static org.sugarj.common.ATermCommands.isApplication;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.sugarj.common.path.Path;
 
-//BEGIN OF COMMON TASKS
-
-//TODO what about StrategoRenamed.sdf?
-//END OF COMMON TASKS
-
+/**
+ * SugarDryad Language
+ * @author Willi Eggeling
+ *
+ */
 public class DryadLanguage extends ExtendedAbstractBaseLanguage {
 
   private static DryadLanguage instance = new DryadLanguage();
@@ -105,10 +105,7 @@ public class DryadLanguage extends ExtendedAbstractBaseLanguage {
 
   @Override
   public boolean isPlainDecl(IStrategoTerm decl) {
-    //TODO: ever used?
-    if (isApplication(decl, "PlainDec"))
-      return true;
-    return false;
+    return false; //never used
   }
 
   @Override

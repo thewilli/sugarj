@@ -24,6 +24,11 @@ import org.sugarj.dryad.strategies.ResolveResource_0_0;
 import org.sugarj.dryad.strategies.STRJVM__callstatic__string__stringstring_0_5;
 import org.sugarj.dryad.strategies.WriteClassFile_0_1;
 
+/**
+ * Processor of SugarDryad
+ * @author Willi Eggeling
+ *
+ */
 public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 
 	private static final long serialVersionUID = 8526963341981176061L;
@@ -44,6 +49,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 
 	@Override
 	public List<Strategy> getJavaStrategies(){
+		//add required Java-Strategies
 		ArrayList<Strategy> strategies = new ArrayList<Strategy>();
 		strategies.add(ResolveResource_0_0.instance);
 		strategies.add(STRJVM__callstatic__string__stringstring_0_5.instance);
@@ -137,6 +143,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		if (relModulePath.endsWith("*"))
 			return true;
 		try {
+			//use the class loader to determine whether the import is loadble
 			return getClass().getClassLoader().loadClass(relModulePath.replace('/', '.')) != null;
 		} catch (ClassNotFoundException e) {
 			return false;
@@ -198,18 +205,20 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		}
 		return getInterpreter().getFactory().makeList(termArgs);
 	}
-
-
-
+	
 	@Override
 	public List<Path> parseCompileStrategyResult(IStrategoTerm result,
 			Exception ex) throws SourceCodeException, IOException {
-		if(ex != null)
+		if(ex != null){ 
+			//error occured
 			throw new IOException("Compilation failed: " + ex.getMessage());
+		}
 		if(result.getTermType() == IStrategoTerm.INT){
+			//result is a status code provided by the compile strategy
 			if(((IStrategoInt)result).intValue() != 0)
 				throw new IOException("Compiling failed with error code: " + ((IStrategoInt)result).intValue());
 		}else{
+			//unknown result
 			throw new IOException("Compilation failed: " + result.toString());
 		}
 		return new ArrayList<Path>();
