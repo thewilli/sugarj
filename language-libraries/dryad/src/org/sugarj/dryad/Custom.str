@@ -4,6 +4,10 @@ strategies
 	
 	//needed by dryad/dryad-compiler
 	external STRJVM_callstatic_string_stringstring(|a,b,c,d,e)
+	//execute static Java methods
+	external CallJavaStatic(|jars,classname,methodname)
+	//retrieve source path (of project when compiling)
+	external GetSourcePath(|)
 	//retrieve absolute file name for a ressource bundled with the Dryad plugin
 	external ResolveResource(|)
 	//write compiled class to binary Java Class

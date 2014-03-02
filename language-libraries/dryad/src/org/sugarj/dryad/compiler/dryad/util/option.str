@@ -51,6 +51,7 @@ strategies
   import-observable-classes-entry =
     if has-extension(|"classes") then
       ReadFromFile
+      ; topdown(try(\x -> <string-replace(|"/plugin-root/",<ResolveResource>"")>x where is-string\))
       ; import-repository 
       <+ log(|Error(), "Could not import Dryad repository", <id>)
     else

@@ -13,24 +13,36 @@ imports
   org/sugarj/dryad/compiler/dryad/bytecode/MethodSignature
   org/sugarj/dryad/compiler/dryad/bytecode/FieldSignature
   
+signature constructors
+  Result : A -> B
+
 strategies
+
+  getJars = id
+    ; !["aterm.jar","aterm-java-1.8.2.jar","bcel-5.2.jar","IntermediateLanguage-1.0.jar","jjtraveler.jar","shared-objects.jar","aterm2class.jar"]
+    ; map(\x -> <concat-strings>["aterm2class/",x]\)
+    ; map(ResolveResource)
+
+
+  strjvm-callstatic-new(|class,method) = id
+    ; as-list
+    ; map(try(\x -> String(x) where is-string\))
+    ; CallJavaStatic(|<getJars>,class,method)
+    ; ?Result(String(<id>))
 
   read-class-file =
     ?Jar(jarpath, filepath)
-    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)    
-    ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm_from_jar")> [jarpath, filepath]
+    ; <strjvm-callstatic-new(|"str/classtree/Class2ATerm", "disasm_from_jar")> [jarpath, filepath]
     ; parse-signatures
     
   read-class-file =
     (?ClassFile(path) + ?FILE(path))
-    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
-    ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm")> [path, "off"]
+    ; <strjvm-callstatic-new(|"str/classtree/Class2ATerm", "disasm")> [path, "off"]
     ; parse-signatures
     
   read-class-file-disasm = 
     (?ClassFile(path) + ?FILE(path))
-    ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)
-    ; <strjvm-callstatic(|jvm, "str/classtree/Class2ATerm", "disasm")> [path, "on"]
+    ; <strjvm-callstatic-new(|"str/classtree/Class2ATerm", "disasm")> [path, "on"]
     ; parse-signatures
     
   /**
@@ -56,7 +68,7 @@ strategies
       write-to
     ; xtc-transform(!"baffle", !["-ws"]) => FILE(input)
     ; where(get-jvm(|[<id> "class2aterm.jar"]) => jvm)    
-    ; <strjvm-callstatic(|jvm, "str/classtree/ATerm2Class", "asm")> [input, path]
+    ; <strjvm-callstatic-new(|"str/classtree/ATerm2Class", "asm")> [input, path]
 
 strategies  
     

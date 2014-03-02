@@ -4,7 +4,7 @@ import org.spoofax.interpreter.terms.IStrategoTerm;
 
 /**
  * Extended abstract base language class which includes namespace decleration checks
- * @author wje
+ * @author Willi Eggeling
  *
  */
 public abstract class ExtendedAbstractBaseLanguage extends AbstractBaseLanguage {

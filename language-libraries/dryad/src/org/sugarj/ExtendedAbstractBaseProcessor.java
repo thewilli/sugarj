@@ -27,6 +27,8 @@ import org.sugarj.common.errors.SourceCodeException;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
+import org.sugarj.strategies.CallJavaStatic_0_3;
+import org.sugarj.strategies.GetSourcePath_0_0;
 
 /**
  * Extended Base processor which Java Strategy import and Strategy compilation support
@@ -227,7 +229,11 @@ AbstractBaseProcessor {
 	public void init(RelativePath sourceFile, Environment environment) {
 		//initialize namespace term (getInterpreter() can be used here)
 		termNS = getInterpreter().getFactory().makeAppl(new StrategoConstructor("NoNS", 0));
-		//TODO: add default strategies
+		//enable source-path resolution. Requires external definition
+		strategies.add(new GetSourcePath_0_0(environment.getSourcePath().get(0).getAbsolutePath()));
+		//register Java-execution strategy
+		strategies.add(CallJavaStatic_0_3.instance);
+		//add strategies from base language
 		strategies.addAll(getJavaStrategies());
 		registerStrategies(); //register strategies to allow their usage in Sugar Libraries
 	}
