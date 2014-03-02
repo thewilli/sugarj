@@ -10,10 +10,9 @@ import org.sugarj.common.path.Path;
 //BEGIN OF COMMON TASKS
 
 //TODO what about StrategoRenamed.sdf?
-//TODO Sugar syntax
 //END OF COMMON TASKS
 
-public class DryadLanguage extends AbstractBaseLanguage {
+public class DryadLanguage extends ExtendedAbstractBaseLanguage {
 
   private static DryadLanguage instance = new DryadLanguage();
 
@@ -112,6 +111,7 @@ public class DryadLanguage extends AbstractBaseLanguage {
     return false;
   }
 
+  @Override
   public boolean isNamespaceDec(IStrategoTerm decl) {
     return isApplication(decl, "DryadJavaPackage");
   }
