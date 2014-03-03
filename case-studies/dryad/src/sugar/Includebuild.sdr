@@ -1,0 +1,36 @@
+package sugar;
+
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+
+sugar Includebuild{
+	strategies
+		getTimestamp = ![]
+			; CallJavaStatic(|[],"java.lang.System","currentTimeMillis")
+			; ?Result(String(<id>))
+			; <concat-strings> [<id>,"L"]
+
+	rules
+
+		desugar-buildfield : ClassBody(x) -> ClassBody([y|x])
+			where
+				topdown(hasNotField) ;
+				!FieldDec([Public(),Static(),Final()],Long(),[VarDec(Id("build"),Lit(Deci(<getTimestamp>)))]) => y
+	     
+		hasNotField : _ -> <id>
+			where
+				?FieldDec(_,_,x) < not(<fetch-elem(?VarDec(Id("build"),_))>x) + id
+
+		desugar-buildmethod : ClassBody(x) -> ClassBody([y|x])
+			where
+				topdown(hasNotMethod) ;
+				!MethodDec(MethodDecHead([Public(),Static(),Final()],None(),Long(),Id("getBuildTime"),[],None()),Block([Return(Some(Lit(Deci(<getTimestamp>))))])) => y
+     
+    	hasNotMethod : _ -> <id>
+    		where
+    			?MethodDec(_,_) < not(?MethodDec(MethodDecHead(_,_,_,Id("getBuildTime"),_,_),_)) + id
+    
+		
+	desugarings
+		desugar-buildmethod
+}
