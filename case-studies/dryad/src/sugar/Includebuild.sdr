@@ -12,15 +12,6 @@ sugar Includebuild{
 
 	rules
 
-		desugar-buildfield : ClassBody(x) -> ClassBody([y|x])
-			where
-				topdown(hasNotField) ;
-				!FieldDec([Public(),Static(),Final()],Long(),[VarDec(Id("build"),Lit(Deci(<getTimestamp>)))]) => y
-	     
-		hasNotField : _ -> <id>
-			where
-				?FieldDec(_,_,x) < not(<fetch-elem(?VarDec(Id("build"),_))>x) + id
-
 		desugar-buildmethod : ClassBody(x) -> ClassBody([y|x])
 			where
 				topdown(hasNotMethod) ;

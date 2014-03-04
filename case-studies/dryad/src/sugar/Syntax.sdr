@@ -1,0 +1,17 @@
+package sugar;
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+import sugar.MetaExplode;
+sugar Syntax{
+	signature
+	  constructors
+	    ToMetaExpr       : a -> b
+	    ToMetaListExpr   : a -> b
+	    FromMetaExpr     : a -> StrategoTerm
+	    FromMetaListExpr : a -> StrategoTerm
+
+	context-free syntax
+		"|[" MethodDec[[Java]] "]|"   -> StrategoTerm {cons("ToMetaExpr")}
+		"|[" Expr[[Java]]	   "]|"   -> StrategoTerm {cons("ToMetaExpr")}
+		"~" StrategoTerm ->  Expr[[Java]] {cons("FromMetaExpr"),prefer}
+}

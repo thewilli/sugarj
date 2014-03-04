@@ -1,0 +1,28 @@
+package sugar;
+
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+import sugar.Syntax;
+
+sugar IncludebuildCS{
+	
+	strategies
+		getTimestamp = ![]
+			; CallJavaStatic(|[],"java.lang.System","currentTimeMillis")
+			; ?Result(String(<id>))
+			; <concat-strings> [<id>,"L"]
+	rules
+
+		desugar-buildmethodCS : ClassBody(x) -> ClassBody([y|x])
+			where
+				topdown(hasNotMethod);
+				!Lit(Deci(<getTimestamp>)) => z;
+				!|[public static long getBuildCS(){return ~z;}]| => y
+     
+    	hasNotMethod : _ -> <id>
+    		where
+    			?MethodDec(_,_) < not(?MethodDec(MethodDecHead(_,_,_,Id("getBuildCS"),_,_),_)) + id
+    	
+	desugarings
+		desugar-buildmethodCS
+}
