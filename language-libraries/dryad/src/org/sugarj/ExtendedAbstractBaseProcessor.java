@@ -48,7 +48,7 @@ AbstractBaseProcessor {
 	private List<IStrategoTerm> termsBase = new ArrayList<IStrategoTerm>();
 	//Java Strategies
 	private List<Strategy> strategies = new ArrayList<Strategy>();
-
+	
 	/**
 	 * Helper class that provides Strategy registration
 	 * @author Willi Eggeling
@@ -164,6 +164,15 @@ AbstractBaseProcessor {
 	 * @return Name of Compiler Strategy or null if regular (file-based) compilation should be used.
 	 */
 	public String getCompileStrategyName(){
+		return null;
+	}
+	
+	/**
+	 * Retrieve the namespace path of the provided term (e.g. the Java package foo.bar declaration would lead to "foo/bar")
+	 * @param nsTerm Namespace term
+	 * @return String path of namespace (seperated by '/') or null if unsupported
+	 */
+	public String getModulePathOfNamespace(IStrategoTerm nsTerm){
 		return null;
 	}
 
@@ -314,11 +323,6 @@ AbstractBaseProcessor {
 			outputDirWithSuffix += File.separator;
 		//iterate over each file that should be compiled
 		for(Path inputFile : generatedSourceFiles){
-			//build target filename
-			String targetFile = 
-					outputDirWithSuffix
-					+ FileCommands.dropExtension(FileCommands.fileName(inputFile))
-					+ "." + getLanguage().getBinaryFileExtension();
 			//parse term which was written to the input file before
 			IStrategoTerm content = getInterpreter().getFactory().parseFromString(readFile(inputFile.getAbsolutePath(),Charset.defaultCharset()));
 			if(
@@ -332,6 +336,21 @@ AbstractBaseProcessor {
 			IStrategoTerm ns = content.getSubterm(0);
 			if(ns.getTermType() == IStrategoTerm.APPL && ((IStrategoAppl)ns).getName().equals("NoNS"))
 				ns = null; //no namespace provided
+			//build target filename
+			String targetFile = 
+					outputDirWithSuffix;
+			//append namespace (if any)
+			if(ns != null){
+				String nsPath = getModulePathOfNamespace(ns);
+				if(nsPath != null && nsPath.length() > 0){
+					targetFile += nsPath.replace('/', File.separatorChar) + File.separatorChar;
+				}
+			}
+			//append namespace 
+			targetFile
+					+= FileCommands.dropExtension(FileCommands.fileName(inputFile))
+					+ "." + getLanguage().getBinaryFileExtension();
+			
 			//compile single file
 			List<Path> resultFiles = compileFile(
 					inputFile,

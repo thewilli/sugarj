@@ -36,7 +36,6 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	//delimiter for module names
 	//Delimiter of (SugarJ-)internal module names (like "org/sugarj/common")
 	private static String MODULE_DELMIMITER = "/";
-
 	//target output file
 	private Path outFile;
 	//Name of namespace
@@ -76,14 +75,11 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	}
 
 	private void processNamespaceDecl(IStrategoTerm toplevelDecl) throws IOException {
-		StrategoList namespaceParts = (StrategoList)toplevelDecl.getSubterm(0).getSubterm(1).getSubterm(0);
+		//get namespace
 		namespace = "";
-		//build namespace out of term fragments
-		for(IStrategoTerm subId : namespaceParts.getAllSubterms()){
-			if(namespace.length() > 0)
-				namespace += MODULE_DELMIMITER;
-			namespace += ((StrategoString)subId.getSubterm(0)).stringValue();
-		}
+		try{
+			namespace = getModulePathOfNamespace(toplevelDecl);
+		}catch(Exception ex){}
 	}
 
 	@Override
@@ -114,6 +110,19 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 				getTermInputPath((IStrategoAppl)term.getSubterm(0)) 
 				+ MODULE_DELMIMITER
 				+ getTermInputPath((IStrategoAppl)term.getSubterm(1));
+	}
+	
+	@Override
+	public String getModulePathOfNamespace(IStrategoTerm nsTerm){
+		StrategoList namespaceParts = (StrategoList)nsTerm.getSubterm(0).getSubterm(1).getSubterm(0);
+		String namespace = "";
+		//build namespace out of term fragments
+		for(IStrategoTerm subId : namespaceParts.getAllSubterms()){
+			if(namespace.length() > 0)
+				namespace += MODULE_DELMIMITER;
+			namespace += ((StrategoString)subId.getSubterm(0)).stringValue();
+		} 
+		return namespace;
 	}
 
 	@Override
