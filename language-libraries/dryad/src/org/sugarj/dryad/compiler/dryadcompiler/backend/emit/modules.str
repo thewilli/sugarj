@@ -28,8 +28,9 @@ strategies
   package-name-wrap(s) =
     {| CurrentPackagePrefix:
       where(  
-        ?CompilationUnit(Some(PackageDec(_, <id>)), _, _);
-        package := <conc-strings> (<separate-by(|".")>, ".")
+        ?CompilationUnit(Some(PackageDec(_,PackageName(<id>))), _, _);
+        map(\Id(descr) -> descr\);
+        package := <strcat>(<concat-strings><separate-by(|".")>,".")
       <+
         package := ""
       );
