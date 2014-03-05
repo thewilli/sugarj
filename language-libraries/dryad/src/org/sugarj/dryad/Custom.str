@@ -4,7 +4,8 @@ signature constructors
   	Result : A -> B    
 	String : A -> B
 	Null : A
-	
+	ClassImport : A * B * C -> D
+
 strategies
 	
 	//external definitions for Java-based strategies
@@ -39,11 +40,22 @@ strategies
 	jdebug(what) = 
 		where(<concat-strings>["JDEBUG: ",<what>," - "] => str);
 		debug(!str)
+
+	processImport =	id
+	  ; ?ClassImport(simplename,pkgname,path)
+      ; !ClassFile(path) => location
+      ; <parse-binary-name> simplename => parts
+      ; <lookup-or-add-package> pkgname => pkg
+      ; <private-classpath-handle-toplevel-class(|pkg)> parts
+      ; set-package(|pkg)
+      ; set-location(|location)	
 	
 	compileClass() = id
 		; jdebug(!"compileClass called")
-		; ?[path,<id>]
+		; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
+		; ?[path,imports,<id>]
 		; ensure-import-observable-classes
+		; where(<map(processImport)>imports)
 		; as-list(map( // unassemble imported classfiles
       		if(is-ClassFile, bc-unasm(dryad-compiler-error))
     	))

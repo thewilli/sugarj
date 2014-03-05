@@ -1,6 +1,8 @@
 package org.sugarj;
 
 import static org.sugarj.common.ATermCommands.getApplicationSubterm;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,6 +10,7 @@ import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoAppl;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
+import org.spoofax.interpreter.terms.ITermFactory;
 import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoString;
@@ -38,6 +41,8 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	private Path outFile;
 	//Name of namespace
 	private String namespace;
+	//SugarJ Environment for file processing
+	private Environment environment;
 
 	@Override
 	public AbstractBaseLanguage getLanguage() {
@@ -55,6 +60,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	@Override
 	public void init(RelativePath sourceFile, Environment environment) {
 		super.init(sourceFile, environment);
+		this.environment = environment;
 		//Entry point: Processing of new file
 		environment.addToIncludePath(new AbsolutePath(Activator.getPluginPath("/ext")));
 		//create output file (which holds the built file content later)
@@ -144,6 +150,29 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			return false;
 		}
 	}
+	
+	private IStrategoTerm getOptionalImportTerm(IStrategoTerm importTerm){
+		//TODO: Add Comments
+		String modulePath = getModulePathOfImport(importTerm);
+		File f =
+				environment.createOutPath(
+						getModulePathOfImport(importTerm) + 
+						"." + getLanguage().getBinaryFileExtension()
+				).getFile();
+		if(!f.exists())
+			return null;
+		String[] packageNames = modulePath.split(MODULE_DELMIMITER);
+		ITermFactory factory = getInterpreter().getFactory();
+		List<IStrategoTerm> packageParts = new ArrayList<IStrategoTerm>();
+		for(int i = 0; i < packageNames.length - 1; i++)
+			packageParts.add(factory.makeString(packageNames[i]));
+		return factory.makeAppl(
+				factory.makeConstructor("ClassImport", 3),
+				factory.makeString(packageNames[packageNames.length - 1]),
+				factory.makeList(packageParts),
+				factory.makeString(f.getAbsolutePath())
+		);
+	}
 
 	@Override
 	public String getExtensionName(IStrategoTerm decl) throws IOException {
@@ -175,23 +204,30 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			nsTerm = getInterpreter().getFactory().makeAppl(
 					getInterpreter().getFactory().makeConstructor("Some", 1),
 					nsTerm.getSubterm(0)
-					);
+			);
+		List<IStrategoTerm> importHelpers = new ArrayList<IStrategoTerm>();
 		//Remove TopLeveDeclaration-Wrapper
-		for(int i = 0; i < importTerms.length; i++)
+		for(int i = 0; i < importTerms.length; i++){
+			//check if import is another SugarDryad file which should be included
+			IStrategoTerm importTerm = getOptionalImportTerm(importTerms[i]);
+			if(importTerm != null)
+				importHelpers.add(importTerm);
 			importTerms[i] = importTerms[i].getSubterm(0);
+		}
 		for(int i = 0; i < baseTerms.length; i++)
 			baseTerms[i] = baseTerms[i].getSubterm(0);
 
-		IStrategoTerm[] termArgs = new IStrategoTerm[2];
+		IStrategoTerm[] termArgs = new IStrategoTerm[3];
 		termArgs[0] = getInterpreter().getFactory().makeString(fullOutputFileName);
+		termArgs[1] = getInterpreter().getFactory().makeList(importHelpers);
 		//check if content is a Bytecode Class File (instead of a Java File)
 		if(
 				baseTerms[0].getTermType() == IStrategoTerm.APPL &&
 				((IStrategoAppl)baseTerms[0]).getName().equals("ClassFile")
 				){
-			termArgs[1] = baseTerms[0]; //BC Classfile
+			termArgs[2] = baseTerms[0]; //BC Classfile
 		}else{
-			termArgs[1] = getInterpreter().getFactory().makeAppl(
+			termArgs[2] = getInterpreter().getFactory().makeAppl(
 					getInterpreter().getFactory().makeConstructor("CompilationUnit",3),
 					nsTerm,
 					getInterpreter().getFactory().makeList(importTerms),
