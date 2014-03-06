@@ -1,0 +1,6 @@
+import test.StratDef;
+public class StratTest{
+	public static void main(String[]args){
+		System.out.println("StratTest");
+	}
+}

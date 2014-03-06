@@ -1,0 +1,5 @@
+package test;
+sugar StratDef{
+	strategies
+		extStratDef = jdebug(!"extStratDef called!")
+}

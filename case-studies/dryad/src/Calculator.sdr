@@ -1,12 +1,8 @@
-import syso;
-
+import java.text.SimpleDateFormat;
+import test.Foo;
 class Calculator {
-	String x;
   public static void main(String[] args) {
-    System.out.println("Hello world!");
-    syso("Hallo Syso!!");
-    System.out.println("Hello, Java world");
-    System.out.println(`ldc "Hello Java+bytecode world!");
+  	//Cow.moo(6);
+  	Foo.test("Calculator call!");
   }
 }
-

@@ -18,6 +18,7 @@ sugar DryadJasminTrans{
 		Fields : A -> B
 		Methods : A -> B
 		Attributes : A -> B
+		DryadInstruction : A -> B
 
 		
 	rules

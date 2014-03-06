@@ -1,0 +1,6 @@
+package test;
+public class Foo{
+	public static void test(String s){
+		System.out.println("Foo: " + s);
+	}
+}
