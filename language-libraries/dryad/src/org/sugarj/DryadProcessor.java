@@ -159,17 +159,23 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			return false;
 		}
 	}
-	
+	/**
+	 * Check if an import of the current file imports another file representing a class (not a pure Sugar Library).
+	 * @param importTerm Import Declaration
+	 * @return Import Term representing .class file of target, null otherweise
+	 */
 	private IStrategoTerm getOptionalImportTerm(IStrategoTerm importTerm){
-		//TODO: Add Comments
+		//get module path
 		String modulePath = getModulePathOfImport(importTerm);
+		//check if .class file exists for module name
 		File f =
 				environment.createOutPath(
 						getModulePathOfImport(importTerm) + 
 						"." + getLanguage().getBinaryFileExtension()
 				).getFile();
 		if(!f.exists())
-			return null;
+			return null; //no binary file exists
+		//create import term
 		String[] packageNames = modulePath.split(MODULE_DELMIMITER);
 		ITermFactory factory = getInterpreter().getFactory();
 		List<IStrategoTerm> packageParts = new ArrayList<IStrategoTerm>();
@@ -204,17 +210,28 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			String outputDir, String fullOutputFileName,
 			IStrategoTerm nsTerm, IStrategoTerm[] importTerms,
 			IStrategoTerm[] baseTerms) throws SourceCodeException, IOException {
+		ITermFactory factory = getInterpreter().getFactory();
 		if(baseTerms.length == 0)
 			return null; //nothing to compile
-
+		
 		if(nsTerm == null)
-			nsTerm = getInterpreter().getFactory().makeAppl(new StrategoConstructor("None", 0));
+			nsTerm = factory.makeAppl(new StrategoConstructor("None", 0));
 		else
-			nsTerm = getInterpreter().getFactory().makeAppl(
-					getInterpreter().getFactory().makeConstructor("Some", 1),
+			nsTerm = factory.makeAppl(
+					factory.makeConstructor("Some", 1),
 					nsTerm.getSubterm(0)
 			);
+		//create of list of additional imports. these files are loaded by the Dryad Compiler
+		//for type -checking and -resolution
 		List<IStrategoTerm> importHelpers = new ArrayList<IStrategoTerm>();
+		//add default runtime .jar
+		importHelpers.add(
+			factory.makeAppl(
+					factory.makeConstructor("Jar", 1),
+					factory.makeString(new File(Class.class.getResource("Class.class").getPath()).getAbsolutePath().split("!")[0])
+			)
+		);
+		
 		//Remove TopLeveDeclaration-Wrapper
 		for(int i = 0; i < importTerms.length; i++){
 			//check if import is another SugarDryad file which should be included
@@ -227,8 +244,8 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			baseTerms[i] = baseTerms[i].getSubterm(0);
 
 		IStrategoTerm[] termArgs = new IStrategoTerm[3];
-		termArgs[0] = getInterpreter().getFactory().makeString(fullOutputFileName);
-		termArgs[1] = getInterpreter().getFactory().makeList(importHelpers);
+		termArgs[0] = factory.makeString(fullOutputFileName);
+		termArgs[1] = factory.makeList(importHelpers);
 		//check if content is a Bytecode Class File (instead of a Java File)
 		if(
 				baseTerms[0].getTermType() == IStrategoTerm.APPL &&
@@ -236,14 +253,14 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 				){
 			termArgs[2] = baseTerms[0]; //BC Classfile
 		}else{
-			termArgs[2] = getInterpreter().getFactory().makeAppl(
-					getInterpreter().getFactory().makeConstructor("CompilationUnit",3),
+			termArgs[2] = factory.makeAppl(
+					factory.makeConstructor("CompilationUnit",3),
 					nsTerm,
-					getInterpreter().getFactory().makeList(importTerms),
-					getInterpreter().getFactory().makeList(baseTerms)
-					);
+					factory.makeList(importTerms),
+					factory.makeList(baseTerms)
+			);
 		}
-		return getInterpreter().getFactory().makeList(termArgs);
+		return factory.makeList(termArgs);
 	}
 	
 	@Override
