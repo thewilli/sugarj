@@ -5,6 +5,7 @@ signature constructors
 	String : A -> B
 	Null : A
 	ClassImport : A * B * C -> D
+	Jar : Path -> Jar
 
 strategies
 	
@@ -42,6 +43,9 @@ strategies
 		debug(!str)
 
 	processImport =	id
+	  //.class files cannot be imported using the native Dryad Compiler mechanism
+	  //as they need relative paths to detect package names
+	  //(foo/bar.class would detect 'foo' as package name)
 	  ; ?ClassImport(simplename,pkgname,path)
       ; !ClassFile(path) => location
       ; <parse-binary-name> simplename => parts
@@ -49,12 +53,18 @@ strategies
       ; <private-classpath-handle-toplevel-class(|pkg)> parts
       ; set-package(|pkg)
       ; set-location(|location)	
+        
+ 	processImport = id
+	  ; ?Jar(<id>)
+	  //call the regular import mechanism of Dryad Compiler
+	  ; id //import-observable-classes-entry
 	
 	compileClass() = id
 		; jdebug(!"compileClass called")
 		; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
 		; ?[path,imports,<id>]
-		; ensure-import-observable-classes
+		//import files
+		; ensure-import-observable-classes //TODO: Remove when .jar import works
 		; where(<map(processImport)>imports)
 		; as-list(map( // unassemble imported classfiles
       		if(is-ClassFile, bc-unasm(dryad-compiler-error))
