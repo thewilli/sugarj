@@ -87,6 +87,8 @@ sugar DryadJasminTrans{
 		convertInstruction : DJ_RETURN() -> RETURN()
 		
 		convertInstruction : DJ_LDC(str) -> LDC(String(<un-double-quote>str))
+
+		convertInstruction : DryadInstruction(x) -> x
 		
 		convertInstruction : DJ_INVOKEVIRTUAL(
 			DJ_JBCMethodRef(

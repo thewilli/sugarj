@@ -1,5 +1,8 @@
 package jasmin;
 
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+
 sugar DryadJasminIncludedSyntax{
    
    context-free syntax
@@ -433,8 +436,7 @@ sugar DryadJasminIncludedSyntax{
 
   lexical syntax
     [\ \t\n\r]                         -> LAYOUT 
-    ";" [\n\r]                         -> LAYOUT 
-    ";" [\ \t] ~[\n\r]* [\n\r] | DJEOF -> LAYOUT 
+   
                                        -> DJEOF  
 
   lexical restrictions
@@ -444,6 +446,10 @@ sugar DryadJasminIncludedSyntax{
     LAYOUT? -/- [\ \t\n\r]
     LAYOUT? -/- [\;] . [\ \t]
     LAYOUT? -/- [\;] . [\n\r]
+
+  context-free syntax
+      Instruction[[Java]] -> DJInstruction{cons("DryadInstruction"),prefer}
+    
 
   context-free syntax
     DJJasminHeader DJField* DJMethod* -> DJJasminFile {cons("DJ_JBCFile")}
