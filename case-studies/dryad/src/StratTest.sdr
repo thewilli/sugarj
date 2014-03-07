@@ -1,6 +1,11 @@
 import test.StratDef;
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
 public class StratTest{
 	public static void main(String[]args){
-		System.out.println("StratTest");
+		System.out.println("StratTest!!!!");
+		//int a = "F";
+		//a += 5;
 	}
 }
+

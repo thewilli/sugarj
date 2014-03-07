@@ -1,5 +1,24 @@
 package test;
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+
 sugar StratDef{
 	strategies
+
+		emit-java(s) = jdebug(!"!!!!!EXTERNAL CALL")
+
 		extStratDef = jdebug(!"extStratDef called!")
+
+		mystratb = jdebug(!"external mystratb!!!")
+		
+
+	rules
+		desugar-id : _ -> <id>
+			where fail
+
+		desugar-myblock : Block(_) -> <set-anno>(<id>,Id("MyAnno"))
+
+	desugarings
+		desugar-id
+		desugar-myblock
 }
