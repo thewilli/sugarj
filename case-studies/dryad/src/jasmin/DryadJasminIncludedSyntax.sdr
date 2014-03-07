@@ -444,12 +444,13 @@ sugar DryadJasminIncludedSyntax{
 
   context-free restrictions
     LAYOUT? -/- [\ \t\n\r]
-    LAYOUT? -/- [\;] . [\ \t]
-    LAYOUT? -/- [\;] . [\n\r]
 
   context-free syntax
-      Instruction[[Java]] -> DJInstruction{cons("DryadInstruction"),prefer}
-    
+    "push" "`" Expr[[Java]]         -> Instruction             {cons("JavaExpr")}
+    "`" BlockStm[[Java]]            -> Instruction             {cons("JavaStm")}
+    "`" "[" BlockStm[[Java]]* "]"   -> Instruction             {cons("JavaStm")}
+    "`" FieldDec[[Java]]            -> DJField {cons("JavaField")}
+    "`" MethodDec[[Java]]           -> DJMethod {cons("JavaMethod")}
 
   context-free syntax
     DJJasminHeader DJField* DJMethod* -> DJJasminFile {cons("DJ_JBCFile")}

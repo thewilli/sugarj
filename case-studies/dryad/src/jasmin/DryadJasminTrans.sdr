@@ -20,7 +20,6 @@ sugar DryadJasminTrans{
 		Attributes : A -> B
 		DryadInstruction : A -> B
 
-		
 	rules
 		desugar-jasmin : DJ_JBCFile(header,fields,methods) ->
 			ClassFile(
@@ -62,6 +61,7 @@ sugar DryadJasminTrans{
 		//all other types don't need to be converted (native Types like Byte() or Int())	
 		
 		//TODO: Handle <init>
+		convertMethod : JavaMethod(dec) -> dec
 		convertMethod : 
 			DJ_JBCMethod(flags,name,DJ_JBCMethodDesc(argType,resultType),instructions) ->
 			Method(AccessFlags(flags),Name(name),MethodDescriptor(newArgType,newResultType),Attributes(convertedAttributes))
@@ -108,6 +108,7 @@ sugar DryadJasminTrans{
 		where
 			<topdown(try(convertType))> type => newType
 			
+		convertField : JavaField(dec) -> dec
 			
 		convertField :
 			DJ_JBCExtField(flags,name,DJ_JBCFieldDesc(type),initVal,_) -> 
