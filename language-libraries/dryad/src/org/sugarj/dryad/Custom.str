@@ -54,13 +54,22 @@ strategies
       ; set-package(|pkg)
       ; set-location(|location)	
         
+    fakeid = jdebug(!"fakeid!!!")
+        
  	processImport = id
 	  ; ?Jar(<id>)
 	  //call the regular import mechanism of Dryad Compiler
 	  ; id //import-observable-classes-entry
+	    
+	mystratb = fail
+	
+	mystrata = debug(!"mystrat") ; mystratb
+	
 	
 	compileClass() = id
 		; jdebug(!"compileClass called")
+		; mystrata
+		; jdebug(!"mystrat ok")
 		; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
 		; ?[path,imports,<id>]
 		//import files
