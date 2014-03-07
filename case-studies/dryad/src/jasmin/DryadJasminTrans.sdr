@@ -19,6 +19,8 @@ sugar DryadJasminTrans{
 		Methods : A -> B
 		Attributes : A -> B
 		DryadInstruction : A -> B
+		JavaMethod : A -> B
+		JavaField : A -> B
 
 	rules
 		desugar-jasmin : DJ_JBCFile(header,fields,methods) ->

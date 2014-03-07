@@ -436,7 +436,8 @@ sugar DryadJasminIncludedSyntax{
 
   lexical syntax
     [\ \t\n\r]                         -> LAYOUT 
-   
+    ";" [\n\r]                         -> LAYOUT {avoid}
+    ";" [\ \t] ~[\n\r]* [\n\r] | DJEOF -> LAYOUT {avoid}
                                        -> DJEOF  
 
   lexical restrictions
@@ -444,11 +445,14 @@ sugar DryadJasminIncludedSyntax{
 
   context-free restrictions
     LAYOUT? -/- [\ \t\n\r]
+    //LAYOUT? -/- [\;] . [\ \t]
+    //LAYOUT? -/- [\;] . [\n\r]
+
 
   context-free syntax
-    "push" "`" Expr[[Java]]         -> Instruction             {cons("JavaExpr")}
-    "`" BlockStm[[Java]]            -> Instruction             {cons("JavaStm")}
-    "`" "[" BlockStm[[Java]]* "]"   -> Instruction             {cons("JavaStm")}
+    "push" "`" Expr[[Java]]         -> DJInstruction             {cons("JavaExpr")}
+    "`" BlockStm[[Java]]            -> DJInstruction             {cons("JavaStm")}
+    "`" "[" BlockStm[[Java]]* "]"   -> DJInstruction             {cons("JavaStm")}
     "`" FieldDec[[Java]]            -> DJField {cons("JavaField")}
     "`" MethodDec[[Java]]           -> DJMethod {cons("JavaMethod")}
 
