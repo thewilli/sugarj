@@ -225,10 +225,13 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		//for type -checking and -resolution
 		List<IStrategoTerm> importHelpers = new ArrayList<IStrategoTerm>();
 		//add default runtime .jar
+		String jarPath = new File(Class.class.getResource("Class.class").getPath()).toString().split("!")[0].substring(5);
+		if(jarPath.startsWith("\\"))
+			jarPath = jarPath.substring(1); //remove starting backslash on Windows paths
 		importHelpers.add(
 			factory.makeAppl(
 					factory.makeConstructor("Jar", 1),
-					factory.makeString(new File(Class.class.getResource("Class.class").getPath()).getAbsolutePath().split("!")[0])
+					factory.makeString(jarPath)
 			)
 		);
 		
