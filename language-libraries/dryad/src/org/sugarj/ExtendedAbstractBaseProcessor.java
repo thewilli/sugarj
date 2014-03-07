@@ -208,7 +208,9 @@ AbstractBaseProcessor {
 		Exception ex = null;
 		//try to execute compilation strategy. Result may be either an Exception or a Term result
 		try{
-			result = getInterpreter().getCompiledContext().invokeStrategy(getCompileStrategyName(),argument);
+			interp.setCurrent(argument);
+			interp.invoke(getCompileStrategyName());
+			result = interp.current();
 		}catch(Exception e){
 			ex = e;
 		}
@@ -259,9 +261,7 @@ AbstractBaseProcessor {
 				getInterpreter().getFactory().makeList(termsImport),
 				getInterpreter().getFactory().makeList(termsBase)
 				);
-		//return stringified term, but remove all annotations, as this might
-		//lead to strj errors
-		return terms.toString().replaceAll("\\{[^\\}]+\\}", "");
+		return terms.toString();
 	};
 
 	@Override
@@ -362,9 +362,7 @@ AbstractBaseProcessor {
 					);
 			//add result of compilation to list of generated files
 			generatedFiles.addAll(resultFiles);
-
 		}
 		return generatedFiles;
 	}
-
 }
