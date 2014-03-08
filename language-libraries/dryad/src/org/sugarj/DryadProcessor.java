@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.spoofax.interpreter.terms.IStrategoAppl;
+import org.spoofax.interpreter.terms.IStrategoInt;
+import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoString;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
@@ -15,14 +17,18 @@ import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoString;
 import org.strategoxt.lang.Strategy;
+import org.strategoxt.stratego_lib.new_0_0;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.errors.SourceCodeException;
+import org.sugarj.common.errors.SourceLocation;
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.dryad.Activator;
 import org.sugarj.dryad.strategies.ResolveResource_0_0;
+import org.sugarj.strategies.ThrowException_0_1.StrategoCompilationException;
+import org.sugarj.util.Pair;
 
 /**
  * Processor of SugarDryad
@@ -266,12 +272,34 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		return factory.makeList(termArgs);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Path> handleCompileStrategyResult(IStrategoTerm result,
-			Exception ex) throws SourceCodeException, IOException {
+			Exception ex, Path inputFile) throws SourceCodeException, IOException {
 		if(ex != null){ 
 			//error occured
-			throw new IOException("Compilation failed: " + ex.getMessage());
+			if(ex.getCause() instanceof StrategoCompilationException){
+				IStrategoTerm term = ((StrategoCompilationException)ex.getCause()).getTerm();
+				String msg = ex.getCause().getMessage() + ": " + term.toString();
+				IStrategoList annotations = term.getAnnotations();
+				if(annotations != null){
+					for(IStrategoTerm anno : annotations){
+						if(anno.getTermType() == IStrategoTerm.APPL && ((IStrategoAppl)anno).getName().equals("Pos")){
+							int 
+								leftLine = ((IStrategoInt)anno.getSubterm(0).getSubterm(0)).intValue(), 
+								rightLine = ((IStrategoInt)anno.getSubterm(1).getSubterm(0)).intValue(),
+								leftCol = ((IStrategoInt)anno.getSubterm(0).getSubterm(1)).intValue(),
+								rightCol = ((IStrategoInt)anno.getSubterm(1).getSubterm(1)).intValue();
+							Pair<SourceLocation,String> loc = new Pair<SourceLocation,String>(new SourceLocation(inputFile, leftLine, rightLine, leftCol, rightCol),ex.getCause().getMessage());
+							throw new SourceCodeException(loc);
+						}
+					}
+				}
+				
+				throw new SourceCodeException(new SourceLocation(inputFile, 1, 1, 1, 1), msg);
+			}
+			throw new IOException(ex.getMessage());
+			//throw new SourceCodeException(new SourceLocation(inputFile, 1, 1, 1, 1), ex.getMessage());
 		}
 		if(result.getTermType() != IStrategoTerm.APPL || !((IStrategoAppl)result).getName().equals("Null")){
 			//compilation did not succeed

@@ -10,6 +10,7 @@ strategies
    */
   check-ambnames =
     if oncetd(is-ambiguous-construct; ?amb) then
+      <handleDryadError(|"Ambiguous construct cannot be reclassified")> amb;
       where( <maybe-exit(|"Ambiguous construct cannot be reclassified: ")>amb )
     end
 

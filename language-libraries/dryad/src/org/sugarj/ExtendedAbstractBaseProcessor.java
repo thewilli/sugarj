@@ -17,7 +17,9 @@ import org.spoofax.interpreter.terms.IStrategoConstructor;
 import org.spoofax.interpreter.terms.IStrategoList;
 import org.spoofax.interpreter.terms.IStrategoTerm;
 import org.spoofax.interpreter.terms.ITermFactory;
+import org.spoofax.jsglr.client.imploder.ImploderAttachment;
 import org.spoofax.terms.StrategoConstructor;
+import org.spoofax.terms.StrategoTerm;
 import org.strategoxt.HybridInterpreter;
 import org.strategoxt.lang.JavaInteropRegisterer;
 import org.strategoxt.lang.Strategy;
@@ -29,6 +31,7 @@ import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.strategies.CallJavaStatic_0_3;
 import org.sugarj.strategies.GetSourcePath_0_0;
+import org.sugarj.strategies.ThrowException_0_1;
 
 /**
  * Extended Base processor which Java Strategy import and Strategy compilation support
@@ -151,11 +154,12 @@ AbstractBaseProcessor {
 	 * Parses the result of the compiler strategy execution.
 	 * @param result Result term of compiler strategy. May be null if error occured.
 	 * @param ex Exception thrown by the Strategy compiler. May be null if no error occured.
+	 * @param inputFile input source file (required for throwing SourceCodeExceptions)
 	 * @return Generated files. The default generated file (outputDirectory + name-of-source-file + binary extension) does not need to be included, its existence is checked automatically.
 	 * @throws SourceCodeException Invalid Source Code input
 	 * @throws IOException IO or other problem occured
 	 */
-	public List<Path> handleCompileStrategyResult(IStrategoTerm result, Exception ex) throws SourceCodeException, IOException{
+	public List<Path> handleCompileStrategyResult(IStrategoTerm result, Exception ex, Path inputFile) throws SourceCodeException, IOException{
 		return new ArrayList<Path>();
 	}
 
@@ -215,7 +219,7 @@ AbstractBaseProcessor {
 			ex = e;
 		}
 		//Parse result
-		List<Path> paths = handleCompileStrategyResult(result, ex);
+		List<Path> paths = handleCompileStrategyResult(result, ex, inputFile);
 		//ensure list is not null
 		if(paths == null)
 			paths = new ArrayList<Path>();
@@ -244,11 +248,36 @@ AbstractBaseProcessor {
 		strategies.add(new GetSourcePath_0_0(environment.getSourcePath().get(0).getAbsolutePath()));
 		//register Java-execution strategy
 		strategies.add(CallJavaStatic_0_3.instance);
+		//register strategy to throw an Exception
+		strategies.add(ThrowException_0_1.instance);
 		//add strategies from base language
 		strategies.addAll(getJavaStrategies());
 		registerStrategies(); //register strategies to allow their usage in Sugar Libraries
 	}
-
+	
+	/**
+	 * Annotate a term by adding source code locations if provided
+	 * @param term input term 
+	 * @return input term
+	 */
+	private IStrategoTerm annotateTerm(IStrategoTerm term){
+		if(term.getTermType() != IStrategoTerm.APPL && term.getTermType() != IStrategoTerm.LIST)
+			return term; //do not annotate simple types as this leads to processing errors and failed pattern matching
+		ITermFactory factory = getInterpreter().getFactory();
+		for(int i = 0; i < term.getSubtermCount(); i++)
+			annotateTerm(term.getSubterm(i));
+		ImploderAttachment ia = term.getAttachment(ImploderAttachment.TYPE);
+		if(ia != null){
+			//TODO: Check for valid Token values
+			String termStr = String.format("Pos(Left(%d,%d),Right(%d,%d))",ia.getLeftToken().getLine(),ia.getLeftToken().getColumn(),ia.getRightToken().getLine(),ia.getRightToken().getColumn());			
+			IStrategoList annoTerm = factory.makeList(factory.parseFromString(termStr));
+			if(term instanceof StrategoTerm){
+				((StrategoTerm)term).internalSetAnnotations(annoTerm);
+			}
+		}
+		return term;
+	}
+	
 	@Override 
 	/**
 	 * Retrieve generated source of File content. Should not be overwritten by child classes if strategy-based compilation is used.
@@ -256,6 +285,10 @@ AbstractBaseProcessor {
 	public String getGeneratedSource() {
 		if(!compileToTerms())
 			return ""; //skip if regular compilation is used
+		for(int i = 0; i < termsBase.size(); i++){
+			termsBase.add(annotateTerm(termsBase.get(0)));
+			termsBase.remove(0);
+		}
 		IStrategoList terms = getInterpreter().getFactory().makeList(
 				termNS, //namespace declaration (optional)
 				getInterpreter().getFactory().makeList(termsImport),

@@ -6,6 +6,7 @@ signature constructors
 	Null : A
 	ClassImport : A * B * C -> D
 	Jar : Path -> Jar
+	DryadError : Msg * Code -> Error
 
 strategies
 	
@@ -17,6 +18,8 @@ strategies
 	external GetSourcePath(|)
 	//retrieve absolute file name for a ressource bundled with the Dryad plugin
 	external ResolveResource(|)
+	//throw an Exception
+	external ThrowException(|msg)
 	
 	//retrieve a list of .jar files which are required for calls to class2aterm and aterm2class
   	getJars = id
@@ -61,6 +64,9 @@ strategies
 	  //call the regular import mechanism of Dryad Compiler
 	  ; id //import-observable-classes-entry
 	
+	handleDryadError =
+		 ?DryadError(msg,<id>)
+		 ; ThrowException(|msg)
 	
 	compileClass() = id
 		; jdebug(!"compileClass called")
@@ -70,7 +76,7 @@ strategies
 		; ensure-import-observable-classes //TODO: Remove when .jar import works
 		; where(<map(processImport)>imports)
 		; as-list(map( // unassemble imported classfiles
-      		if(is-ClassFile, bc-unasm(dryad-compiler-error))
+      		if(is-ClassFile, bc-unasm(handleDryadError))
     	))
     	; topdown(try(trace-terms-to-annos))
     	; bc-unasm
@@ -79,7 +85,7 @@ strategies
     	; dryad-reclassify
     	; map(dryad-type-checker-mixed; get-ast)
     	; as-list
-   		; dryad-emit(dryad-compiler-error)
+   		; dryad-emit(handleDryadError)
    		; jdebug(!"Compilation succeeded!")
    		; ?[<id>]
    		; ![<write-to-string>,path]
