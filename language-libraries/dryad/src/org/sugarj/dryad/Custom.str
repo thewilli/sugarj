@@ -20,6 +20,8 @@ strategies
 	external ResolveResource(|)
 	//throw an Exception
 	external ThrowException(|msg)
+	//get content of .jar file
+	external GetJarContent(|)
 	
 	//retrieve a list of .jar files which are required for calls to class2aterm and aterm2class
   	getJars = id
@@ -57,23 +59,26 @@ strategies
       ; set-package(|pkg)
       ; set-location(|location)	
         
-    fakeid = jdebug(!"fakeid!!!")
         
  	processImport = id
-	  ; ?Jar(<id>)
-	  //call the regular import mechanism of Dryad Compiler
-	  ; id //import-observable-classes-entry
-	
+	  ; ?Jar(path)
+	  //get a list of .jar entries
+	  ; <GetJarContent> path
+  	  //call the regular import mechanism of Dryad Compiler
+	  ; map(\class -> <id> where explode-string; private-define-jar-entry(|path)\)
+
 	handleDryadError =
 		 ?DryadError(msg,<id>)
 		 ; ThrowException(|msg)
+		   
+	handleDryadError(|msg) = ThrowException(|msg)
 	
 	compileClass() = id
 		; jdebug(!"compileClass called")
 		//; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
 		; ?[path,imports,<id>]
 		//import files
-		; ensure-import-observable-classes //TODO: Remove when .jar import works
+		//; ensure-import-observable-classes //Removed import from bundled rt.classes/rt.jar
 		; where(<map(processImport)>imports)
 		; as-list(map( // unassemble imported classfiles
       		if(is-ClassFile, bc-unasm(handleDryadError))
@@ -86,8 +91,8 @@ strategies
     	; map(dryad-type-checker-mixed; get-ast)
     	; as-list
    		; dryad-emit(handleDryadError)
-   		; jdebug(!"Compilation succeeded!")
+   		//; jdebug(!"Compilation succeeded!")
    		; ?[<id>]
    		; ![<write-to-string>,path]
    		; strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport")
-		; jdebug(!"Class file written")
+		//; jdebug(!"Class file written")
