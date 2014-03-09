@@ -70,7 +70,7 @@ public class CallJavaStatic_0_3 extends Strategy{
 	 * @param params provided parameter
 	 * @return List of parameter types
 	 */
-	private static Class<?>[] getParamTypes(IStrategoTerm params){
+	protected static Class<?>[] getParamTypes(IStrategoTerm params){
 		//verify term type
 		if(params.getTermType() != IStrategoTerm.LIST)
 			throw new java.lang.IllegalArgumentException("invalid argument parameter");
@@ -99,7 +99,7 @@ public class CallJavaStatic_0_3 extends Strategy{
 	 * @param params term representation of parameters
 	 * @return list of parameter values
 	 */
-	private static Object[] getParamValues(IStrategoTerm params){
+	protected static Object[] getParamValues(IStrategoTerm params){
 		//type does not need to be checked here as already done in getParamTypes()
 		Object paramValues[] = new Object[params.getSubtermCount()];
 		//iterate over each argument
@@ -131,7 +131,7 @@ public class CallJavaStatic_0_3 extends Strategy{
 	 * @param resultValue Java result value
 	 * @return Term representation of value
 	 */
-	private static IStrategoTerm resultToTerm(ITermFactory factory,Object resultValue){
+	protected static IStrategoTerm resultToTerm(ITermFactory factory,Object resultValue){
 		//value can be either null or an Object instance (string representation is returned then)
 		if(resultValue == null){
 			return factory.makeAppl(factory.makeConstructor("Null", 0));
