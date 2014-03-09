@@ -17,7 +17,6 @@ import org.spoofax.terms.StrategoConstructor;
 import org.spoofax.terms.StrategoList;
 import org.spoofax.terms.StrategoString;
 import org.strategoxt.lang.Strategy;
-import org.strategoxt.stratego_lib.new_0_0;
 import org.sugarj.common.Environment;
 import org.sugarj.common.FileCommands;
 import org.sugarj.common.errors.SourceCodeException;
@@ -26,6 +25,7 @@ import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
 import org.sugarj.common.path.RelativePath;
 import org.sugarj.dryad.Activator;
+import org.sugarj.dryad.strategies.GetJarContent_0_0;
 import org.sugarj.dryad.strategies.ResolveResource_0_0;
 import org.sugarj.strategies.ThrowException_0_1.StrategoCompilationException;
 import org.sugarj.util.Pair;
@@ -59,6 +59,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		//add required Java-Strategies
 		ArrayList<Strategy> strategies = new ArrayList<Strategy>();
 		strategies.add(ResolveResource_0_0.instance);
+		strategies.add(GetJarContent_0_0.instance);
 		return strategies;
 	}
 
@@ -295,7 +296,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 						}
 					}
 				}
-				
+				//no location information found
 				throw new SourceCodeException(new SourceLocation(inputFile, 1, 1, 1, 1), msg);
 			}
 			throw new IOException(ex.getMessage());
