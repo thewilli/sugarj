@@ -36,7 +36,6 @@ import org.sugarj.strategies.ThrowException_0_1;
 /**
  * Extended Base processor which Java Strategy import and Strategy compilation support
  * @author Willi Eggeling
- *
  */
 public abstract class ExtendedAbstractBaseProcessor extends
 AbstractBaseProcessor {
@@ -266,14 +265,19 @@ AbstractBaseProcessor {
 		ITermFactory factory = getInterpreter().getFactory();
 		for(int i = 0; i < term.getSubtermCount(); i++)
 			annotateTerm(term.getSubterm(i));
+		//get the imploder attachment containing the source code references (lines and cols)
 		ImploderAttachment ia = term.getAttachment(ImploderAttachment.TYPE);
 		if(ia != null){
-			//TODO: Check for valid Token values
-			String termStr = String.format("Pos(Left(%d,%d),Right(%d,%d))",ia.getLeftToken().getLine(),ia.getLeftToken().getColumn(),ia.getRightToken().getLine(),ia.getRightToken().getColumn());			
-			IStrategoList annoTerm = factory.makeList(factory.parseFromString(termStr));
-			if(term instanceof StrategoTerm){
-				((StrategoTerm)term).internalSetAnnotations(annoTerm);
-			}
+			try{
+				//create a term representing the source code location
+				String termStr = String.format("Pos(Left(%d,%d),Right(%d,%d))",ia.getLeftToken().getLine(),ia.getLeftToken().getColumn(),ia.getRightToken().getLine(),ia.getRightToken().getColumn());			
+				IStrategoList annoTerm = factory.makeList(factory.parseFromString(termStr));
+				if(term instanceof StrategoTerm){
+					//using this method is required to not modify and damage the ImploderAttachments, because
+					//the ITermFactory method can only create a new term when annotating
+					((StrategoTerm)term).internalSetAnnotations(annoTerm); 
+				}
+			}catch(RuntimeException ex){}
 		}
 		return term;
 	}
