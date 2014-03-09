@@ -1,0 +1,10 @@
+package test.compilermods;
+public class IntContainer implements IntErface{
+	private int field;
+	public IntContainer(int field){
+		this.field = field;
+	}
+	public int intValue(){
+		return field;
+	}
+}

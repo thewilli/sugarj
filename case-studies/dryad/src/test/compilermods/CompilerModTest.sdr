@@ -1,0 +1,16 @@
+package test.compilermods;
+import test.compilermods.mods;
+import test.compilermods.IntErface;
+import test.compilermods.IntContainer;
+public class CompilerModTest{
+	public static void main(String[]args){
+		System.out.println("Hello Compilermods!!");
+		IntContainer cont1 = new IntContainer(5);
+		IntContainer cont2 = new IntContainer(7);
+		int a = cont;
+		int b = 2 + cont2;
+		int c = a * b;
+		System.out.println(c);
+	}
+}
+
