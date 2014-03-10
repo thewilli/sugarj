@@ -16,6 +16,9 @@ strategies
   // Default argument overloads
   dryad-emit = dryad-emit(dryad-compiler-error)
 
+  //hook template
+  hook-dryad-emit-java(s) = fail
+
   /**
    * Emits rich bytecode, and can be extended for other inputs.
    * Fails if no bytecode can be emitted for a given term, and
@@ -34,6 +37,8 @@ strategies
         traverse-trace-tags(emit) // handle source trace annotations
       <+
         ContextEmit // (rule; emit in certain contexts)
+      <+
+        hook-dryad-emit-java(emit)
       <+  
         emit-java(emit)
       <+

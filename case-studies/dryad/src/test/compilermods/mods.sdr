@@ -15,7 +15,7 @@ sugar mods{
 	
 	strategies
 
-		hook-dryad-final = 
+		hook-dryad-final = fail; //TODO Remove
 			not(hasAnno(?HDF()));
 			topdown(try(\LDC(String(<id>)) -> LDC(String(<concat-strings>["prefix_",<id>]))\));
 			setAnno(|HDF())
@@ -28,7 +28,7 @@ sugar mods{
 			where(
 				<lookup-class> tn;
 				get-superinterfaces(|<id>);
-				fetch-elem(?InterfaceType(TypeName(PackageName([Id("test",Id("compilermods"))]),Id("IntErface")),None()))
+				fetch-elem(?InterfaceType(TypeName(PackageName([Id("test"),Id("compilermods")]),Id("IntInterface")),None()))
 			)
 
 
@@ -46,14 +46,14 @@ sugar mods{
 				[]
 			){Type(Int()),DeclaringClass(type),CompileTimeDeclaration(MethodName(tn,Id("intValue"),[],Int()))} => c
 
-		emit-java-hook(s) : Assign(target,val) -> c
+		hook-dryad-emit-java(s) : Assign(target,val) -> c
 		where
 			<type-attr> target => Int();
 			<isConvertableIntType>val ;
 			<emit-java(s)>Assign(target,<convertIntType>val) => c
 
 	
-		emit-java-hook(s) : Plus(a,b) -> c
+		hook-dryad-emit-java(s) : Plus(a,b) -> c
 		where
 			(<isConvertableIntType>a <+ <isConvertableIntType>b);
 			(<isConvertableIntType>a < !<convertIntType>a + !a) => a2;

@@ -22,6 +22,10 @@ strategies
 	external ThrowException(|msg)
 	//get content of .jar file
 	external GetJarContent(|)
+
+	//Hook Helper
+	hasAnno(s) = has-annos; where(<fetch-elem(s)><get-annos>)
+	setAnno(|a) = where(get-annos; (?l@[_|_] < ![a|l] + ![a]) => annos); <set-annos>(<id>,annos)
 	
 	//retrieve a list of .jar files which are required for calls to class2aterm and aterm2class
   	getJars = id
@@ -73,8 +77,12 @@ strategies
 		   
 	handleDryadError(|msg) = ThrowException(|msg)
 	
+	hook-dryad-init = fail
+	hook-dryad-final = fail
+
 	compileClass() = id
-		; jdebug(!"compileClass called")
+		//; jdebug(!"compileClass called")
+		; repeat(hook-dryad-init)
 		//; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
 		; ?[path,imports,<id>]
 		//import files
@@ -92,6 +100,7 @@ strategies
     	; as-list
    		; dryad-emit(handleDryadError)
    		//; jdebug(!"Compilation succeeded!")
+   		; repeat(hook-dryad-final)
    		; ?[<id>]
    		; ![<write-to-string>,path]
    		; strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport")

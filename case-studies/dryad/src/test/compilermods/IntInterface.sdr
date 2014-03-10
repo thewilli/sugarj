@@ -1,4 +1,4 @@
 package test.compilermods;
-public interface IntErface{
+public interface IntInterface{
 	public int intValue();
 }

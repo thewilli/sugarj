@@ -1,5 +1,6 @@
 package test.compilermods;
-public class IntContainer implements IntErface{
+import test.compilermods.IntInterface;
+public class MyIntContainer implements IntInterface{
 	private int field;
 	public IntContainer(int field){
 		this.field = field;
