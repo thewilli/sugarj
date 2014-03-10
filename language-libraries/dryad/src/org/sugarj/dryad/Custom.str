@@ -7,6 +7,17 @@ signature constructors
 	ClassImport : A * B * C -> D
 	Jar : Path -> Jar
 	DryadError : Msg * Code -> Error
+	
+	
+ signature constructors
+     	PackageName : A -> B
+     	PackageDec : A * B -> C
+     	CompilationUnit : A * B * C -> D
+     	ClassFile : A * B * C * D * E * F * G * H * I -> J
+     	Interface : A
+     	AccessFlags : A -> B
+     	ThisClass : A -> B
+     	Id : A -> B
 
 strategies
 	
@@ -78,13 +89,34 @@ strategies
 	handleDryadError(|msg) = ThrowException(|msg)
 	
 	hook-dryad-init = fail
-	hook-dryad-final = fail
-
+	hook-dryad-final(|args) = fail
+	
+	hook-dryad-final(|args) = id => compiledTerm
+		 ; jdebug(!"hook-dryad-final interfaces")
+		 //fix interface names, do not repeat
+		 ; !args
+		 //check if package name is given
+		 ; ?[_,_,CompilationUnit(Some(PackageDec(_,PackageName(pkg))),_,_)]
+		 //check for existing, not-fixed interfaces
+		 ; <fetch-elem(where(?ClassFile(_,_,AccessFlags(<fetch-elem(?Interface())>),ThisClass(clsid),_,_,_,_,_);not(<is-substring(!".")>clsid)))> compiledTerm
+		 //extract package name
+		 ; <map(\Id(x) -> x\)>pkg
+		 ; separate-by(|".")
+		 ; <conc>(<id>,["."])
+		 ; concat-strings => interfacePrefix
+		 //map any interfaces	
+		 ;<map(try(
+		  	?ClassFile(_,_,AccessFlags(flags),_,_,_,_,_,_); //extract modifier flags
+		  	where(<fetch-elem(?Interface())>flags);			//check if interface
+		  	topdown(try(\ThisClass(x) -> ThisClass(<concat-strings>[interfacePrefix,x])\)) //fix name
+		  ))> compiledTerm
+		  ; jdebug(!"hook-dryad-final final")
+		
 	compileClass() = id
 		//; jdebug(!"compileClass called")
 		; repeat(hook-dryad-init)
 		//; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
-		; ?[path,imports,<id>]
+		; ?args@[path,imports,<id>]
 		//import files
 		//; ensure-import-observable-classes //Removed import from bundled rt.classes/rt.jar
 		; where(<map(processImport)>imports)
@@ -100,7 +132,7 @@ strategies
     	; as-list
    		; dryad-emit(handleDryadError)
    		//; jdebug(!"Compilation succeeded!")
-   		; repeat(hook-dryad-final)
+   		; repeat(hook-dryad-final(|args))
    		; ?[<id>]
    		; ![<write-to-string>,path]
    		; strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport")

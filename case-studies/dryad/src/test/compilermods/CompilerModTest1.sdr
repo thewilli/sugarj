@@ -1,0 +1,19 @@
+package test.compilermods;
+import test.compilermods.intmod;
+import test.compilermods.IntContainer;
+import test.compilermods.IntInterface;
+public class CompilerModTest1{
+	public static void main(String[]args){
+		//by importing test.compilermods.intmod
+		//all classes implementing the 'IntInterface'
+		//interface can be used as primitive 'int' types
+		//on plus statements or assigments
+		IntContainer cont1 = new IntContainer(2);
+		IntContainer cont2 = new IntContainer(7);
+		int a,b,c;
+		a = cont1;
+		b = 2 + cont2;
+		c = a * b;
+		System.out.println(c);
+	}
+}

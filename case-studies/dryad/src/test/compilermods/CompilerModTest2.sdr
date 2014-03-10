@@ -1,0 +1,13 @@
+package test.compilermods;
+import test.compilermods.stringmod;
+public class CompilerModTest2{
+	public static void main(String[] args){
+		//the test.compilermods.stringmod Sugar Library
+		//modifies all strings used on the 'LDC' command.
+		//It demonstrates how a hook can only be applied once
+		System.out.println("Hello Compilermods!!");
+		String a = "foo";
+		String b = "bar";
+		System.out.println(a + b);
+	}
+}

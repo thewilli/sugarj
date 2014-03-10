@@ -1,27 +1,20 @@
 package test.compilermods;
 import org.sugarj.languages.Dryad;
 import org.sugarj.languages.SugarDryad;
-sugar mods{
+sugar stringmod{
 	
 	signature constructors
-		HDI : Nothing
 		HDF : Nothing
-
-	signature constructors
-		MethodName : A * B * C * D -> E
-		CompileTimeDeclaration : A -> B
-		DeclaringClass : A -> B
-		Assign : A -> B
 	
 	strategies
 
-		hook-dryad-final = fail; //TODO Remove
+		hook-dryad-final(|args) =
 			not(hasAnno(?HDF()));
 			topdown(try(\LDC(String(<id>)) -> LDC(String(<concat-strings>["prefix_",<id>]))\));
 			setAnno(|HDF())
 
-
 	rules
+
 		isConvertableIntType : b@ExprName(_) -> <id>
 		where
 			type-attr => ClassType(tn,_);

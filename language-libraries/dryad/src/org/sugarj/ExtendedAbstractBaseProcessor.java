@@ -262,6 +262,9 @@ AbstractBaseProcessor {
 	private IStrategoTerm annotateTerm(IStrategoTerm term){
 		if(term.getTermType() != IStrategoTerm.APPL && term.getTermType() != IStrategoTerm.LIST)
 			return term; //do not annotate simple types as this leads to processing errors and failed pattern matching
+		if(term.getTermType() == IStrategoTerm.APPL 
+				&& (((IStrategoAppl)term).getConstructor().getArity() == 0 || ((IStrategoAppl)term).getName().equals("Some")))
+			return term; //do not annotate "Some" or "None"
 		ITermFactory factory = getInterpreter().getFactory();
 		for(int i = 0; i < term.getSubtermCount(); i++)
 			annotateTerm(term.getSubterm(i));
