@@ -8,6 +8,9 @@ sugar intmod{
 		CompileTimeDeclaration : A -> B
 		DeclaringClass : A -> B
 		Assign : A -> B
+
+	strategies
+		intOperations = !["Plus","Minus","Mul"]
 	
 	rules
 		isConvertableIntType : b@ExprName(_) -> <id>
@@ -41,11 +44,33 @@ sugar intmod{
 			<emit-java(s)>Assign(target,<convertIntType>val) => c
 
 	
-		hook-dryad-emit-java(s) : Plus(a,b) -> c
-		where
-			(<isConvertableIntType>a <+ <isConvertableIntType>b);
-			(<isConvertableIntType>a < !<convertIntType>a + !a) => a2;
-			(<isConvertableIntType>b < !<convertIntType>b + !b) => b2;
-			<emit-java(s)>Plus(a2,b2){Type(Int())} => c
+
+
+		hook-dryad-emit-java(s) : con#(args) -> term
+			where
+				//save term annotations
+				get-annos => termAnnos;
+				//check term
+				where(
+					//ensure arity of operator is 2 X(a,b)
+					node-size => 2;
+					//ensure operator name is in the list of supported operations
+					<fetch-elem(<strcmp>(<explode-string>,<explode-string>con)=>0)><intOperations>
+				);
+				//extract arguments
+				!args => [a,b];
+				//ensure at least one argument can be converted
+				(<isConvertableIntType>a + <isConvertableIntType>b);
+				//convert first parameter if convertable
+				(<isConvertableIntType>a < !<convertIntType>a + !a) => a2;
+				//convert first parameter if convertable
+				(<isConvertableIntType>b < !<convertIntType>b + !b) => b2;
+				//create a new term by using the old constructor and the converted arguments
+				<mkterm>(con,[a2,b2]) => term;
+				//restore annotations of term and add Type
+				<set-annos>(<id>,[Type(Int())|termAnnos]);
+				//return resulting term by applying emit
+				emit-java(s) => term
+
 
 }
