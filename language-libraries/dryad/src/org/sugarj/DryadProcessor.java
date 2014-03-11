@@ -32,7 +32,7 @@ import org.sugarj.util.Pair;
 
 /**
  * Processor of SugarDryad
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  *
  */
 public class DryadProcessor extends ExtendedAbstractBaseProcessor {

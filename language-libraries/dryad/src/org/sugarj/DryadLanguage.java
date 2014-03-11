@@ -9,7 +9,7 @@ import org.sugarj.common.path.Path;
 
 /**
  * SugarDryad Language
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  *
  */
 public class DryadLanguage extends ExtendedAbstractBaseLanguage {

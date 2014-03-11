@@ -35,7 +35,7 @@ import org.sugarj.strategies.ThrowException_0_1;
 
 /**
  * Extended Base processor which Java Strategy import and Strategy compilation support
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  */
 public abstract class ExtendedAbstractBaseProcessor extends
 AbstractBaseProcessor {
