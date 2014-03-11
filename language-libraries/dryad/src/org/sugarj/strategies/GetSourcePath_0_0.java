@@ -10,7 +10,7 @@ import org.strategoxt.lang.Strategy;
 
 /**
  * Java-based Strategy to resolve paths within a Language Library
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  */
 public class GetSourcePath_0_0 extends Strategy{
 	

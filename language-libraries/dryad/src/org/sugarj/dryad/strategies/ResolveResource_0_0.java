@@ -10,7 +10,7 @@ import org.sugarj.dryad.Activator;
 
 /**
  * Java-based Strategy which resolves ressource file names to a full path
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  *
  */
 public class ResolveResource_0_0 extends Strategy{

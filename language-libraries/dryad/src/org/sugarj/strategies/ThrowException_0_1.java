@@ -7,14 +7,14 @@ import org.strategoxt.lang.Strategy;
 
 /**
  * Java-based Strategy to call throw an Exception
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  */
 public class ThrowException_0_1 extends Strategy{
 	public static ThrowException_0_1 instance = new ThrowException_0_1();
 	
 	/**
 	 * Exception that can be thrown from Stratego to cancel compilation
-	 * @author Willi Eggeling
+	 * @author Willi Eggeling <thewilli@googlemail.com>
 	 *
 	 */
 	public class StrategoCompilationException extends RuntimeException{

@@ -17,7 +17,7 @@ import org.strategoxt.lang.Strategy;
 
 /**
  * Java-based Strategy to call static Java functions
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  */
 public class CallJavaStatic_0_3 extends Strategy{
 	

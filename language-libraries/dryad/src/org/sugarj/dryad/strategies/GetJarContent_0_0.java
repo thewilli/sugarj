@@ -13,7 +13,7 @@ import org.strategoxt.lang.Strategy;
 
 /**
  * Retrieve a list of all classes within a .jar file
- * @author Willi Eggeling
+ * @author Willi Eggeling <thewilli@googlemail.com>
  *
  */
 public class GetJarContent_0_0 extends Strategy{
