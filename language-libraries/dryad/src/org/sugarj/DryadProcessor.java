@@ -211,6 +211,14 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	public Path getGeneratedSourceFile() {
 		return outFile;
 	}
+	
+	@Override
+	protected IStrategoTerm annotateTerm(IStrategoTerm term){
+		//Do not annotate this type, as DryadCompiler has problems with it
+		//if(term.getTermType() == IStrategoTerm.APPL && ((IStrategoAppl)term).getName().equals("ClassOrInterfaceType"))
+		//	return term; //do not annotate
+		return super.annotateTerm(term);
+	}
 
 	@Override
 	public IStrategoTerm getCompileStrategyArgument(Path inputFile,
@@ -260,16 +268,17 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 		if(
 				baseTerms[0].getTermType() == IStrategoTerm.APPL &&
 				((IStrategoAppl)baseTerms[0]).getName().equals("ClassFile")
-				){
-			termArgs[2] = baseTerms[0]; //BC Classfile
-		}else{
+		){
+			//set output path to full filename to bypass package limitations
+			termArgs[0] = factory.makeString(fullOutputFileName);
+		}//else{
 			termArgs[2] = factory.makeAppl(
 					factory.makeConstructor("CompilationUnit",3),
 					nsTerm,
 					factory.makeList(importTerms),
 					factory.makeList(baseTerms)
 			);
-		}
+		//}
 		return factory.makeList(termArgs);
 	}
 	

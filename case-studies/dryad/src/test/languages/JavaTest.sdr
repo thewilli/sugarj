@@ -1,0 +1,10 @@
+package test.languages;
+public class JavaTest{
+	//Test of a basic Java class
+	private void saySomething(){
+		System.out.println("Hello, Java World!");
+	}
+	public static void main(String[] args){
+		new JavaTest().saySomething();
+	}
+}

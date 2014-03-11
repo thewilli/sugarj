@@ -19,6 +19,7 @@ signature constructors
      	ThisClass : A -> B
      	Id : A -> B
      	RootPackage : A
+     	InterfacePrefix : A -> B
 
 strategies
 	
@@ -36,7 +37,8 @@ strategies
 	external GetJarContent(|)
 
 	//Hook Helper
-	hasAnno(s) = has-annos; where(<fetch-elem(s)><get-annos>)
+	hasAnno(s) = where(getAnno(s))
+	getAnno(s) = has-annos; <fetch-elem(s)><get-annos>
 	setAnno(|a) = where(get-annos; (?l@[_|_] < ![a|l] + ![a]) => annos); <set-annos>(<id>,annos)
 	
 	//retrieve a list of .jar files which are required for calls to class2aterm and aterm2class
@@ -110,6 +112,28 @@ strategies
 		  	where(<fetch-elem(?Interface())>flags);			//check if interface
 		  	topdown(try(\ThisClass(x) -> ThisClass(<concat-strings>[interfacePrefix,x])\)) //fix name
 		  ))> compiledTerm
+		  
+	hook-dryad-init = 
+		//fix BC class files
+		?[path,imports,CompilationUnit(Some(PackageDec(_,PackageName(pkg))),_,[cls@ClassFile(_,_,_,_,_,_,_,_,_)])]
+		 ; where(get-annotations => annos)
+		 //extract package name
+		 ; <map(\Id(x) -> x\)>pkg
+		 ; separate-by(|".")
+		 ; <conc>(<id>,["."])
+		 ; concat-strings => interfacePrefix
+		 ; ![path,imports,cls]
+		 //restore annotations
+		 ; <set-annotations>(<id>,annos)
+		 ; setAnno(|InterfacePrefix(interfacePrefix))
+		
+	hook-dryad-final(|args) =
+		//fix BC class files
+		where(<getAnno(?(InterfacePrefix(<id>)))>args => prfx)
+		//check for repetitions
+		; where(not(hasAnno(?InterfacePrefix(_))))
+		; topdown(try(\ThisClass(x) -> ThisClass(<concat-strings>[prfx,x])\))
+		; setAnno(|InterfacePrefix(prfx))
 		
 	compileClass() = id
 		//cleanup old Dryad stuff
@@ -140,9 +164,14 @@ strategies
    		; where((<string-ends-with(|"/")>path < !"/" + !"\\") => sep)
    		; map(
    		  	?cls@ClassFile(_,_,_,ThisClass(clsid),_,_,_,_,_);
-   		  	<concat-strings>[path,<string-replace(|".",sep)>clsid,".class"] => finalpath;
+   		  	//modifiy path (unless a classfile is compiled, which is not encapsulated by a ComiplationUnit)
+   		  	if <string-ends-with(|".class")>path then
+   		  		!path => finalpath //BC class file, do not modify path
+   		  	else 
+   		  		<concat-strings>[path,<string-replace(|".",sep)>clsid,".class"] => finalpath
+   		  	end;
    		  	![<write-to-string>cls,finalpath];
-   		  	jdebug(!"writing class file");
+   		  	//jdebug(!"writing class file");
    		  	//verify result
    		  	strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport") => Null();
    		  	!finalpath

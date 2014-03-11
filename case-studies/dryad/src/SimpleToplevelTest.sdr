@@ -1,0 +1,6 @@
+public class SimpleToplevelTest{
+	//Test of a simple toplevel (default package-) class
+	public static void main(String[] args){
+		System.out.println("Hello World");
+	}
+}
