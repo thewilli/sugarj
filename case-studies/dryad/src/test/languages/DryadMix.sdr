@@ -1,0 +1,15 @@
+package test.languages;
+//adapted from https://strategoxt.org/Stratego/TheDryadCompiler#The_Java_bytecode_Language
+//demonstrates Java and BC mix
+public class DryadMix {
+  public static void main(String[] args) {
+    // inline "goto" instruction for unstructured control flow in generated code
+    `goto label; 
+
+    System.out.println("Hello, Java world"); //never called
+
+    label:
+      // bytecode instruction in an expresion
+      System.out.println(`ldc "Hello Java+bytecode world!");
+  }
+}

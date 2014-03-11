@@ -1,0 +1,26 @@
+package test.languages;
+import test.languages.jasmin.DryadJasmin;
+
+// Test of mixed Jasmin and Java syntax 
+
+.class public JasminTest
+.super java/lang/Object
+
+//  java field definition
+`int intField;
+
+// java method definition
+`public static void test(){
+	System.out.println("Hello World!");
+}
+
+; Jasmin method definition
+.method public static main([Ljava/lang/String;)V
+         .limit stack 2
+         getstatic java/lang/System/out Ljava/io/PrintStream;
+         ldc "Hello World Jasmin!"
+		 invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
+		 ; inline Java in Jasmin method
+		 `[for(int i = 0; i < 5; i++) System.out.println("Loop output!");]
+         return
+.end method

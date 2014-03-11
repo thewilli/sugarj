@@ -1,0 +1,10 @@
+package test.languages.jasmin;
+
+import org.sugarj.languages.Dryad;
+import org.sugarj.languages.SugarDryad;
+import test.languages.jasmin.DryadJasminTrans;
+import test.languages.jasmin.DryadJasminIncludedSyntax;
+
+sugar DryadJasmin{
+	//nothing to do here
+}
