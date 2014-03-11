@@ -14,42 +14,39 @@ sugar intmod{
 	
 	rules
 		isConvertableIntType : b@ExprName(_) -> <id>
-		where
-			type-attr => ClassType(tn,_);
-			where(
-				<lookup-class> tn;
-				get-superinterfaces(|<id>);
-				fetch-elem(?InterfaceType(TypeName(PackageName([Id("test"),Id("compilermods")]),Id("IntInterface")),None()))
-			)
-
+			where
+				type-attr => ClassType(tn,_);
+				where(
+					<lookup-class> tn;
+					get-superinterfaces(|<id>);
+					fetch-elem(?InterfaceType(TypeName(PackageName([Id("test"),Id("compilermods")]),Id("IntInterface")),None()))
+				)
 
 		convertIntType : b@ExprName(bname) -> c
-		where
-			isConvertableIntType;
-			<type-attr>b => type@ClassType(tn@TypeName(_,_),_);
-			!Invoke(
-				Method(
-					MethodName(
-						ExprName(bname){Type(type)},
-						Id("intValue")
-					)
-				),
-				[]
-			){Type(Int()),DeclaringClass(type),CompileTimeDeclaration(MethodName(tn,Id("intValue"),[],Int()))} => c
+			where
+				isConvertableIntType;
+				<type-attr>b => type@ClassType(tn@TypeName(_,_),_);
+				!Invoke(
+					Method(
+						MethodName(
+							ExprName(bname){Type(type)},
+							Id("intValue")
+						)
+					),
+					[]
+				){Type(Int()),DeclaringClass(type),CompileTimeDeclaration(MethodName(tn,Id("intValue"),[],Int()))} => c
 
 		hook-dryad-emit-java(s) : Assign(target,val) -> c
-		where
-			<type-attr> target => Int();
-			<isConvertableIntType>val ;
-			<emit-java(s)>Assign(target,<convertIntType>val) => c
-
-	
+			where
+				<type-attr> target => Int();
+				<isConvertableIntType>val ;
+				<emit-java(s)>Assign(target,<convertIntType>val) => c
 
 
-		hook-dryad-emit-java(s) : con#(args) -> term
+		hook-dryad-emit-java(s) : con#(args) -> newterm
 			where
 				//save term annotations
-				get-annos => termAnnos;
+				where(get-annos => termAnnos);
 				//check term
 				where(
 					//ensure arity of operator is 2 X(a,b)
@@ -66,11 +63,10 @@ sugar intmod{
 				//convert first parameter if convertable
 				(<isConvertableIntType>b < !<convertIntType>b + !b) => b2;
 				//create a new term by using the old constructor and the converted arguments
-				<mkterm>(con,[a2,b2]) => term;
+				<mkterm>(con,[a2,b2]);
 				//restore annotations of term and add Type
 				<set-annos>(<id>,[Type(Int())|termAnnos]);
 				//return resulting term by applying emit
-				emit-java(s) => term
-
+				emit-java(s) => newterm
 
 }
