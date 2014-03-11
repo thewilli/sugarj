@@ -259,7 +259,7 @@ AbstractBaseProcessor {
 	 * @param term input term 
 	 * @return input term
 	 */
-	private IStrategoTerm annotateTerm(IStrategoTerm term){
+	protected IStrategoTerm annotateTerm(IStrategoTerm term){
 		if(term.getTermType() != IStrategoTerm.APPL && term.getTermType() != IStrategoTerm.LIST)
 			return term; //do not annotate simple types as this leads to processing errors and failed pattern matching
 		if(term.getTermType() == IStrategoTerm.APPL 

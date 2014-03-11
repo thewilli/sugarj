@@ -18,6 +18,7 @@ signature constructors
      	AccessFlags : A -> B
      	ThisClass : A -> B
      	Id : A -> B
+     	RootPackage : A
 
 strategies
 	
@@ -92,7 +93,6 @@ strategies
 	hook-dryad-final(|args) = fail
 	
 	hook-dryad-final(|args) = id => compiledTerm
-		 ; jdebug(!"hook-dryad-final interfaces")
 		 //fix interface names, do not repeat
 		 ; !args
 		 //check if package name is given
@@ -110,12 +110,15 @@ strategies
 		  	where(<fetch-elem(?Interface())>flags);			//check if interface
 		  	topdown(try(\ThisClass(x) -> ThisClass(<concat-strings>[interfacePrefix,x])\)) //fix name
 		  ))> compiledTerm
-		  ; jdebug(!"hook-dryad-final final")
 		
 	compileClass() = id
+		//cleanup old Dryad stuff
+		; where(
+			<hashtable-remove(|"fields")><table-hashtable>;
+			<hashtable-remove(|RootPackage())><table-hashtable>
+		)
 		//; jdebug(!"compileClass called")
 		; repeat(hook-dryad-init)
-		//; where(<hashtable-clear><table-hashtable>) //TODO: do not remove non-dryad content (remove toplevel-tables only)
 		; ?args@[path,imports,<id>]
 		//import files
 		//; ensure-import-observable-classes //Removed import from bundled rt.classes/rt.jar
@@ -133,7 +136,15 @@ strategies
    		; dryad-emit(handleDryadError)
    		//; jdebug(!"Compilation succeeded!")
    		; repeat(hook-dryad-final(|args))
-   		; ?[<id>]
-   		; ![<write-to-string>,path]
-   		; strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport")
+   		//check for path seperator
+   		; where((<string-ends-with(|"/")>path < !"/" + !"\\") => sep)
+   		; map(
+   		  	?cls@ClassFile(_,_,_,ThisClass(clsid),_,_,_,_,_);
+   		  	<concat-strings>[path,<string-replace(|".",sep)>clsid,".class"] => finalpath;
+   		  	![<write-to-string>cls,finalpath];
+   		  	jdebug(!"writing class file");
+   		  	//verify result
+   		  	strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport") => Null();
+   		  	!finalpath
+   		)
 		//; jdebug(!"Class file written")

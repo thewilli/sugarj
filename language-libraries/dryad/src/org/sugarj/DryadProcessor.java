@@ -254,7 +254,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			baseTerms[i] = baseTerms[i].getSubterm(0);
 
 		IStrategoTerm[] termArgs = new IStrategoTerm[3];
-		termArgs[0] = factory.makeString(fullOutputFileName);
+		termArgs[0] = factory.makeString(outputDir); //factory.makeString(fullOutputFileName);
 		termArgs[1] = factory.makeList(importHelpers);
 		//check if content is a Bytecode Class File (instead of a Java File)
 		if(
@@ -277,6 +277,7 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 	@Override
 	public List<Path> handleCompileStrategyResult(IStrategoTerm result,
 			Exception ex, Path inputFile) throws SourceCodeException, IOException {
+		ArrayList<Path> generatedFiles = new ArrayList<Path>();
 		if(ex != null){ 
 			//error occured
 			if(ex.getCause() instanceof StrategoCompilationException){
@@ -302,11 +303,19 @@ public class DryadProcessor extends ExtendedAbstractBaseProcessor {
 			throw new IOException(ex.getMessage());
 			//throw new SourceCodeException(new SourceLocation(inputFile, 1, 1, 1, 1), ex.getMessage());
 		}
-		if(result.getTermType() != IStrategoTerm.APPL || !((IStrategoAppl)result).getName().equals("Null")){
-			//compilation did not succeed
-			throw new IOException("Compilation failed: " + result.toString());
+		if(result.getTermType() == IStrategoTerm.LIST){
+			for(IStrategoTerm resultTerm : result.getAllSubterms()){
+				if(resultTerm.getTermType() == IStrategoTerm.STRING){
+					Path p = new AbsolutePath(((IStrategoString)resultTerm).stringValue());
+					if(p.getFile().exists())
+						generatedFiles.add(p);
+				}else{
+					//compilation did not succeed
+					throw new IOException("Compilation failed: " + resultTerm.toString());
+				}
+			}
 		}
-		return new ArrayList<Path>();
+		return generatedFiles;
 	}
 
 	@Override
