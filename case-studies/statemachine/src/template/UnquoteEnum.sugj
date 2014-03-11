@@ -1,9 +1,0 @@
-package template;
-
-public sugar UnquoteEnum {
-  context-free syntax
-    Unquote -> JavaEnumConst
-    UnquoteSplicing -> JavaEnumConst
-
-    JavaEnumConst -> Requoted {avoid}
-}

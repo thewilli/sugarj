@@ -1,6 +1,0 @@
-module tests.check.Module06
-
-import typing.check.TypeChecker
-
-public val x = true
-

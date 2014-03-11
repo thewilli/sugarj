@@ -1,6 +1,0 @@
-module sub.Bar
-
-import sub.subsub.Barf
-
-val x = \x:T.x->N. sub.sub sub
-

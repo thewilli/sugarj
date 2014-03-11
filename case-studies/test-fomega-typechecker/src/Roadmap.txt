@@ -1,5 +1,0 @@
-* handle imports
-* rule syntax and rule checking
-* translating rules to stratego function
-* bigger case study
-
