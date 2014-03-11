@@ -1,4 +1,4 @@
-package sugar;
+package test.sugar.cs;
 
 import org.sugarj.languages.Stratego;
 

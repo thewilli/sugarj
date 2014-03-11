@@ -1,0 +1,10 @@
+package test.sugar;
+import test.sugar.syso;
+
+public class SimpleSugarTest{
+	//Use 'syso' Sugar Library to define
+	//syntactic sugar for 'System.out.println()'
+	public static void main(String[] args){
+		syso("Output using sugar syntax");
+	}
+}

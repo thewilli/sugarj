@@ -1,7 +1,0 @@
-import java.text.SimpleDateFormat;
-import sugar.IncludebuildCS;
-class SugartestCS{
-	public static void main(String[] args){
-		System.out.println("I was built using Concrete Object syntax on: " + new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(getBuildCS()));
-	}
-}

@@ -1,8 +1,0 @@
-import java.text.SimpleDateFormat;
-import test.Foo;
-class Calculator {
-  public static void main(String[] args) {
-  	//Cow.moo(6);
-  	Foo.test("Calculator call!");
-  }
-}

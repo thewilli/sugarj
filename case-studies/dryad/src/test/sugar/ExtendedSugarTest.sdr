@@ -1,0 +1,15 @@
+package test.sugar;
+import java.text.SimpleDateFormat;
+import test.sugar.includebuild;
+public class ExtendedSugarTest{
+		//This example uses the 'includebuild' Sugar Library
+		//do dynamically insert a new method, that returns the build date
+		//as unix time stamp. The build date is dynamically retrieved 
+		//using the newly created Java interface.
+		public static void main(String[] args){
+			System.out.println(
+				"I was built on: "
+				+ new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(getBuild())
+			);
+	}
+}

@@ -1,9 +1,0 @@
-package jasmin;
-
-import org.sugarj.languages.Dryad;
-import org.sugarj.languages.SugarDryad;
-import jasmin.DryadJasminTrans;
-import jasmin.DryadJasminIncludedSyntax;
-
-sugar DryadJasmin{}
-

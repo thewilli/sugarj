@@ -1,10 +1,10 @@
-package sugar;
+package test.sugar;
 
 import org.sugarj.languages.Dryad;
 import org.sugarj.languages.SugarDryad;
-import sugar.Syntax;
+import test.sugar.cs.Syntax;
 
-sugar IncludebuildCS{
+sugar includebuild{
 	
 	strategies
 		getTimestamp = ![]
@@ -17,11 +17,12 @@ sugar IncludebuildCS{
 			where
 				topdown(hasNotMethod);
 				!Lit(Deci(<getTimestamp>)) => z;
-				!|[public static long getBuildCS(){return ~z;}]| => y
+				//define new method using Concrete Object Syntax
+				!|[public static long getBuild(){return ~z;}]| => y
      
     	hasNotMethod : _ -> <id>
     		where
-    			?MethodDec(_,_) < not(?MethodDec(MethodDecHead(_,_,_,Id("getBuildCS"),_,_),_)) + id
+    			?MethodDec(_,_) < not(?MethodDec(MethodDecHead(_,_,_,Id("getBuild"),_,_),_)) + id
     	
 	desugarings
 		desugar-buildmethodCS

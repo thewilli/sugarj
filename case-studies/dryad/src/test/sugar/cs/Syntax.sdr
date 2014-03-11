@@ -1,7 +1,7 @@
-package sugar;
+package test.sugar.cs;
 import org.sugarj.languages.Dryad;
 import org.sugarj.languages.SugarDryad;
-import sugar.MetaExplode;
+import test.sugar.cs.MetaExplode;
 sugar Syntax{
 	signature
 	  constructors

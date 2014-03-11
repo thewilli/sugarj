@@ -1,3 +1,4 @@
+package test.sugar;
 import org.sugarj.languages.Dryad;
 import org.sugarj.languages.SugarDryad;
 
