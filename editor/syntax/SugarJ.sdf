@@ -1,7 +1,0 @@
-module SugarJ
-exports
-  context-free start-symbols
-    CompilationUnit
-  
-  context-free syntax
-    "abc" -> CompilationUnit {cons("abc")}
