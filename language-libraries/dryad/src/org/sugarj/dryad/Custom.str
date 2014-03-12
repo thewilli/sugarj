@@ -141,7 +141,7 @@ strategies
 			<hashtable-remove(|"fields")><table-hashtable>;
 			<hashtable-remove(|RootPackage())><table-hashtable>
 		)
-		//; jdebug(!"compileClass called")
+		; jdebug(!"compileClass called")
 		; repeat(hook-dryad-init)
 		; ?args@[path,imports,<id>]
 		//import files
@@ -158,7 +158,7 @@ strategies
     	; map(dryad-type-checker-mixed; get-ast)
     	; as-list
    		; dryad-emit(handleDryadError)
-   		//; jdebug(!"Compilation succeeded!")
+   		; jdebug(!"Compilation succeeded!")
    		; repeat(hook-dryad-final(|args))
    		//check for path seperator
    		; where((<string-ends-with(|"/")>path < !"/" + !"\\") => sep)
@@ -176,4 +176,4 @@ strategies
    		  	strjvm-callstatic-new(|"str.classtree.classify.ClassClassifier","convertAndExport") => Null();
    		  	!finalpath
    		)
-		//; jdebug(!"Class file written")
+		; jdebug(!"Class file written")
