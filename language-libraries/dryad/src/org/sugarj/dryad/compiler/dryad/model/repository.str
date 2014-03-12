@@ -57,11 +57,9 @@ strategies
   lookup-package =
     is-list
     ; ?names
-    //; jdebug(!"lookup-package 1")
     ; get-root-package
     ; get-subsubpackage(|names)
-    //; jdebug(!"lookup-package final")
-
+    
   /**
    * Looks up or adds the package object for a given PackageName.
    * The package is added if it does not exist.

@@ -5,11 +5,8 @@ module org/sugarj/dryad/compiler/dryad/reclassify/ClassOrInterfaceType
 strategies
 
   dryad-reclassify-type =
-    //jdebug(!"dryad-reclassify-type 0");
     ?ClassOrInterfaceType(name@TypeName(_, _), args)
-    //; jdebug(!"dryad-reclassify-type 1")
     ; <lookup-class> name
-    //; jdebug(!"dryad-reclassify-type ok")
     ; if is-interface then
         !InterfaceType(name, args)
       else
